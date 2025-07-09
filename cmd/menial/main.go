@@ -4,43 +4,41 @@ import (
 	"log"
 	"menial/internal/config"
 	event "menial/internal/events"
-	message "menial/internal/messages"
+	wss "menial/internal/websocket"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 )
 
 type Bot struct {
-	Configuration  config.Setting
-	Metadata       event.Metadata
-	Websocket      *websocket.Conn
-	MessageChannel chan map[string]any
-	Running        bool
+	Configuration config.Setting
+	Connection    *websocket.Conn
+	Messages      chan []byte
+	EventStruct   event.EventStructs
+	Running       bool
 }
 
 func (b *Bot) Run() {
 	b.Running = true
+	b.Connection = wss.Connect(b.Configuration.Metadata.Url)
+	b.Messages = make(chan []byte)
+
 	log.Println("Starting bot..")
-	defer close(b.MessageChannel)
-	defer b.Websocket.Close()
-	go message.Receiver(
-		b.Websocket,
-		b.MessageChannel,
-	)
-	message.Handler(
-		b.Websocket,
-		b.MessageChannel,
-		b.Configuration,
+	defer close(b.Messages)
+	defer b.Connection.Close()
+
+	go wss.Listen(b.Connection, b.Messages)
+
+	go event.MessageHandler(
+		b.Connection,
+		b.Messages,
+		&b.EventStruct,
 	)
 }
 
 func main() {
 	conf := config.Settings()
-	metadata := event.GetGateway(conf.Env.Gateway, conf.Env.Token)
 	bot := Bot{
-		Configuration:  conf,
-		Metadata:       metadata,
-		Websocket:      event.Connect(metadata.Url),
-		MessageChannel: make(chan map[string]any),
+		Configuration: conf,
 	}
 	bot.Run()
 }

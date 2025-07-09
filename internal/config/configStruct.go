@@ -1,52 +1,60 @@
 package config
 
 type Setting struct {
-	Env       Env
-	Identify  Identify
-	Heartbeat Heartbeat
-	Resume    Resume
+	Env      Env
+	Metadata Metadata
+	Gateway  string
+	Api      string
+	Identify Identify
+	Resume   Resume
 }
 
 // Env
 type Env struct {
 	Token       string
 	Permissions string
-	Gateway     string
-	Api         string
+}
+
+// Metadata
+type Metadata struct {
+	Url     string          `json:"url"`
+	Shards  int             `json:"shards"`
+	Session MetadataSession `json:"session_start_limit"`
+}
+
+type MetadataSession struct {
+	Total          int `json:"total"`
+	Remaining      int `json:"remaining"`
+	ResetAfter     int `json:"reset_after"`
+	MaxConcurrency int `json:"max_concurrency"`
 }
 
 // Identify
 type Identify struct {
-	Op int       `json:"op"`
-	D  IdentifyD `json:"d"`
+	Op int          `json:"op"`
+	D  IdentifyData `json:"d"`
 }
 
-type IdentifyD struct {
-	Token      string     `json:"token"`
-	Intents    int        `json:"intents"`
-	Compress   bool       `json:"compress"`
-	Properties Properties `json:"properties"`
+type IdentifyData struct {
+	Token      string             `json:"token"`
+	Intents    int                `json:"intents"`
+	Compress   bool               `json:"compress"`
+	Properties IdentifyProperties `json:"properties"`
 }
 
-type Properties struct {
+type IdentifyProperties struct {
 	Os      string `json:"os"`
 	Browser string `json:"browser"`
 	Device  string `json:"device"`
 }
 
-// Heartbeat
-type Heartbeat struct {
-	Op int `json:"op"`
-	D  int `json:"d"`
-}
-
 // Resume
 type Resume struct {
-	Op int     `json:"op"`
-	D  ResumeD `json:"d"`
+	Op int        `json:"op"`
+	D  ResumeData `json:"d"`
 }
-type ResumeD struct {
+type ResumeData struct {
 	Token     string `json:"token"`
 	SessionId string `json:"session_id"`
-	Seq       int    `json:"seq"`
+	Seq       int64  `json:"seq"`
 }
