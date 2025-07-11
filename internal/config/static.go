@@ -17,9 +17,9 @@ type StaticConfig struct {
 	}
 	Identity struct {
   		Properties struct {
-    		Os  string `yaml:"os"`
-    		Browser string `yaml:"browser"`
-    		Device string `yaml:"device"`
+	    		Os  string `yaml:"os"`
+	    		Browser string `yaml:"browser"`
+	    		Device string `yaml:"device"`
 		}
   		Compress bool `yaml:"compress"`
   		LargeThreshold int `yaml:"largethreshold"`
