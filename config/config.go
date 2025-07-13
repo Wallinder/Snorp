@@ -34,7 +34,7 @@ type IdentityProperties struct {
 }
 
 func Settings() StaticConfig {
-	fileContent, err := os.ReadFile("../../config.yaml")
+	fileContent, err := os.ReadFile("../../config/config.yaml")
 	if err != nil {
 		log.Fatalf("Error reading file: %v", err)
 	}
