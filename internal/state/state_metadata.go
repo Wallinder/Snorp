@@ -22,7 +22,11 @@ type SessionStartLimit struct {
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
-func GetGateway(token string, gateway string) *Metadata {
+func (s *Session) UpdateGateway(url string) {
+	s.Metadata.Url = url
+}
+
+func (s *Session) UpdateMetadata(token string, gateway string) {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
@@ -50,5 +54,5 @@ func GetGateway(token string, gateway string) *Metadata {
 		log.Fatal(err)
 	}
 
-	return metadata
+	s.Metadata = *metadata
 }

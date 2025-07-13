@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"menial/internal/config"
-	event "menial/internal/events"
+	"menial/config"
+	event "menial/internal/event"
 	"menial/internal/state"
 	wss "menial/internal/websocket"
 
@@ -29,22 +29,21 @@ func (b *Bot) Run() {
 
 	go wss.Listen(b.Connection, b.Messages)
 
-	go event.MessageHandler(
+	event.MessageHandler(
 		b.Connection,
 		b.Messages,
 		b.StaticConfig,
-		b.Session,
+		&b.Session,
 	)
 }
 
 func main() {
 	conf := config.Settings()
-	session := &state.Session{
-		Metadata: *state.GetGateway(conf.Bot.Token, conf.Url.Gateway),
-	}
+	var session state.Session
+	session.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
 	bot := Bot{
 		StaticConfig: conf,
-		Session:      *session,
+		Session:      session,
 	}
 	bot.Run()
 }
