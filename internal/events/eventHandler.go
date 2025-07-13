@@ -3,22 +3,33 @@ package event
 import (
 	"encoding/json"
 	"log"
+	"menial/internal/config"
+	"menial/internal/state"
 	"time"
 
 	"golang.org/x/net/websocket"
 )
 
-func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, eventStruct *EventStructs) {
+type DiscordPayload struct {
+	Op int    `json:"op"`
+	S  int64  `json:"s"`
+	T  string `json:"t"`
+	D  []byte `json:"d"`
+}
+
+func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, session state.Session) {
+	var discordPayload *DiscordPayload
 	for message := range messageChannel {
-		err := json.Unmarshal(message, &eventStruct.DiscordPayload)
+		err := json.Unmarshal(message, &discordPayload)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
 
-		switch eventStruct.DiscordPayload.Op {
+		switch discordPayload.Op {
 
 		case HELLO:
-			err := json.Unmarshal(message, &eventStruct.Hello)
+			var helloData HelloData
+			err := json.Unmarshal(discordPayload.D, &helloData)
 			if err != nil {
 				log.Println("Error unmarshaling JSON:", err)
 			}
@@ -27,15 +38,15 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, eventStruc
 				time.Sleep(time.Duration(interval) * time.Second)
 				log.Printf("Starting heartbeat with an interval of %f seconds!\n", interval)
 				for {
-					SendHeartbeat(conn, interval, eventStruct.DiscordPayload.S)
+					SendHeartbeat(conn, interval, discordPayload.S)
 				}
-			}(eventStruct.Hello.D.HeartbeatInterval / 1000)
+			}(helloData.HeartbeatInterval / 1000)
 
-			SendIdentify(conn)
+			SendIdentify(conn, config.Identity, config.Bot.Token)
 
 		case HEARTBEAT:
-			log.Printf("Received opcode %d, sending hearbeat immediately..\n", eventStruct.DiscordPayload.Op)
-			//SendHeartbeat(conn, 0, conf.Heartbeat)
+			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
+			SendHeartbeat(conn, 0, discordPayload.S)
 
 		case HEARTBEAT_ACK:
 			log.Println("Received heartbeat..")
@@ -65,15 +76,18 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, eventStruc
 			//	}
 			//}
 
-		case INVALID_SESSION:
-			//if data, ok := message["d"].(bool); ok {
-			//	if data {
-			//		ResumeConnection(conn, conf)
-			//	}
-			//}
-
 		case RECONNECT:
-			//ResumeConnection(conn, conf)
+			ResumeConnection(conn, config.Bot.Token, session.SessionId, discordPayload.S)
+
+		case INVALID_SESSION:
+			var invalid bool
+			err := json.Unmarshal(discordPayload.D, &invalid)
+			if err != nil {
+				log.Println("Error unmarshaling JSON:", err)
+			}
+			if invalid {
+				ResumeConnection(conn, config.Bot.Token, session.SessionId, discordPayload.S)
+			}
 		}
 	}
 }

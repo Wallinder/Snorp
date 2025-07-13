@@ -10,23 +10,19 @@ import (
 )
 
 type Metadata struct {
-	Url     string          `json:"url"`
-	Shards  int             `json:"shards"`
-	Session MetadataSession `json:"session_start_limit"`
+	Url               string            `json:"url"`
+	Shards            int               `json:"shards"`
+	SessionStartLimit SessionStartLimit `json:"session_start_limit"`
 }
 
-type MetadataSession struct {
+type SessionStartLimit struct {
 	Total          int `json:"total"`
 	Remaining      int `json:"remaining"`
 	ResetAfter     int `json:"reset_after"`
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
-func (m *Metadata) GetMetadata() Metadata {
-    return Metadata
-}
-
-func GetGateway(token string, gateway string) Metadata {
+func GetGateway(token string, gateway string) *Metadata {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}

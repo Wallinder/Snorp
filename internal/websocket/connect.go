@@ -7,7 +7,7 @@ import (
 )
 
 func Connect(url string) *websocket.Conn {
-	ws, err := websocket.Dial(url, "", url)
+	ws, err := websocket.Dial(url+"/?v=10&encoding=json", "", url)
 	if err != nil {
 		log.Fatal(err)
 	}
