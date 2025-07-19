@@ -24,9 +24,9 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		state.UpdateSeq(discordPayload.S)
+		state.Seq = discordPayload.S
+		
 		switch discordPayload.Op {
-
 		case HELLO:
 			var heartbeat HeartbeatInterval
 			err := json.Unmarshal(discordPayload.D, &heartbeat)
