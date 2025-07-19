@@ -35,13 +35,12 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 
-			go func(interval float64) {
-				time.Sleep(time.Duration(interval) * time.Second)
+			go func(interval int) {
 				log.Printf("Starting heartbeat with an interval of %f seconds!\n", interval)
 				for {
 					SendHeartbeat(conn, interval, session)
 				}
-			}(heartbeat.Interval / 1000)
+			}(heartbeat.Interval)
 
 			SendIdentify(conn, config.Identity, config.Bot.Token)
 
