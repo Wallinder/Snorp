@@ -7,10 +7,6 @@ type SessionState struct {
 	ReadyData ReadyData
 }
 
-func (s *SessionState) UpdateSeq(seq int64) {
-	s.Seq = seq
-}
-
 func (s *SessionState) GetSeq() int64 {
 	return s.Seq
 }
