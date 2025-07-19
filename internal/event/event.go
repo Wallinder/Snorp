@@ -37,7 +37,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 			go func(interval int) {
 				log.Printf("Starting heartbeat with an interval of %f seconds!\n", interval)
 				for {
-					SendHeartbeat(conn, interval, state)
+					SendHeartbeat(conn, interval, discordPayload.S)
 				}
 			}(heartbeat.Interval)
 
@@ -45,7 +45,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 
 		case HEARTBEAT:
 			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
-			SendHeartbeat(conn, 0, state)
+			SendHeartbeat(conn, 0, discordPayload.S)
 
 		case HEARTBEAT_ACK:
 			log.Println("Received heartbeat..")

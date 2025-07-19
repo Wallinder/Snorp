@@ -18,10 +18,10 @@ type Heartbeat struct {
 	D  int64 `json:"d"`
 }
 
-func SendHeartbeat(conn *websocket.Conn, interval int, session *state.SessionState) {
+func SendHeartbeat(conn *websocket.Conn, interval int, seq int64) {
 	message, err := json.Marshal(Heartbeat{
 		Op: 1,
-		D:  state.GetSeq(),
+		D:  seq,
 	})
 	if err != nil {
 		log.Fatalf("Failed to marshal: %v", err)
