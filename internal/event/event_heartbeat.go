@@ -10,7 +10,7 @@ import (
 )
 
 type HeartbeatInterval struct {
-	Interval float64 `json:"heartbeat_interval"`
+	Interval int `json:"heartbeat_interval"`
 }
 
 type Heartbeat struct {
@@ -18,7 +18,7 @@ type Heartbeat struct {
 	D  int64 `json:"d"`
 }
 
-func SendHeartbeat(conn *websocket.Conn, interval float64, session *state.Session) {
+func SendHeartbeat(conn *websocket.Conn, interval int, session *state.Session) {
 	message, err := json.Marshal(Heartbeat{
 		Op: 1,
 		D:  session.GetSeq(),
@@ -28,7 +28,7 @@ func SendHeartbeat(conn *websocket.Conn, interval float64, session *state.Sessio
 	}
 	_, err = conn.Write(message)
 	if err != nil {
-		log.Fatalf("Failed to marshal: %v", err)
+		log.Fatalf("Failed to send heartbeat: %v", err)
 	}
-	time.Sleep(time.Duration(interval) * time.Second)
+	time.Sleep(time.Duration(interval) * time.Millisecond)
 }
