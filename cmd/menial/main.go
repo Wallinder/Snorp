@@ -13,14 +13,14 @@ import (
 type Bot struct {
 	StaticConfig config.StaticConfig
 	Connection   *websocket.Conn
-	Session      state.Session
+	State      state.SessionState
 	Messages     chan []byte
 }
 
 func (b *Bot) Run() {
-	b.Session.Running = true
+	b.State.Running = true
 
-	b.Connection = wss.Connect(b.Session.Metadata.Url)
+	b.Connection = wss.Connect(b.State.Metadata.Url)
 	b.Messages = make(chan []byte)
 
 	log.Println("Starting bot..")
@@ -33,17 +33,17 @@ func (b *Bot) Run() {
 		b.Connection,
 		b.Messages,
 		b.StaticConfig,
-		&b.Session,
+		&b.State,
 	)
 }
 
 func main() {
 	conf := config.Settings()
-	var session state.Session
-	session.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
+	var state state.SessionState
+	state.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
 	bot := Bot{
 		StaticConfig: conf,
-		Session:      session,
+		State:      state,
 	}
 	bot.Run()
 }

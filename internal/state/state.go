@@ -1,24 +1,25 @@
 package state
 
-type Session struct {
+type SessionState struct {
 	SessionId string
 	Seq       int64
 	Running   bool
 	Metadata  Metadata
+	ReadyData ReadyData
 }
 
-func (s *Session) UpdateSessionId(sessionId string) {
+func (s *SessionState) UpdateSessionId(sessionId string) {
 	s.SessionId = sessionId
 }
 
-func (s *Session) UpdateSeq(seq int64) {
+func (s *SessionState) UpdateSeq(seq int64) {
 	s.Seq = seq
 }
 
-func (s *Session) GetSessionId() string {
+func (s *SessionState) GetSessionId() string {
 	return s.SessionId
 }
 
-func (s *Session) GetSeq() int64 {
+func (s *SessionState) GetSeq() int64 {
 	return s.Seq
 }
