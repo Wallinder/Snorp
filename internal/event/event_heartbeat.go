@@ -3,7 +3,6 @@ package event
 import (
 	"encoding/json"
 	"log"
-	"menial/internal/state"
 	"time"
 
 	"golang.org/x/net/websocket"

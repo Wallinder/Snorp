@@ -5,7 +5,6 @@ import (
 	"log"
 	"menial/config"
 	"menial/internal/state"
-	"time"
 
 	"golang.org/x/net/websocket"
 )
@@ -17,15 +16,15 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, state *state.SessionState) {
+func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) {
 	var discordPayload DiscordPayload
 	for message := range messageChannel {
 		err := json.Unmarshal(message, &discordPayload)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		state.Seq = discordPayload.S
-		
+		sessionState.Seq = discordPayload.S
+
 		switch discordPayload.Op {
 		case HELLO:
 			var heartbeat HeartbeatInterval
@@ -35,7 +34,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 			}
 
 			go func(interval int) {
-				log.Printf("Starting heartbeat with an interval of %f seconds!\n", interval)
+				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval)
 				for {
 					SendHeartbeat(conn, interval, discordPayload.S)
 				}
@@ -59,7 +58,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				if err != nil {
 					log.Println("Error unmarshaling JSON:", err)
 				}
-				state.ReadyData = readyData
+				sessionState.ReadyData = readyData
 
 			default:
 				log.Println(string(discordPayload.D))
@@ -72,7 +71,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if null == nil {
-				ResumeConnection(conn, config.Bot.Token, state.ReadyData.SessionID, discordPayload.S)
+				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			}
 
 		case INVALID_SESSION:
@@ -82,7 +81,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
-				ResumeConnection(conn, config.Bot.Token, state.ReadyData.SessionID, discordPayload.S)
+				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			}
 		}
 	}

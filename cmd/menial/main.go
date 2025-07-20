@@ -5,7 +5,7 @@ import (
 	"menial/config"
 	event "menial/internal/event"
 	"menial/internal/state"
-	wss "menial/internal/websocket"
+	socket "menial/internal/websocket"
 
 	"golang.org/x/net/websocket"
 )
@@ -13,37 +13,37 @@ import (
 type Bot struct {
 	StaticConfig config.StaticConfig
 	Connection   *websocket.Conn
-	State      state.SessionState
+	SessionState state.SessionState
 	Messages     chan []byte
 }
 
 func (b *Bot) Run() {
-	b.State.Running = true
+	b.SessionState.Running = true
 
-	b.Connection = wss.Connect(b.State.Metadata.Url)
+	b.Connection = socket.Connect(b.SessionState.Metadata.Url)
 	b.Messages = make(chan []byte)
 
 	log.Println("Starting bot..")
 	defer close(b.Messages)
 	defer b.Connection.Close()
 
-	go wss.Listen(b.Connection, b.Messages)
+	go socket.Listen(b.Connection, b.Messages)
 
 	event.MessageHandler(
 		b.Connection,
 		b.Messages,
 		b.StaticConfig,
-		&b.State,
+		&b.SessionState,
 	)
 }
 
 func main() {
 	conf := config.Settings()
-	var state state.SessionState
-	state.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
+	var sessionState state.SessionState
+	sessionState.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
 	bot := Bot{
 		StaticConfig: conf,
-		State:      state,
+		SessionState: sessionState,
 	}
 	bot.Run()
 }
