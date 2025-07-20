@@ -6,7 +6,7 @@ import (
 	"menial/config"
 	"menial/internal/state"
 
-	"golang.org/x/net/websocket"
+	"github.com/coder/websocket"
 )
 
 type DiscordPayload struct {
@@ -65,7 +65,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 			}
 
 		case RECONNECT:
-			conn.Close()
+			conn.Close(1000, "Normal Closure")
 			ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 
 		case INVALID_SESSION:
@@ -75,8 +75,10 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
-				conn.Close()
+				conn.Close(1006, "Abnormal Closure")
 				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
+			} else {
+				conn.Close(1000, "Normal Closure")
 			}
 		}
 	}

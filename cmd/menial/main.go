@@ -7,7 +7,7 @@ import (
 	"menial/internal/state"
 	socket "menial/internal/websocket"
 
-	"golang.org/x/net/websocket"
+	"github.com/coder/websocket"
 )
 
 type Bot struct {
@@ -21,7 +21,7 @@ func (b *Bot) Run() {
 	b.SessionState.Running = true
 
 	b.Connection = socket.Connect(b.SessionState.Metadata.Url)
-	defer b.Connection.Close()
+	defer b.Connection.Close(1006, "Abnormal Closure")
 
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)

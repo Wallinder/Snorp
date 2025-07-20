@@ -1,10 +1,11 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 
-	"golang.org/x/net/websocket"
+	"github.com/coder/websocket"
 )
 
 type Resume struct {
@@ -31,7 +32,7 @@ func ResumeConnection(conn *websocket.Conn, token string, sessionId string, seq 
 		log.Fatal(err)
 	}
 	log.Println("Resuming connection..")
-	_, err = conn.Write(message)
+	err = conn.Write(context.TODO(), websocket.MessageText, message)
 	if err != nil {
 		log.Fatalf("Resuming failed: %v", err)
 	}

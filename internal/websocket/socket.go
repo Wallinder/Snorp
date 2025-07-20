@@ -1,13 +1,14 @@
 package socket
 
 import (
+	"context"
 	"log"
 
-	"golang.org/x/net/websocket"
+	"github.com/coder/websocket"
 )
 
 func Connect(url string) *websocket.Conn {
-	ws, err := websocket.Dial(url+"/?v=10&encoding=json", "", url)
+	ws, _, err := websocket.Dial(context.TODO(), url+"/?v=10&encoding=json", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -16,11 +17,10 @@ func Connect(url string) *websocket.Conn {
 
 func Listen(conn *websocket.Conn, messageChannel chan []byte) {
 	for {
-		var msg = make([]byte, 4096)
-		n, err := conn.Read(msg)
+		_, message, err := conn.Read(context.TODO())
 		if err != nil {
 			log.Fatal(err)
 		}
-		messageChannel <- msg[:n]
+		messageChannel <- message
 	}
 }

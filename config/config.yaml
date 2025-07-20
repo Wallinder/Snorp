@@ -1,5 +1,5 @@
 bot:
-  token:
+  token: 
   permissions: 18977313533056
 url:
   gateway: https://discord.com/api/gateway/bot

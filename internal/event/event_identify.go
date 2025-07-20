@@ -1,11 +1,12 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"menial/config"
 
-	"golang.org/x/net/websocket"
+	"github.com/coder/websocket"
 )
 
 type Identify struct {
@@ -42,7 +43,7 @@ func SendIdentify(conn *websocket.Conn, conf config.Identity, token string) {
 		log.Fatalf("Failed to unmarshal identity: %v", err)
 	}
 	log.Println("Identifying..")
-	_, err = conn.Write(message)
+	err = conn.Write(context.TODO(), websocket.MessageText, message)
 	if err != nil {
 		log.Fatalf("Identity failed: %v", err)
 	}

@@ -1,11 +1,12 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"time"
 
-	"golang.org/x/net/websocket"
+	"github.com/coder/websocket"
 )
 
 type HeartbeatInterval struct {
@@ -25,7 +26,7 @@ func SendHeartbeat(conn *websocket.Conn, interval int, seq int64) {
 	if err != nil {
 		log.Fatalf("Failed to marshal: %v", err)
 	}
-	_, err = conn.Write(message)
+	err = conn.Write(context.TODO(), websocket.MessageText, message)
 	if err != nil {
 		log.Fatalf("Failed to send heartbeat: %v", err)
 	}
