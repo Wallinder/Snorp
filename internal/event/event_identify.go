@@ -18,6 +18,7 @@ type IdentifyData struct {
 	Intents    int64              `json:"intents"`
 	Properties IdentifyProperties `json:"properties"`
 }
+
 type IdentifyProperties struct {
 	Os      string `json:"os"`
 	Browser string `json:"browser"`

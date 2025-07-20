@@ -65,14 +65,8 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 			}
 
 		case RECONNECT:
-			var null *string
-			err := json.Unmarshal(discordPayload.D, &null)
-			if err != nil {
-				log.Println("Error unmarshaling JSON:", err)
-			}
-			if null == nil {
-				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
-			}
+			conn.Close()
+			ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 
 		case INVALID_SESSION:
 			var invalid bool
@@ -81,6 +75,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
+				conn.Close()
 				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			}
 		}

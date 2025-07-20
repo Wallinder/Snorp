@@ -17,16 +17,19 @@ type Bot struct {
 	Token       string `yaml:"token"`
 	Permissions int64  `yaml:"permissions"`
 }
+
 type Url struct {
 	Gateway string `yaml:"gateway"`
 	Api     string `yaml:"api"`
 }
+
 type Identity struct {
 	Compress       bool               `yaml:"compress"`
 	LargeThreshold int                `yaml:"largethreshold"`
 	Intents        int64              `yaml:"intents"`
 	Properties     IdentityProperties `yaml:"properties"`
 }
+
 type IdentityProperties struct {
 	Os      string `yaml:"os"`
 	Browser string `yaml:"browser"`

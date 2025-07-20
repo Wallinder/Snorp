@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"menial/config"
-	event "menial/internal/event"
+	"menial/internal/event"
 	"menial/internal/state"
 	socket "menial/internal/websocket"
 
@@ -21,11 +21,12 @@ func (b *Bot) Run() {
 	b.SessionState.Running = true
 
 	b.Connection = socket.Connect(b.SessionState.Metadata.Url)
+	defer b.Connection.Close()
+
 	b.Messages = make(chan []byte)
+	defer close(b.Messages)
 
 	log.Println("Starting bot..")
-	defer close(b.Messages)
-	defer b.Connection.Close()
 
 	go socket.Listen(b.Connection, b.Messages)
 
