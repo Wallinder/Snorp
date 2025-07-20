@@ -65,7 +65,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 			}
 
 		case RECONNECT:
-			conn.Close(1000, "Normal Closure")
+			conn.Close(1006, "Attempting to Resuming")
 			ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 
 		case INVALID_SESSION:
@@ -75,7 +75,7 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
-				conn.Close(1006, "Abnormal Closure")
+				conn.Close(1006, "Attempting to Resuming")
 				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			} else {
 				conn.Close(1000, "Normal Closure")
