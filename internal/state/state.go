@@ -11,7 +11,6 @@ import (
 
 type SessionState struct {
 	Seq       int64
-	Running   bool
 	Metadata  Metadata
 	ReadyData ReadyData
 }

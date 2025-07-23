@@ -18,10 +18,8 @@ type Bot struct {
 }
 
 func (b *Bot) Run() {
-	b.SessionState.Running = true
-
 	b.Connection = socket.Connect(b.SessionState.Metadata.Url)
-	defer b.Connection.Close(1006, "Abnormal Closure")
+	defer b.Connection.Close(1006, "Abornmal Closure")
 
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)

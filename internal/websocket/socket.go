@@ -19,7 +19,7 @@ func Listen(conn *websocket.Conn, messageChannel chan []byte) {
 	for {
 		_, message, err := conn.Read(context.TODO())
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(conn, err)
 		}
 		messageChannel <- message
 	}
