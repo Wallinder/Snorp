@@ -66,8 +66,6 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 			}
 
 		case RECONNECT:
-			conn.Close(1000, "Normal Closure")
-			conn = socket.Connect(sessionState.Metadata.Url)
 			ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 
 		case INVALID_SESSION:

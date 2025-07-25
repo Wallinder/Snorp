@@ -2,6 +2,7 @@ package socket
 
 import (
 	"log"
+	"time"
 
 	"github.com/coder/websocket"
 )
@@ -25,56 +26,60 @@ const (
 )
 
 func ErrorHandler(conn *websocket.Conn, err error) {
-	switch websocket.CloseStatus(err) {
-	case UNKNOWN_ERROR: // Try reconnecting?
-		log.Println("UNKNOWN_ERROR")
+	const RETRY_COUNT = 3
+	for i := 1; i <= RETRY_COUNT; i++ {
+		switch websocket.CloseStatus(err) {
+		case UNKNOWN_ERROR: // Try reconnecting?
+			log.Println("UNKNOWN_ERROR")
 
-	case UNKNOWN_OPCODE: // Don't do that!
-		log.Println("UNKNOWN_OPCODE")
+		case UNKNOWN_OPCODE: // Don't do that!
+			log.Println("UNKNOWN_OPCODE")
 
-	case DECODE_ERROR: // Don't do that!
-		log.Println("DECODE_ERROR")
+		case DECODE_ERROR: // Don't do that!
+			log.Println("DECODE_ERROR")
 
-	case NOT_AUTHENTICATED:
-		log.Println("NOT_AUTHENTICATED")
+		case NOT_AUTHENTICATED:
+			log.Println("NOT_AUTHENTICATED")
 
-	case AUTHENTICATION_FAILED:
-		log.Println("AUTHENTICATION_FAILED")
-		conn.CloseNow()
+		case AUTHENTICATION_FAILED:
+			log.Println("AUTHENTICATION_FAILED")
+			conn.CloseNow()
 
-	case ALREADY_AUTHENTICATED: // Don't do that!
-		log.Println("ALREADY_AUTHENTICATED")
+		case ALREADY_AUTHENTICATED: // Don't do that!
+			log.Println("ALREADY_AUTHENTICATED")
 
-	case INVALID_SEQ: // Reconnect and start a new session
-		log.Println("INVALID_SEQ")
+		case INVALID_SEQ: // Reconnect and start a new session
+			log.Println("INVALID_SEQ")
 
-	case RATE_LIMITED:
-		log.Println("RATE_LIMITED")
+		case RATE_LIMITED:
+			log.Println("RATE_LIMITED")
 
-	case SESSION_TIMEOUT: // Reconnect and start a new session
-		log.Println("SESSION_TIMEOUT")
+		case SESSION_TIMEOUT: // Reconnect and start a new session
+			log.Println("SESSION_TIMEOUT")
 
-	case INVALID_SHARD:
-		conn.CloseNow()
-		log.Fatal("INVALID_SHARD")
+		case INVALID_SHARD:
+			conn.CloseNow()
+			log.Fatal("INVALID_SHARD")
 
-	case SHARDING_REQUIRED:
-		conn.CloseNow()
-		log.Fatal("SHARDING_REQUIRED")
+		case SHARDING_REQUIRED:
+			conn.CloseNow()
+			log.Fatal("SHARDING_REQUIRED")
 
-	case INVALID_API_VERION:
-		conn.CloseNow()
-		log.Fatal("INVALID_API_VERION")
+		case INVALID_API_VERION:
+			conn.CloseNow()
+			log.Fatal("INVALID_API_VERION")
 
-	case INVALID_INTENTS:
-		conn.CloseNow()
-		log.Fatal("INVALID_INTENTS")
+		case INVALID_INTENTS:
+			conn.CloseNow()
+			log.Fatal("INVALID_INTENTS")
 
-	case DISALLOWED_INTENTS:
-		conn.CloseNow()
-		log.Fatal("DISALLOWED_INTENTS")
+		case DISALLOWED_INTENTS:
+			conn.CloseNow()
+			log.Fatal("DISALLOWED_INTENTS")
 
-	default:
-		log.Fatal(err)
+		default:
+			log.Fatal(err)
+		}
+		time.Sleep(5 * time.Second)
 	}
 }
