@@ -36,7 +36,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			}
 
 			go func(interval int) {
-				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval / 1000)
+				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
 				for {
 					SendHeartbeat(conn, interval, discordPayload.S)
 				}
@@ -62,8 +62,11 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				}
 				sessionState.ReadyData = readyData
 
+			case "RESUMED":
+				log.Println("Connection successfully resumed..")
+
 			default:
-				log.Println(string(discordPayload.D))
+				log.Println(discordPayload.Op, discordPayload.T, string(discordPayload.D))
 			}
 
 		case RECONNECT:
