@@ -1,7 +1,9 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"menial/config"
 	"menial/internal/state"
@@ -16,7 +18,7 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) {
+func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) error {
 	var discordPayload DiscordPayload
 	for message := range messageChannel {
 		err := json.Unmarshal(message, &discordPayload)
@@ -77,8 +79,9 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			} else {
 				conn.Close(1000, "Normal Closure")
+				return errors.New("invalid session, trying to reconnect")
 			}
 		}
 	}
-	log.Fatal("Unable to recover, exiting..")
+	return errors.New("unkown error, trying to reconnect")
 }

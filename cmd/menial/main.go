@@ -28,15 +28,20 @@ func (b *Bot) Run() {
 
 	log.Println("Starting bot..")
 
-	go socket.Listen(b.Context, b.Connection, b.Messages)
+	go socket.Listen(b.Context, b.Connection, b.Messages, &b.SessionState)
 
 	for {
-		event.MessageHandler(
+		err := event.MessageHandler(
+			b.Context,
 			b.Connection,
 			b.Messages,
 			b.StaticConfig,
 			&b.SessionState,
 		)
+		if err != nil {
+			b.Connection = socket.Connect(b.Context, b.SessionState.Metadata.Url)
+			continue
+		}
 	}
 }
 
