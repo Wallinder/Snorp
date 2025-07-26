@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"menial/config"
+	"menial/internal/action"
 	"menial/internal/state"
 
 	"github.com/coder/websocket"
@@ -38,39 +39,24 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			go func(interval int) {
 				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
 				for {
-					SendHeartbeat(conn, interval, discordPayload.S)
+					SendHeartbeat(ctx, conn, interval, discordPayload.S)
 				}
 			}(heartbeat.Interval)
 
-			SendIdentify(conn, config.Identity, config.Bot.Token)
+			SendIdentify(ctx, conn, config.Identity, config.Bot.Token)
 
 		case HEARTBEAT:
 			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
-			SendHeartbeat(conn, 0, discordPayload.S)
+			SendHeartbeat(ctx, conn, 0, discordPayload.S)
 
 		case HEARTBEAT_ACK:
 			log.Println("Received heartbeat..")
 
 		case DISPATCH:
-			switch discordPayload.T {
-
-			case "READY":
-				var readyData state.ReadyData
-				err := json.Unmarshal(discordPayload.D, &readyData)
-				if err != nil {
-					log.Println("Error unmarshaling JSON:", err)
-				}
-				sessionState.ReadyData = readyData
-
-			case "RESUMED":
-				log.Println("Connection successfully resumed..")
-
-			default:
-				log.Println(discordPayload.Op, discordPayload.T, string(discordPayload.D))
-			}
+			action.DispatchHandler(sessionState, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
-			ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
+			ResumeConnection(ctx, conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 
 		case INVALID_SESSION:
 			var invalid bool
@@ -79,7 +65,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
-				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
+				ResumeConnection(ctx, conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			} else {
 				conn.Close(1000, "Normal Closure")
 				return errors.New("invalid session, trying to reconnect")

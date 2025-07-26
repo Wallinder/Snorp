@@ -19,7 +19,7 @@ type ResumeData struct {
 	Seq       int64  `json:"seq"`
 }
 
-func ResumeConnection(conn *websocket.Conn, token string, sessionId string, seq int64) {
+func ResumeConnection(ctx context.Context, conn *websocket.Conn, token string, sessionId string, seq int64) {
 	message, err := json.Marshal(Resume{
 		Op: 6,
 		D: ResumeData{
@@ -32,7 +32,7 @@ func ResumeConnection(conn *websocket.Conn, token string, sessionId string, seq 
 		log.Fatal(err)
 	}
 	log.Println("Resuming connection..")
-	err = conn.Write(context.TODO(), websocket.MessageText, message)
+	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
 		log.Fatalf("Resuming failed: %v", err)
 	}

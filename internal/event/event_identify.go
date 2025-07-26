@@ -26,7 +26,7 @@ type IdentifyProperties struct {
 	Device  string `json:"device"`
 }
 
-func SendIdentify(conn *websocket.Conn, conf config.Identity, token string) {
+func SendIdentify(ctx context.Context, conn *websocket.Conn, conf config.Identity, token string) {
 	message, err := json.Marshal(Identify{
 		Op: 2,
 		D: IdentifyData{
@@ -43,7 +43,7 @@ func SendIdentify(conn *websocket.Conn, conf config.Identity, token string) {
 		log.Fatalf("Failed to unmarshal identity: %v", err)
 	}
 	log.Println("Identifying..")
-	err = conn.Write(context.TODO(), websocket.MessageText, message)
+	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
 		log.Fatalf("Identity failed: %v", err)
 	}
