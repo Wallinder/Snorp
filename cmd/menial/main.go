@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"menial/config"
 	"menial/internal/event"
@@ -15,10 +16,11 @@ type Bot struct {
 	Connection   *websocket.Conn
 	SessionState state.SessionState
 	Messages     chan []byte
+	Context      context.Context
 }
 
 func (b *Bot) Run() {
-	b.Connection = socket.Connect(b.SessionState.Metadata.Url)
+	b.Connection = socket.Connect(b.Context, b.SessionState.Metadata.Url)
 	defer b.Connection.Close(1006, "Abornmal Closure")
 
 	b.Messages = make(chan []byte)
@@ -26,7 +28,7 @@ func (b *Bot) Run() {
 
 	log.Println("Starting bot..")
 
-	go socket.Listen(b.Connection, b.Messages)
+	go socket.Listen(b.Context, b.Connection, b.Messages)
 
 	for {
 		event.MessageHandler(
@@ -45,6 +47,7 @@ func main() {
 	bot := Bot{
 		StaticConfig: conf,
 		SessionState: sessionState,
+		Context:      context.Background(),
 	}
 	bot.Run()
 }

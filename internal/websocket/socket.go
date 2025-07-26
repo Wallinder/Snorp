@@ -7,17 +7,17 @@ import (
 	"github.com/coder/websocket"
 )
 
-func Connect(url string) *websocket.Conn {
-	ws, _, err := websocket.Dial(context.TODO(), url+"/?v=10&encoding=json", nil)
+func Connect(ctx context.Context, url string) *websocket.Conn {
+	ws, _, err := websocket.Dial(ctx, url+"/?v=10&encoding=json", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return ws
 }
 
-func Listen(conn *websocket.Conn, messageChannel chan []byte) {
+func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte) {
 	for {
-		_, message, err := conn.Read(context.TODO())
+		_, message, err := conn.Read(ctx)
 		if err != nil {
 			ErrorHandler(conn, err)
 		}
