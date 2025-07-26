@@ -12,3 +12,6 @@ identity:
   compress: true
   largeThreshold: 250
   intents: 513
+
+steam:
+  apiKey: 

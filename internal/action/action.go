@@ -19,6 +19,5 @@ func DispatchHandler(sessionState *state.SessionState, action string, dispatchMe
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
-
 	}
 }
