@@ -28,12 +28,14 @@ func (b *Bot) Run() {
 
 	go socket.Listen(b.Connection, b.Messages)
 
-	event.MessageHandler(
-		b.Connection,
-		b.Messages,
-		b.StaticConfig,
-		&b.SessionState,
-	)
+	for {
+		event.MessageHandler(
+			b.Connection,
+			b.Messages,
+			b.StaticConfig,
+			&b.SessionState,
+		)
+	}
 }
 
 func main() {

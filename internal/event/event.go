@@ -5,7 +5,6 @@ import (
 	"log"
 	"menial/config"
 	"menial/internal/state"
-	socket "menial/internal/websocket"
 
 	"github.com/coder/websocket"
 )
@@ -75,11 +74,11 @@ func MessageHandler(conn *websocket.Conn, messageChannel chan []byte, config con
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
-				conn = socket.Connect(sessionState.Metadata.Url)
 				ResumeConnection(conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			} else {
 				conn.Close(1000, "Normal Closure")
 			}
 		}
 	}
+	log.Fatal("Unable to recover, exiting..")
 }
