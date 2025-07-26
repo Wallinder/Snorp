@@ -36,7 +36,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			}
 
 			go func(interval int) {
-				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval)
+				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval / 1000)
 				for {
 					SendHeartbeat(conn, interval, discordPayload.S)
 				}
