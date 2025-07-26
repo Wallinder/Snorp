@@ -20,6 +20,7 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 		_, message, err := conn.Read(ctx)
 		if err != nil {
 			ErrorHandler(conn, err)
+			continue
 		}
 		messageChannel <- message
 	}
