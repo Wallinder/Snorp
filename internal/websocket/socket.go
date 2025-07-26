@@ -102,6 +102,7 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 				log.Fatal(err)
 			}
 			time.Sleep(5 * time.Second)
+			continue
 		}
 		messageChannel <- message
 	}
