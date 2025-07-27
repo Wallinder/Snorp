@@ -82,6 +82,7 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 			case SESSION_TIMEOUT: // Reconnect and start a new session
 				conn.CloseNow()
 				log.Println("SESSION_TIMEOUT")
+				conn = Connect(ctx, state.Metadata.Url)
 
 			case INVALID_SHARD:
 				log.Fatal("INVALID_SHARD")
