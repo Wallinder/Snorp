@@ -1,0 +1,35 @@
+package socket
+
+const (
+	UNKNOWN_ERROR         = 4000
+	UNKNOWN_OPCODE        = 4001
+	DECODE_ERROR          = 4002
+	NOT_AUTHENTICATED     = 4003
+	AUTHENTICATION_FAILED = 4004
+	ALREADY_AUTHENTICATED = 4005
+	INVALID_SEQ           = 4007
+	RATE_LIMITED          = 4008
+	SESSION_TIMEOUT       = 4009
+	INVALID_SHARD         = 4010
+	SHARDING_REQUIRED     = 4011
+	INVALID_API_VERION    = 4012
+	INVALID_INTENTS       = 4013
+	DISALLOWED_INTENTS    = 4014
+)
+
+var SocketErrors = map[int]bool{
+	UNKNOWN_ERROR:         true,
+	UNKNOWN_OPCODE:        true,
+	DECODE_ERROR:          true,
+	NOT_AUTHENTICATED:     true,
+	AUTHENTICATION_FAILED: false,
+	ALREADY_AUTHENTICATED: true,
+	INVALID_SEQ:           true,
+	RATE_LIMITED:          true,
+	SESSION_TIMEOUT:       true,
+	INVALID_SHARD:         false,
+	SHARDING_REQUIRED:     false,
+	INVALID_API_VERION:    false,
+	INVALID_INTENTS:       false,
+	DISALLOWED_INTENTS:    false,
+}
