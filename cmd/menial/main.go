@@ -59,7 +59,7 @@ func main() {
 	sessionState := state.SessionState{
 		Resume: false,
 	}
-	sessionState.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
+	sessionState.UpdateMetadata(conf.Bot.Token, conf.Bot.Gateway)
 	bot := Bot{
 		StaticConfig: conf,
 		SessionState: sessionState,

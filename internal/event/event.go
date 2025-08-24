@@ -47,7 +47,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				}
 			}(heartbeat.Interval)
 
-			SendIdentify(ctx, conn, config.Identity, config.Bot.Token)
+			SendIdentify(ctx, conn, config.Bot.Identity, config.Bot.Token)
 
 		case HEARTBEAT:
 			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)

@@ -8,19 +8,15 @@ import (
 )
 
 type StaticConfig struct {
-	Bot      Bot
-	Url      Url
-	Identity Identity
+	Bot DiscordBot `yaml:"discordBot"`
 }
 
-type Bot struct {
-	Token       string `yaml:"token"`
-	Permissions int64  `yaml:"permissions"`
-}
-
-type Url struct {
-	Gateway string `yaml:"gateway"`
-	Api     string `yaml:"api"`
+type DiscordBot struct {
+	Token       string   `yaml:"token"`
+	Permissions int64    `yaml:"permissions"`
+	Gateway     string   `yaml:"gateway"`
+	Api         string   `yaml:"api"`
+	Identity    Identity `yaml:"identity"`
 }
 
 type Identity struct {

@@ -1,14 +1,14 @@
-bot:
+discordBot:
   token: 
   permissions: 18977313533056
-url:
   gateway: https://discord.com/api/gateway/bot
   api:     https://discord.com/api/v10
-identity:
-  properties:
-    os: Linux
-    browser: https://github.com/Wallinder/Menial
-    device: Walle-Lab
-  compress: true
-  largeThreshold: 250
-  intents: 513
+  identity:
+    properties:
+      os: Linux
+      browser: https://github.com/Wallinder/Menial
+      device: Walle-Lab
+    compress: true
+    largeThreshold: 250
+    intents: 513
+
