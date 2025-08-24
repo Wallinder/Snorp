@@ -27,6 +27,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 		err := json.Unmarshal(message, &discordPayload)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
+			return
 		}
 		sessionState.Seq = discordPayload.S
 
@@ -36,6 +37,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			err := json.Unmarshal(discordPayload.D, &heartbeat)
 			if err != nil {
 				log.Println("Error unmarshaling JSON:", err)
+				return
 			}
 
 			go func(interval int) {
@@ -67,6 +69,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			err := json.Unmarshal(discordPayload.D, &invalid)
 			if err != nil {
 				log.Println("Error unmarshaling JSON:", err)
+				return
 			}
 			if invalid {
 				sessionState.Resume = true

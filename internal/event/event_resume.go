@@ -35,6 +35,8 @@ func ResumeConnection(ctx context.Context, conn *websocket.Conn, token string, s
 	log.Println("Resuming connection..")
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
-		log.Fatalf("Resuming failed: %v", err)
+		log.Printf("Resuming failed: %s\n", err)
+		sessionState.Resume = false
+		return
 	}
 }
