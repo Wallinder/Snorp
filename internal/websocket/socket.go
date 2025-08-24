@@ -16,7 +16,7 @@ func Connect(ctx context.Context, url string) *websocket.Conn {
 	return ws
 }
 
-func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, state *state.SessionState) {
+func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, stopChannel chan bool, state *state.SessionState) {
 	for {
 		_, message, err := conn.Read(ctx)
 		if err != nil {
@@ -25,12 +25,9 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 			if SocketErrors[int(errorCode)] {
 				conn.Close(1006, "Reconnecting..")
 				log.Printf("Error %d: Trying to reconnect..\n", errorCode)
-				conn = Connect(ctx, state.Metadata.Url)
+				return
 			}
-			if !SocketErrors[int(errorCode)] {
-				log.Fatalf("Error %d: Quitting..\n", errorCode)
-			}
-			continue
+			log.Fatalf("Unrecoverable error %d\n", errorCode)
 		}
 		messageChannel <- message
 	}

@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"menial/config"
 	"menial/internal/action"
@@ -19,7 +18,7 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) error {
+func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) {
 	var discordPayload DiscordPayload
 	for message := range messageChannel {
 		err := json.Unmarshal(message, &discordPayload)
@@ -68,9 +67,8 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				ResumeConnection(ctx, conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
 			} else {
 				conn.Close(1000, "Normal Closure")
-				return errors.New("invalid session, trying to reconnect")
+				log.Println("invalid session, trying to reconnect")
 			}
 		}
 	}
-	return errors.New("unkown error, trying to reconnect")
 }

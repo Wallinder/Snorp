@@ -7,6 +7,7 @@ import (
 	"menial/internal/event"
 	"menial/internal/state"
 	socket "menial/internal/websocket"
+	"time"
 
 	"github.com/coder/websocket"
 )
@@ -15,33 +16,36 @@ type Bot struct {
 	StaticConfig config.StaticConfig
 	Connection   *websocket.Conn
 	SessionState state.SessionState
+	StopChannel  chan bool
 	Messages     chan []byte
 	Context      context.Context
 }
 
 func (b *Bot) Run() {
-	b.Connection = socket.Connect(b.Context, b.SessionState.Metadata.Url)
-	defer b.Connection.Close(1006, "Abornmal Closure")
-
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)
 
-	log.Println("Starting bot..")
-
-	go socket.Listen(b.Context, b.Connection, b.Messages, &b.SessionState)
+	b.StopChannel = make(chan bool)
+	defer close(b.StopChannel)
 
 	for {
-		err := event.MessageHandler(
+		wss := b.SessionState.Metadata.Url
+
+		b.Connection = socket.Connect(b.Context, wss)
+		log.Printf("Connected to socket: %s\n", wss)
+
+		go socket.Listen(b.Context, b.Connection, b.Messages, b.StopChannel, &b.SessionState)
+
+		event.MessageHandler(
 			b.Context,
 			b.Connection,
 			b.Messages,
 			b.StaticConfig,
 			&b.SessionState,
 		)
-		if err != nil {
-			b.Connection = socket.Connect(b.Context, b.SessionState.Metadata.Url)
-			continue
-		}
+		b.Connection.Close(1006, "Normal Closure")
+
+		time.Sleep(10 * time.Second)
 	}
 }
 
