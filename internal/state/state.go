@@ -13,6 +13,7 @@ type SessionState struct {
 	Seq       int64
 	Metadata  Metadata
 	ReadyData ReadyData
+	Resume    bool
 }
 
 type ReadyData struct {

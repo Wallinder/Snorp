@@ -58,7 +58,9 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			action.DispatchHandler(sessionState, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
-			ResumeConnection(ctx, conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
+			sessionState.Resume = true
+			log.Printf("Received %d, trying to reconnect..\n", RECONNECT)
+			return
 
 		case INVALID_SESSION:
 			var invalid bool
@@ -67,11 +69,12 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				log.Println("Error unmarshaling JSON:", err)
 			}
 			if invalid {
-				ResumeConnection(ctx, conn, config.Bot.Token, sessionState.ReadyData.SessionID, discordPayload.S)
+				sessionState.Resume = true
 			} else {
-				conn.Close(1000, "Normal Closure")
-				log.Println("invalid session, trying to reconnect")
+				sessionState.Resume = false
 			}
+			log.Printf("Received %d, trying to reconnect..\n", INVALID_SESSION)
+			return
 		}
 	}
 }

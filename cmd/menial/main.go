@@ -36,6 +36,13 @@ func (b *Bot) Run() {
 		b.Connection = socket.Connect(ctx, wss)
 		log.Printf("Connected to socket: %s\n", wss)
 
+		if b.SessionState.Resume {
+			event.ResumeConnection(ctx,
+				b.Connection,
+				b.StaticConfig.Bot.Token,
+				&b.SessionState,
+			)
+		}
 		go socket.Listen(ctx, b.Connection, b.Messages, &b.SessionState)
 
 		event.MessageHandler(ctx,
@@ -53,7 +60,9 @@ func (b *Bot) Run() {
 
 func main() {
 	conf := config.Settings()
-	var sessionState state.SessionState
+	sessionState := state.SessionState{
+		Resume: false,
+	}
 	sessionState.UpdateMetadata(conf.Bot.Token, conf.Url.Gateway)
 	bot := Bot{
 		StaticConfig: conf,

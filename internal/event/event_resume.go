@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"menial/internal/state"
 
 	"github.com/coder/websocket"
 )
@@ -19,13 +20,13 @@ type ResumeData struct {
 	Seq       int64  `json:"seq"`
 }
 
-func ResumeConnection(ctx context.Context, conn *websocket.Conn, token string, sessionId string, seq int64) {
+func ResumeConnection(ctx context.Context, conn *websocket.Conn, token string, sessionState *state.SessionState) {
 	message, err := json.Marshal(Resume{
 		Op: 6,
 		D: ResumeData{
 			Token:     token,
-			SessionId: sessionId,
-			Seq:       seq,
+			SessionId: sessionState.ReadyData.SessionID,
+			Seq:       sessionState.Seq,
 		},
 	})
 	if err != nil {
