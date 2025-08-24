@@ -33,20 +33,12 @@ func (b *Bot) Run() {
 		log.Printf("Connected to socket: %s\n", wss)
 
 		if b.SessionState.Resume {
-			event.ResumeConnection(ctx,
-				b.Connection,
-				b.StaticConfig.Bot.Token,
-				&b.SessionState,
-			)
+			event.ResumeConnection(ctx, b.Connection, b.StaticConfig.Bot.Token, &b.SessionState)
 		}
 		go socket.Listen(ctx, b.Connection, b.Messages, &b.SessionState)
 
-		event.MessageHandler(ctx,
-			b.Connection,
-			b.Messages,
-			b.StaticConfig,
-			&b.SessionState,
-		)
+		event.MessageHandler(ctx, b.Connection, b.Messages, b.StaticConfig, &b.SessionState)
+
 		cancel()
 		b.Connection.Close(1006, "Normal Closure")
 
