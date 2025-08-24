@@ -22,6 +22,8 @@ type Bot struct {
 }
 
 func (b *Bot) Run() {
+	ctx, cancel := context.WithCancel(b.Context)
+
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)
 
@@ -31,18 +33,18 @@ func (b *Bot) Run() {
 	for {
 		wss := b.SessionState.Metadata.Url
 
-		b.Connection = socket.Connect(b.Context, wss)
+		b.Connection = socket.Connect(ctx, wss)
 		log.Printf("Connected to socket: %s\n", wss)
 
-		go socket.Listen(b.Context, b.Connection, b.Messages, b.StopChannel, &b.SessionState)
+		go socket.Listen(ctx, b.Connection, b.Messages, &b.SessionState)
 
-		event.MessageHandler(
-			b.Context,
+		event.MessageHandler(ctx,
 			b.Connection,
 			b.Messages,
 			b.StaticConfig,
 			&b.SessionState,
 		)
+		cancel()
 		b.Connection.Close(1006, "Normal Closure")
 
 		time.Sleep(10 * time.Second)
