@@ -16,7 +16,6 @@ type Bot struct {
 	StaticConfig config.StaticConfig
 	Connection   *websocket.Conn
 	SessionState state.SessionState
-	StopChannel  chan bool
 	Messages     chan []byte
 	Context      context.Context
 }
@@ -26,9 +25,6 @@ func (b *Bot) Run() {
 
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)
-
-	b.StopChannel = make(chan bool)
-	defer close(b.StopChannel)
 
 	for {
 		wss := b.SessionState.Metadata.Url
