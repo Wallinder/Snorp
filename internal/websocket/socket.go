@@ -18,24 +18,18 @@ func Connect(ctx context.Context, url string) *websocket.Conn {
 
 func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, state *state.SessionState) {
 	for {
-		select {
-		case <-ctx.Done():
-			return
+		_, message, err := conn.Read(ctx)
+		if err != nil {
+			errorCode := int(websocket.CloseStatus(err))
 
-		default:
-			_, message, err := conn.Read(ctx)
-			if err != nil {
-				errorCode := int(websocket.CloseStatus(err))
-
-				if SocketErrors[int(errorCode)] {
-					conn.Close(1006, "Reconnecting..")
-					log.Printf("Error %d: Trying to reconnect..\n", errorCode)
-					messageChannel <- []byte("CTX_CLOSED")
-					return
-				}
-				log.Fatalf("Unrecoverable error %d\n", errorCode)
+			if SocketErrors[int(errorCode)] {
+				conn.Close(1006, "Reconnecting..")
+				log.Printf("Error %d: Trying to reconnect..\n", errorCode)
+				messageChannel <- []byte("CTX_CLOSED")
+				return
 			}
-			messageChannel <- message
+			log.Fatalf("Unrecoverable error %d\n", errorCode)
 		}
+		messageChannel <- message
 	}
 }
