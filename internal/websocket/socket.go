@@ -8,12 +8,12 @@ import (
 	"github.com/coder/websocket"
 )
 
-func Connect(ctx context.Context, url string) *websocket.Conn {
+func Connect(ctx context.Context, url string) (*websocket.Conn, error) {
 	ws, _, err := websocket.Dial(ctx, url+"/?v=10&encoding=json", nil)
 	if err != nil {
-		log.Fatal(err)
+		return ws, err
 	}
-	return ws
+	return ws, err
 }
 
 func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, state *state.SessionState) {
