@@ -17,15 +17,16 @@ type Bot struct {
 	Connection   *websocket.Conn
 	SessionState state.SessionState
 	Messages     chan []byte
-	TopContext   context.Context
 }
 
 func (b *Bot) Run() {
+	topContext := context.Background()
+
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)
 
 	for {
-		ctx, cancel := context.WithCancel(b.TopContext)
+		ctx, cancel := context.WithCancel(topContext)
 
 		wss := b.SessionState.Metadata.Url
 		b.Connection = socket.Connect(ctx, wss)
@@ -55,7 +56,6 @@ func main() {
 	bot := Bot{
 		StaticConfig: conf,
 		SessionState: sessionState,
-		TopContext:   context.Background(),
 	}
 	bot.Run()
 }
