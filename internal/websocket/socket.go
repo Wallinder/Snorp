@@ -28,7 +28,9 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 				messageChannel <- []byte("CTX_CLOSED")
 				return
 			}
-			log.Fatalf("Unrecoverable error %d\n", errorCode)
+			if !SocketErrors[int(errorCode)] {
+				log.Fatalf("Unrecoverable error %d\n", errorCode)
+			}
 		}
 		select {
 		case <-ctx.Done():
