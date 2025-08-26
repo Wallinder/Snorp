@@ -39,8 +39,8 @@ func (b *Bot) Run() {
 		go socket.Listen(ctx, b.Connection, b.Messages, &b.SessionState)
 		event.MessageHandler(ctx, b.Connection, b.Messages, b.StaticConfig, &b.SessionState)
 
-		cancel()
 		b.Connection.Close(1006, "Normal Closure")
+		cancel()
 
 		time.Sleep(30 * time.Second)
 	}
