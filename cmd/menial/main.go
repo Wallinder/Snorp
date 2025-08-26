@@ -17,16 +17,16 @@ type Bot struct {
 	Connection   *websocket.Conn
 	SessionState state.SessionState
 	Messages     chan []byte
-	Context      context.Context
+	TopContext   context.Context
 }
 
 func (b *Bot) Run() {
-	ctx, cancel := context.WithCancel(b.Context)
-
 	b.Messages = make(chan []byte)
 	defer close(b.Messages)
 
 	for {
+		ctx, cancel := context.WithCancel(b.TopContext)
+
 		wss := b.SessionState.Metadata.Url
 		b.Connection = socket.Connect(ctx, wss)
 
@@ -42,7 +42,7 @@ func (b *Bot) Run() {
 		cancel()
 		b.Connection.Close(1006, "Normal Closure")
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
 
@@ -55,7 +55,7 @@ func main() {
 	bot := Bot{
 		StaticConfig: conf,
 		SessionState: sessionState,
-		Context:      context.Background(),
+		TopContext:   context.Background(),
 	}
 	bot.Run()
 }
