@@ -12,7 +12,7 @@ const (
 	SESSION_TIMEOUT       = 4009
 	INVALID_SHARD         = 4010
 	SHARDING_REQUIRED     = 4011
-	INVALID_API_VERION    = 4012
+	INVALID_API_VERSION   = 4012
 	INVALID_INTENTS       = 4013
 	DISALLOWED_INTENTS    = 4014
 )
@@ -29,7 +29,7 @@ var SocketErrors = map[int]bool{
 	SESSION_TIMEOUT:       true,
 	INVALID_SHARD:         false,
 	SHARDING_REQUIRED:     false,
-	INVALID_API_VERION:    false,
+	INVALID_API_VERSION:   false,
 	INVALID_INTENTS:       false,
 	DISALLOWED_INTENTS:    false,
 }
