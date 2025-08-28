@@ -34,8 +34,6 @@ func (b *Bot) Run() {
 			continue
 		}
 
-		log.Printf("Connected to socket: %s\n", wss)
-
 		if b.SessionState.Resume {
 			event.ResumeConnection(ctx, conn, b.StaticConfig.Bot.Token, &b.SessionState)
 		}

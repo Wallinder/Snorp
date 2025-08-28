@@ -9,6 +9,7 @@ import (
 )
 
 func Connect(ctx context.Context, url string) (*websocket.Conn, error) {
+	log.Printf("Connecting to socket: %s\n", url)
 	ws, _, err := websocket.Dial(ctx, url+"/?v=10&encoding=json", nil)
 	if err != nil {
 		return ws, err
