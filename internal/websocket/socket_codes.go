@@ -1,6 +1,7 @@
 package socket
 
 const (
+	NIL_ERROR             = -1
 	UNKNOWN_ERROR         = 4000
 	UNKNOWN_OPCODE        = 4001
 	DECODE_ERROR          = 4002
@@ -18,6 +19,7 @@ const (
 )
 
 var SocketErrors = map[int]bool{
+	NIL_ERROR:             true,
 	UNKNOWN_ERROR:         true,
 	UNKNOWN_OPCODE:        true,
 	DECODE_ERROR:          true,

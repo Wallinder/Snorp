@@ -23,7 +23,7 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 		if err != nil {
 			errorCode := int(websocket.CloseStatus(err))
 
-			if SocketErrors[int(errorCode)] && errorCode == int(-1) {
+			if SocketErrors[int(errorCode)] {
 				conn.Close(1006, "Reconnecting..")
 				log.Printf("Error %d: Trying to reconnect..\n", errorCode)
 				messageChannel <- []byte("CTX_CLOSED")
