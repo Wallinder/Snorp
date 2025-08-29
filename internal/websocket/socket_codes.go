@@ -16,6 +16,22 @@ const (
 	INVALID_API_VERSION   = 4012
 	INVALID_INTENTS       = 4013
 	DISALLOWED_INTENTS    = 4014
+
+	STATUS_NORMAL_CLOSURE             = 1000
+	STATUS_GOING_AWAY                 = 1001
+	STATUS_PROTOCOL_ERROR             = 1002
+	STATUS_UNSUPPORTED_DATA           = 1003
+	STATUS_NO_STATUS_RCVD             = 1005
+	STATUS_ABNORMAL_CLOSURE           = 1006
+	STATUS_INVALID_FRAME_PAYLOAD_DATA = 1007
+	STATUS_POLICY_VIOLATION           = 1008
+	STATUS_MESSAGE_TOO_BIG            = 1009
+	STATUS_MANDATORY_EXTENSION        = 1010
+	STATUS_INTERNAL_ERROR             = 1011
+	STATUS_SERVICE_RESTART            = 1012
+	STATUS_TRY_AGAIN_LATER            = 1013
+	STATUS_BAD_GATEWAY                = 1014
+	STATUS_TLS_HANDSHAKE              = 1015
 )
 
 var SocketErrors = map[int]bool{
@@ -34,4 +50,20 @@ var SocketErrors = map[int]bool{
 	INVALID_API_VERSION:   false,
 	INVALID_INTENTS:       false,
 	DISALLOWED_INTENTS:    false,
+
+	STATUS_NORMAL_CLOSURE:             false,
+	STATUS_GOING_AWAY:                 true,
+	STATUS_PROTOCOL_ERROR:             true,
+	STATUS_UNSUPPORTED_DATA:           false,
+	STATUS_NO_STATUS_RCVD:             false,
+	STATUS_ABNORMAL_CLOSURE:           false,
+	STATUS_INVALID_FRAME_PAYLOAD_DATA: true,
+	STATUS_POLICY_VIOLATION:           true,
+	STATUS_MESSAGE_TOO_BIG:            true,
+	STATUS_MANDATORY_EXTENSION:        false,
+	STATUS_INTERNAL_ERROR:             true,
+	STATUS_SERVICE_RESTART:            false,
+	STATUS_TRY_AGAIN_LATER:            false,
+	STATUS_BAD_GATEWAY:                false,
+	STATUS_TLS_HANDSHAKE:              false,
 }
