@@ -25,9 +25,7 @@ func (b *Bot) Run() {
 	for {
 		ctx, cancel := context.WithCancel(topContext)
 
-		wss := b.SessionState.Metadata.Url
-
-		conn, err := socket.Connect(ctx, wss)
+		conn, err := socket.Connect(ctx, b.SessionState.Metadata.Url)
 		if err != nil {
 			log.Println(err)
 			time.Sleep(60 * time.Second)
@@ -43,8 +41,6 @@ func (b *Bot) Run() {
 
 		conn.Close(1006, "Normal Closure")
 		cancel()
-
-		time.Sleep(30 * time.Second)
 	}
 }
 
