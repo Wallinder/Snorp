@@ -39,9 +39,9 @@ func (b *Bot) Run() {
 		}
 
 		event.MessageHandler(ctx, conn, b.Messages, b.StaticConfig, &b.SessionState)
+		cancel()
 
 		conn.Close(1006, "Normal Closure")
-		cancel()
 	}
 }
 
