@@ -30,7 +30,6 @@ func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byt
 				return
 			}
 			log.Fatalf("Unrecoverable error %d\n", errorCode)
-			return
 		}
 		select {
 		case <-ctx.Done():
