@@ -18,7 +18,12 @@ func Run(s *state.SessionState) {
 	for {
 		ctx, cancel := context.WithCancel(topContext)
 
-		conn, err := socket.Connect(ctx, s.Metadata.Url)
+		websocketUrl := s.Metadata.Url
+		if s.Resume {
+			websocketUrl = s.ReadyData.ResumeGatewayURL
+		}
+
+		conn, err := socket.Connect(ctx, websocketUrl)
 		if err != nil {
 			time.Sleep(60 * time.Second)
 			continue
