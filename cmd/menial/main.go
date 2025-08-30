@@ -32,11 +32,12 @@ func (b *Bot) Run() {
 			continue
 		}
 
+		go socket.Listen(ctx, conn, b.Messages, &b.SessionState)
+
 		if b.SessionState.Resume {
 			event.ResumeConnection(ctx, conn, b.StaticConfig.Bot.Token, &b.SessionState)
 		}
 
-		go socket.Listen(ctx, conn, b.Messages, &b.SessionState)
 		event.MessageHandler(ctx, conn, b.Messages, b.StaticConfig, &b.SessionState)
 
 		conn.Close(1006, "Normal Closure")
