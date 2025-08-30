@@ -34,10 +34,6 @@ func (b *Bot) Run() {
 
 		go socket.Listen(ctx, conn, b.Messages, &b.SessionState)
 
-		if b.SessionState.Resume {
-			event.ResumeConnection(ctx, conn, b.StaticConfig.Bot.Token, &b.SessionState)
-		}
-
 		event.MessageHandler(ctx, conn, b.Messages, b.StaticConfig, &b.SessionState)
 		cancel()
 

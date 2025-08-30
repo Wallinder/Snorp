@@ -20,6 +20,9 @@ type DiscordPayload struct {
 
 func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) {
 	var discordPayload DiscordPayload
+	if sessionState.Resume {
+		ResumeConnection(ctx, conn, config.Bot.Token, sessionState)
+	}
 	for message := range messageChannel {
 		if string(message) == "CTX_CLOSED" {
 			return
