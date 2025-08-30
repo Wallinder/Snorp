@@ -6,7 +6,7 @@ import (
 	"menial/internal/state"
 )
 
-func DispatchHandler(sessionState *state.SessionState, action string, dispatchMessage json.RawMessage) {
+func DispatchHandler(session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	switch action {
 
 	case "READY":
@@ -15,7 +15,7 @@ func DispatchHandler(sessionState *state.SessionState, action string, dispatchMe
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		sessionState.ReadyData = readyData
+		session.ReadyData = readyData
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

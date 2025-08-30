@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"menial/config"
 	"net/http"
 	"time"
 )
@@ -14,6 +15,8 @@ type SessionState struct {
 	Metadata  Metadata
 	ReadyData ReadyData
 	Resume    bool
+	Config    config.StaticConfig
+	Messages  chan []byte
 }
 
 type ReadyData struct {

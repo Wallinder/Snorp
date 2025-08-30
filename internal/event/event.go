@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"menial/config"
 	"menial/internal/action"
 	"menial/internal/state"
 
@@ -18,13 +17,17 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte, config config.StaticConfig, sessionState *state.SessionState) {
-	var discordPayload DiscordPayload
-	if sessionState.Resume {
-		ResumeConnection(ctx, conn, config.Bot.Token, sessionState)
+func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
+	defer conn.Close(1006, "Normal Closure")
+
+	if session.Resume {
+		ResumeConnection(ctx, conn, session.Config.Bot.Token, session)
 	}
-	for message := range messageChannel {
+	var discordPayload DiscordPayload
+
+	for message := range session.Messages {
 		if string(message) == "CTX_CLOSED" {
+			log.Println("Received close signal from socket-listener")
 			return
 		}
 		err := json.Unmarshal(message, &discordPayload)
@@ -32,7 +35,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			log.Println("Error unmarshaling JSON:", err)
 			return
 		}
-		sessionState.Seq = discordPayload.S
+		session.Seq = discordPayload.S
 
 		switch discordPayload.Op {
 		case HELLO:
@@ -50,7 +53,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				}
 			}(heartbeat.Interval)
 
-			SendIdentify(ctx, conn, config.Bot.Identity, config.Bot.Token)
+			SendIdentify(ctx, conn, session.Config.Bot.Identity, session.Config.Bot.Token)
 
 		case HEARTBEAT:
 			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
@@ -60,10 +63,10 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 			log.Println("Received heartbeat..")
 
 		case DISPATCH:
-			action.DispatchHandler(sessionState, discordPayload.T, discordPayload.D)
+			action.DispatchHandler(session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
-			sessionState.Resume = true
+			session.Resume = true
 			log.Printf("Received %d, trying to reconnect..\n", RECONNECT)
 			return
 
@@ -75,9 +78,9 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, messageChannel ch
 				return
 			}
 			if invalid {
-				sessionState.Resume = true
+				session.Resume = true
 			} else {
-				sessionState.Resume = false
+				session.Resume = false
 			}
 			log.Printf("Received %d, trying to reconnect..\n", INVALID_SESSION)
 			return
