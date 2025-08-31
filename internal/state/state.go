@@ -8,8 +8,6 @@ import (
 	"menial/config"
 	"net/http"
 	"time"
-
-	"github.com/coder/websocket"
 )
 
 type SessionState struct {
@@ -19,7 +17,6 @@ type SessionState struct {
 	Resume    bool
 	Config    config.StaticConfig
 	Messages  chan []byte
-	Conn      *websocket.Conn
 }
 
 type ReadyData struct {
