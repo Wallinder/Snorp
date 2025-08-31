@@ -10,16 +10,12 @@ import (
 )
 
 func Run(s *state.SessionState) {
-	s.UpdateMetadata(s.Config.Bot.Token, s.Config.Bot.Gateway)
-
-	topCtx := context.Background()
 	defer close(s.Messages)
 
 	websocketUrl := s.Metadata.Url
 
 	for {
-		ctx, cancel := context.WithCancel(topCtx)
-
+		ctx, cancel := context.WithCancel(context.Background())
 		if s.Resume {
 			websocketUrl = s.ReadyData.ResumeGatewayURL
 		}
@@ -29,8 +25,7 @@ func Run(s *state.SessionState) {
 			time.Sleep(60 * time.Second)
 			continue
 		}
-
-		go socket.Listen(ctx, conn, s.Messages)
+		go socket.Listen(ctx, conn, s)
 
 		event.MessageHandler(ctx, conn, s)
 		cancel()
@@ -40,11 +35,14 @@ func Run(s *state.SessionState) {
 }
 
 func main() {
-	conf := config.Settings()
 	session := &state.SessionState{
-		Config:   conf,
+		Config:   config.Settings(),
 		Resume:   false,
 		Messages: make(chan []byte),
 	}
+	session.UpdateMetadata(
+		session.Config.Bot.Token,
+		session.Config.Bot.Gateway,
+	)
 	Run(session)
 }

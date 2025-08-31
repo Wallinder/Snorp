@@ -3,6 +3,7 @@ package socket
 import (
 	"context"
 	"log"
+	"menial/internal/state"
 
 	"github.com/coder/websocket"
 )
@@ -17,27 +18,28 @@ func Connect(ctx context.Context, url string) (*websocket.Conn, error) {
 	return ws, err
 }
 
-func Listen(ctx context.Context, conn *websocket.Conn, messageChannel chan []byte) {
+func Listen(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
 	for {
+		_, message, err := conn.Read(ctx)
+		if err != nil {
+			errorCode := int(websocket.CloseStatus(err))
+			if errorCode == -1 {
+				log.Printf("Errorcode: -1: %v\n", err)
+				continue
+			}
+			if SocketErrors[int(errorCode)] {
+				log.Printf("Errorcode %d: %v\n", errorCode, err)
+				session.Resume = true
+				//errorChannel <- true
+				return
+			}
+			log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
+		}
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			_, message, err := conn.Read(ctx)
-			if err != nil {
-				errorCode := int(websocket.CloseStatus(err))
-				if errorCode == -1 {
-					log.Println(err)
-					continue
-				}
-				if SocketErrors[int(errorCode)] {
-					log.Printf("Errorcode %d: %v\n", errorCode, err)
-					//errorChannel <- true
-					return
-				}
-				log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
-			}
-			messageChannel <- message
+			session.Messages <- message
 		}
 	}
 }
