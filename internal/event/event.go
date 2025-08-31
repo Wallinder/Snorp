@@ -46,11 +46,18 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 			go func(interval int) {
 				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
 				for {
-					SendHeartbeat(ctx, conn, interval, discordPayload.S)
+					select {
+					case <-ctx.Done():
+						return
+
+					default:
+						SendHeartbeat(ctx, conn, interval, discordPayload.S)
+					}
 				}
 			}(heartbeat.Interval)
-
-			SendIdentify(ctx, conn, session.Config.Bot.Identity, session.Config.Bot.Token)
+			if !session.Resume {
+				SendIdentify(ctx, conn, session.Config.Bot.Identity, session.Config.Bot.Token)
+			}
 
 		case HEARTBEAT:
 			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
