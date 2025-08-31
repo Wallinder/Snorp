@@ -4,21 +4,22 @@ import (
 	"context"
 	"menial/config"
 	"menial/internal/event"
+	"menial/internal/socket"
 	"menial/internal/state"
-	socket "menial/internal/websocket"
 	"time"
 )
 
 func Run(s *state.SessionState) {
 	s.UpdateMetadata(s.Config.Bot.Token, s.Config.Bot.Gateway)
 
-	topContext := context.Background()
+	topCtx := context.Background()
 	defer close(s.Messages)
 
-	for {
-		ctx, cancel := context.WithCancel(topContext)
+	websocketUrl := s.Metadata.Url
 
-		websocketUrl := s.Metadata.Url
+	for {
+		ctx, cancel := context.WithCancel(topCtx)
+
 		if s.Resume {
 			websocketUrl = s.ReadyData.ResumeGatewayURL
 		}

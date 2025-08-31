@@ -23,13 +23,10 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 	if session.Resume {
 		ResumeConnection(ctx, conn, session.Config.Bot.Token, session)
 	}
-	var discordPayload DiscordPayload
 
 	for message := range session.Messages {
-		if string(message) == "CTX_CLOSED" {
-			log.Println("Received close signal from socket-listener")
-			return
-		}
+		var discordPayload DiscordPayload
+
 		err := json.Unmarshal(message, &discordPayload)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
