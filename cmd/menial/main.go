@@ -12,10 +12,10 @@ import (
 func Run(s *state.SessionState) {
 	websocketUrl := s.Metadata.Url
 
-	for {
-		s.Messages = make(chan []byte)
+	topCtx := context.Background()
 
-		ctx, cancel := context.WithCancel(context.Background())
+	for {
+		ctx, cancel := context.WithCancel(topCtx)
 		if s.Resume {
 			websocketUrl = s.ReadyData.ResumeGatewayURL
 		}
@@ -36,8 +36,9 @@ func Run(s *state.SessionState) {
 
 func main() {
 	session := &state.SessionState{
-		Config: config.Settings(),
-		Resume: false,
+		Config:   config.Settings(),
+		Resume:   false,
+		Messages: make(chan []byte),
 	}
 	session.UpdateMetadata(
 		session.Config.Bot.Token,

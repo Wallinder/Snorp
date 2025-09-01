@@ -20,8 +20,6 @@ func Connect(ctx context.Context, url string) (*websocket.Conn, error) {
 }
 
 func Listen(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
-	defer close(session.Messages)
-
 	for {
 		_, message, err := conn.Read(ctx)
 		if err != nil {

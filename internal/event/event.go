@@ -19,75 +19,81 @@ type DiscordPayload struct {
 
 func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
 	defer conn.Close(1006, "Normal Closure")
-
 	if session.Resume {
 		ResumeConnection(ctx, conn, session.Config.Bot.Token, session)
 	}
 
 	for message := range session.Messages {
-		var discordPayload DiscordPayload
-
-		err := json.Unmarshal(message, &discordPayload)
-		if err != nil {
-			log.Println("Error unmarshaling JSON:", err)
+		select {
+		case <-ctx.Done():
+			log.Println("Return signal received from context")
 			return
-		}
-		session.Seq = discordPayload.S
 
-		switch discordPayload.Op {
-		case HELLO:
-			var heartbeat HeartbeatInterval
-			err := json.Unmarshal(discordPayload.D, &heartbeat)
+		default:
+			var discordPayload DiscordPayload
+
+			err := json.Unmarshal(message, &discordPayload)
 			if err != nil {
 				log.Println("Error unmarshaling JSON:", err)
 				return
 			}
+			session.Seq = discordPayload.S
 
-			go func(interval int) {
-				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
-				for {
-					select {
-					case <-ctx.Done():
-						return
-
-					default:
-						SendHeartbeat(ctx, conn, interval, discordPayload.S)
-					}
+			switch discordPayload.Op {
+			case HELLO:
+				var heartbeat HeartbeatInterval
+				err := json.Unmarshal(discordPayload.D, &heartbeat)
+				if err != nil {
+					log.Println("Error unmarshaling JSON:", err)
+					return
 				}
-			}(heartbeat.Interval)
-			if !session.Resume {
-				SendIdentify(ctx, conn, session.Config.Bot.Identity, session.Config.Bot.Token)
-			}
 
-		case HEARTBEAT:
-			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
-			SendHeartbeat(ctx, conn, 0, discordPayload.S)
+				go func(interval int) {
+					log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
+					for {
+						select {
+						case <-ctx.Done():
+							return
 
-		case HEARTBEAT_ACK:
-			log.Println("Received heartbeat..")
+						default:
+							SendHeartbeat(ctx, conn, interval, discordPayload.S)
+						}
+					}
+				}(heartbeat.Interval)
+				if !session.Resume {
+					SendIdentify(ctx, conn, session.Config.Bot.Identity, session.Config.Bot.Token)
+				}
 
-		case DISPATCH:
-			action.DispatchHandler(session, discordPayload.T, discordPayload.D)
+			case HEARTBEAT:
+				log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
+				SendHeartbeat(ctx, conn, 0, discordPayload.S)
 
-		case RECONNECT:
-			session.Resume = true
-			log.Printf("Received %d, trying to reconnect..\n", RECONNECT)
-			return
+			case HEARTBEAT_ACK:
+				log.Println("Received heartbeat..")
 
-		case INVALID_SESSION:
-			var invalid bool
-			err := json.Unmarshal(discordPayload.D, &invalid)
-			if err != nil {
-				log.Println("Error unmarshaling JSON:", err)
+			case DISPATCH:
+				action.DispatchHandler(session, discordPayload.T, discordPayload.D)
+
+			case RECONNECT:
+				session.Resume = true
+				log.Printf("Received %d, trying to reconnect..\n", RECONNECT)
+				return
+
+			case INVALID_SESSION:
+				var invalid bool
+				err := json.Unmarshal(discordPayload.D, &invalid)
+				if err != nil {
+					log.Println("Error unmarshaling JSON:", err)
+					return
+				}
+				if invalid {
+					session.Resume = true
+				} else {
+					session.Resume = false
+				}
+				log.Printf("Received %d, trying to reconnect..\n", INVALID_SESSION)
 				return
 			}
-			if invalid {
-				session.Resume = true
-			} else {
-				session.Resume = false
-			}
-			log.Printf("Received %d, trying to reconnect..\n", INVALID_SESSION)
-			return
 		}
 	}
 }
