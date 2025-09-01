@@ -24,11 +24,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 		ResumeConnection(ctx, conn, session.Config.Bot.Token, session)
 	}
 
-	for {
-		message, ok := <-session.Messages
-		if !ok {
-			return
-		}
+	for message := range session.Messages {
 		var discordPayload DiscordPayload
 
 		err := json.Unmarshal(message, &discordPayload)

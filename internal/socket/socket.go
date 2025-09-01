@@ -28,7 +28,7 @@ func Listen(ctx context.Context, conn *websocket.Conn, session *state.SessionSta
 			errorCode := int(websocket.CloseStatus(err))
 			if errorCode == -1 {
 				log.Printf("Errorcode: -1: %v\n", err)
-				time.Sleep(10 * time.Second)
+				time.Sleep(5 * time.Second)
 				continue
 			}
 			if SocketErrors[int(errorCode)] {
