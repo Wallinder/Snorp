@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/coder/websocket"
 )
@@ -18,7 +17,7 @@ type Heartbeat struct {
 	D  int64 `json:"d"`
 }
 
-func SendHeartbeat(ctx context.Context, conn *websocket.Conn, interval int, seq int64) {
+func SendHeartbeat(ctx context.Context, conn *websocket.Conn, seq int64) {
 	message, err := json.Marshal(Heartbeat{
 		Op: 1,
 		D:  seq,
@@ -30,5 +29,4 @@ func SendHeartbeat(ctx context.Context, conn *websocket.Conn, interval int, seq 
 	if err != nil {
 		log.Fatalf("Failed to send heartbeat: %v", err)
 	}
-	time.Sleep(time.Duration(interval) * time.Millisecond)
 }

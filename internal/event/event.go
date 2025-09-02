@@ -6,6 +6,7 @@ import (
 	"log"
 	"menial/internal/action"
 	"menial/internal/state"
+	"time"
 
 	"github.com/coder/websocket"
 )
@@ -55,13 +56,17 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 
 				go func(interval int) {
 					log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
+
+					ticker := time.NewTicker(time.Duration(interval) * time.Millisecond)
+					defer ticker.Stop()
+
 					for {
 						select {
 						case <-ctx.Done():
 							return
 
-						default:
-							SendHeartbeat(ctx, conn, interval, discordPayload.S)
+						case <-ticker.C:
+							SendHeartbeat(ctx, conn, discordPayload.S)
 						}
 					}
 				}(heartbeat.Interval)
@@ -71,7 +76,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 
 			case HEARTBEAT:
 				log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
-				SendHeartbeat(ctx, conn, 0, discordPayload.S)
+				SendHeartbeat(ctx, conn, discordPayload.S)
 
 			case HEARTBEAT_ACK:
 				log.Println("Received heartbeat..")
