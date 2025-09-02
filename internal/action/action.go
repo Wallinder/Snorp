@@ -19,5 +19,6 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
+		session.Resume = false
 	}
 }

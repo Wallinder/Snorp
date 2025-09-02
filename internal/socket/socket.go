@@ -19,7 +19,8 @@ func Connect(ctx context.Context, url string) (*websocket.Conn, error) {
 	return ws, err
 }
 
-func Listen(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
+func Listen(ctx context.Context, conn *websocket.Conn, session *state.SessionState, cancel context.CancelFunc) {
+	defer cancel()
 	for {
 		_, message, err := conn.Read(ctx)
 		if err != nil {

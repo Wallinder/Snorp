@@ -17,8 +17,9 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
-	defer conn.Close(1006, "Normal Closure")
+func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState, cancel context.CancelFunc) {
+	defer cancel()
+
 	if session.Resume {
 		ResumeConnection(ctx, conn, session.Config.Bot.Token, session)
 	}

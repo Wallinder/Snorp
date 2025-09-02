@@ -10,12 +10,14 @@ import (
 )
 
 func Run(s *state.SessionState) {
-	websocketUrl := s.Metadata.Url
 
 	topCtx := context.Background()
 
 	for {
 		ctx, cancel := context.WithCancel(topCtx)
+
+		websocketUrl := s.Metadata.Url
+
 		if s.Resume {
 			websocketUrl = s.ReadyData.ResumeGatewayURL
 		}
@@ -25,10 +27,10 @@ func Run(s *state.SessionState) {
 			time.Sleep(60 * time.Second)
 			continue
 		}
-		go socket.Listen(ctx, conn, s)
+		go socket.Listen(ctx, conn, s, cancel)
 
-		event.MessageHandler(ctx, conn, s)
-		cancel()
+		event.MessageHandler(ctx, conn, s, cancel)
+		conn.Close(1006, "Normal Closure")
 
 		time.Sleep(3 * time.Second)
 	}
