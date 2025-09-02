@@ -23,13 +23,17 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 		ResumeConnection(ctx, conn, session.Config.Bot.Token, session)
 	}
 
-	for message := range session.Messages {
+	for {
 		select {
 		case <-ctx.Done():
 			log.Println("Return signal received from context")
 			return
 
-		default:
+		case message, ok := <-session.Messages:
+			if !ok {
+				log.Println("Message channel closed")
+				return
+			}
 			var discordPayload DiscordPayload
 
 			err := json.Unmarshal(message, &discordPayload)
