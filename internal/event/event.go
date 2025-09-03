@@ -27,6 +27,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 
 	for {
 		select {
+
 		case <-ctx.Done():
 			log.Println("Return signal received from context")
 			return
@@ -46,6 +47,7 @@ func MessageHandler(ctx context.Context, conn *websocket.Conn, session *state.Se
 			session.Seq = discordPayload.S
 
 			switch discordPayload.Op {
+
 			case HELLO:
 				var heartbeat HeartbeatInterval
 				err := json.Unmarshal(discordPayload.D, &heartbeat)
