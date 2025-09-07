@@ -2,37 +2,36 @@ package main
 
 import (
 	"context"
+	"log"
 	"menial/config"
-	"menial/internal/event"
-	"menial/internal/socket"
+	"menial/internal/socket/event"
 	"menial/internal/state"
 	"time"
 )
 
 func Run(s *state.SessionState) {
 
-	topCtx := context.Background()
+	ctx := context.Background()
+
+	const resetAfter = 30 * time.Second
+
+	var attempts int
+	var lastAttempt time.Time
 
 	for {
-		ctx, cancel := context.WithCancel(topCtx)
-
-		websocketUrl := s.Metadata.Url
-
-		if s.Resume {
-			websocketUrl = s.ReadyData.ResumeGatewayURL
+		if attempts >= s.MaxRetries {
+			log.Println("Backoff timer exceeded, exiting..")
+			return
 		}
-
-		conn, err := socket.Connect(ctx, websocketUrl)
-		if err != nil {
-			time.Sleep(60 * time.Second)
-			continue
+		if time.Since(lastAttempt) > resetAfter {
+			attempts = 0
 		}
-		go socket.Listen(ctx, conn, s, cancel)
+		lastAttempt = time.Now()
 
-		event.MessageHandler(ctx, conn, s, cancel)
-		conn.Close(1006, "Normal Closure")
+		newCtx, cancel := context.WithCancel(ctx)
+		event.MessageHandler(newCtx, cancel, s)
 
-		time.Sleep(3 * time.Second)
+		attempts++
 	}
 }
 

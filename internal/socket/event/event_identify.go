@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"menial/config"
+	"menial/internal/state"
 
 	"github.com/coder/websocket"
 )
@@ -26,16 +26,16 @@ type IdentifyProperties struct {
 	Device  string `json:"device"`
 }
 
-func SendIdentify(ctx context.Context, conn *websocket.Conn, conf config.Identity, token string) {
+func SendIdentify(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
 	message, err := json.Marshal(Identify{
 		Op: 2,
 		D: IdentifyData{
-			Token:   token,
-			Intents: conf.Intents,
+			Token:   session.Config.Bot.Token,
+			Intents: session.Config.Bot.Identity.Intents,
 			Properties: IdentifyProperties{
-				Os:      conf.Properties.Os,
-				Browser: conf.Properties.Browser,
-				Device:  conf.Properties.Device,
+				Os:      session.Config.Bot.Identity.Properties.Os,
+				Browser: session.Config.Bot.Identity.Properties.Browser,
+				Device:  session.Config.Bot.Identity.Properties.Device,
 			},
 		},
 	})

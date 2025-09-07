@@ -20,11 +20,11 @@ type ResumeData struct {
 	Seq       int64  `json:"seq"`
 }
 
-func ResumeConnection(ctx context.Context, conn *websocket.Conn, token string, session *state.SessionState) {
+func ResumeConnection(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
 	message, err := json.Marshal(Resume{
 		Op: 6,
 		D: ResumeData{
-			Token:     token,
+			Token:     session.Config.Bot.Token,
 			SessionId: session.ReadyData.SessionID,
 			Seq:       session.Seq,
 		},
