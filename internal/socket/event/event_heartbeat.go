@@ -26,6 +26,7 @@ func SendHeartbeat(ctx context.Context, conn *websocket.Conn, seq int64) {
 		log.Fatalf("Failed to marshal: %v", err)
 	}
 	err = conn.Write(ctx, websocket.MessageText, message)
+
 	if err != nil {
 		log.Fatalf("Failed to send heartbeat: %v", err)
 	}

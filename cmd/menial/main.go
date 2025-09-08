@@ -20,7 +20,7 @@ func Run(s *state.SessionState) {
 
 	for {
 		if attempts >= s.MaxRetries {
-			log.Println("Backoff timer exceeded, exiting..")
+			log.Fatal("Backoff timer exceeded, exiting..")
 			return
 		}
 		if time.Since(lastAttempt) > resetAfter {
@@ -29,7 +29,7 @@ func Run(s *state.SessionState) {
 		lastAttempt = time.Now()
 
 		newCtx, cancel := context.WithCancel(ctx)
-		event.MessageHandler(newCtx, cancel, s)
+		event.EventListener(newCtx, cancel, s)
 
 		attempts++
 	}

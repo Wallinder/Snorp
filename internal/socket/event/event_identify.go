@@ -43,6 +43,7 @@ func SendIdentify(ctx context.Context, conn *websocket.Conn, session *state.Sess
 		log.Fatalf("Failed to unmarshal identity: %v", err)
 	}
 	log.Println("Identifying..")
+
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
 		log.Fatalf("Identity failed: %v", err)
