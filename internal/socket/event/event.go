@@ -54,10 +54,7 @@ func MessageHandler(ctx context.Context, cancel context.CancelFunc, session *sta
 		if err != nil {
 			errorCode := int(websocket.CloseStatus(err))
 
-			if errorCode == -1 {
-				log.Printf("Errorcode: -1: %v\n", err)
-			}
-			if SocketErrors[int(errorCode)] {
+			if SocketErrors[int(errorCode)] && errorCode == -1 {
 				log.Printf("Errorcode %d: %v\n", errorCode, err)
 				session.Resume = true
 				return

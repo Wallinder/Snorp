@@ -37,9 +37,10 @@ func Run(s *state.SessionState) {
 
 func main() {
 	session := &state.SessionState{
-		Config:   config.Settings(),
-		Resume:   false,
-		Messages: make(chan []byte),
+		Config:     config.Settings(),
+		Resume:     false,
+		Messages:   make(chan []byte),
+		MaxRetries: 5,
 	}
 	session.UpdateMetadata(
 		session.Config.Bot.Token,
