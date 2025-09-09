@@ -10,7 +10,7 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 	switch action {
 
 	case "READY":
-		log.Println("Received 'READY' event..")
+		log.Println("Handshake completed..")
 		var readyData state.ReadyData
 		err := json.Unmarshal(dispatchMessage, &readyData)
 		if err != nil {
