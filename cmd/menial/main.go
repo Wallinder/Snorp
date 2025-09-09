@@ -19,6 +19,9 @@ func Run(s *state.SessionState) {
 	var lastAttempt time.Time
 
 	for {
+		if attempts == 3 {
+			s.Resume = false
+		}
 		if attempts >= s.MaxRetries {
 			log.Fatal("Backoff timer exceeded, exiting..")
 			return
