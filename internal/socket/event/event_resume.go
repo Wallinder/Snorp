@@ -10,8 +10,8 @@ import (
 )
 
 type Resume struct {
-	Op int
-	D  ResumeData
+	Op int        `json:"op"`
+	D  ResumeData `json:"d"`
 }
 
 type ResumeData struct {

@@ -11,6 +11,13 @@ import (
 	"github.com/coder/websocket"
 )
 
+type DiscordPayload struct {
+	Op int             `json:"op"`
+	S  int64           `json:"s"`
+	T  string          `json:"t"`
+	D  json.RawMessage `json:"d"`
+}
+
 func EventHandler(ctx context.Context, session *state.SessionState) {
 	for {
 		_, message, err := session.Conn.Read(ctx)
@@ -29,7 +36,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 
 		err = json.Unmarshal(message, &discordPayload)
 		if err != nil {
-			log.Println("Error unmarshaling JSON:", err)
+			log.Printf("Error unmarshaling JSON: %v\n", err)
 			return
 		}
 		session.Seq = discordPayload.S
@@ -40,7 +47,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 			var heartbeat HeartbeatInterval
 			err := json.Unmarshal(discordPayload.D, &heartbeat)
 			if err != nil {
-				log.Println("Error unmarshaling JSON:", err)
+				log.Printf("Error unmarshaling JSON: %v\n", err)
 				return
 			}
 

@@ -2,19 +2,11 @@ package event
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"menial/internal/state"
 
 	"github.com/coder/websocket"
 )
-
-type DiscordPayload struct {
-	Op int             `json:"op"`
-	S  int64           `json:"s"`
-	T  string          `json:"t"`
-	D  json.RawMessage `json:"d"`
-}
 
 const APIversion = "10"
 
