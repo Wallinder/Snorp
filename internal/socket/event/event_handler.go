@@ -17,7 +17,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 		if err != nil {
 			errorCode := int(websocket.CloseStatus(err))
 
-			if SocketErrors[int(errorCode)] && errorCode == -1 {
+			if SocketErrors[int(errorCode)] || errorCode == -1 {
 				log.Printf("Errorcode %d: %v\n", errorCode, err)
 				session.Resume = true
 				return
@@ -56,7 +56,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 						return
 
 					case <-ticker.C:
-						SendHeartbeat(ctx, session.Conn, discordPayload.S)
+						SendHeartbeat(ctx, session.Conn, session.Seq)
 					}
 				}
 			}(heartbeat.Interval)
@@ -69,7 +69,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 
 		case HEARTBEAT:
 			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
-			SendHeartbeat(ctx, session.Conn, discordPayload.S)
+			SendHeartbeat(ctx, session.Conn, session.Seq)
 
 		case HEARTBEAT_ACK:
 			log.Println("Received heartbeat..")

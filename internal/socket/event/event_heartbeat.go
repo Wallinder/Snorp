@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/coder/websocket"
@@ -25,6 +26,7 @@ func SendHeartbeat(ctx context.Context, conn *websocket.Conn, seq int64) {
 	if err != nil {
 		log.Fatalf("Failed to marshal: %v", err)
 	}
+	fmt.Println(string(message))
 	err = conn.Write(ctx, websocket.MessageText, message)
 
 	if err != nil {
