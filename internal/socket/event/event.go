@@ -16,9 +16,6 @@ func EventListener(ctx context.Context, session *state.SessionState) {
 	var lastAttempt time.Time
 
 	for {
-		if attempts == 3 {
-			session.Resume = false
-		}
 		if attempts >= session.MaxRetries {
 			log.Fatal("Backoff timer exceeded, exiting..")
 			return
