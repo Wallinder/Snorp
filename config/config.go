@@ -42,5 +42,8 @@ func Settings() StaticConfig {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
+	if config.Bot.Token == "" {
+		log.Fatal("Missing token..")
+	}
 	return config
 }
