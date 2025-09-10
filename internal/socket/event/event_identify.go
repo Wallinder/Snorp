@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"menial/internal/state"
+	"snorp/internal/state"
 
 	"github.com/coder/websocket"
 )

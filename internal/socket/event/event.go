@@ -3,7 +3,7 @@ package event
 import (
 	"context"
 	"log"
-	"menial/internal/state"
+	"snorp/internal/state"
 	"time"
 )
 

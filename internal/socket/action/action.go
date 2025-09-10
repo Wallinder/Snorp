@@ -3,7 +3,7 @@ package action
 import (
 	"encoding/json"
 	"log"
-	"menial/internal/state"
+	"snorp/internal/state"
 )
 
 func DispatchHandler(session *state.SessionState, action string, dispatchMessage json.RawMessage) {

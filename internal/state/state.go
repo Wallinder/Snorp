@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"menial/config"
 	"net/http"
+	"snorp/config"
 	"time"
 
 	"github.com/coder/websocket"

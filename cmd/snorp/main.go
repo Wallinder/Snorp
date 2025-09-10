@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"menial/config"
-	"menial/internal/socket/event"
-	"menial/internal/state"
+	"snorp/config"
+	"snorp/internal/socket/event"
+	"snorp/internal/state"
 )
 
 func Run(s *state.SessionState) {

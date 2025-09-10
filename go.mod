@@ -1,4 +1,4 @@
-module menial
+module snorp
 
 go 1.24
 
