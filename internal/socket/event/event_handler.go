@@ -18,7 +18,35 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func EventHandler(ctx context.Context, session *state.SessionState) {
+func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state.SessionState) {
+	if session.Conn != nil {
+		log.Println("Connection already open")
+		return
+	}
+
+	url := session.Metadata.Url
+
+	if session.Resume {
+		url = session.ReadyData.ResumeGatewayURL
+	}
+
+	url += "/?v=" + APIversion + "&encoding=json"
+
+	log.Printf("Connecting to socket: %s\n", url)
+
+	conn, _, err := websocket.Dial(ctx, url, nil)
+	if err != nil {
+		log.Printf("Error opening connection: %v\n", err)
+		return
+	}
+	session.Conn = conn
+
+	defer func() {
+		session.Conn.Close(1006, "Normal Closure")
+		session.Conn = nil
+		cancel()
+	}()
+
 	for {
 		_, message, err := session.Conn.Read(ctx)
 		if err != nil {

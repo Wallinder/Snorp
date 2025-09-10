@@ -4,40 +4,33 @@ import (
 	"context"
 	"log"
 	"menial/internal/state"
-
-	"github.com/coder/websocket"
+	"time"
 )
 
 const APIversion = "10"
 
-func EventListener(ctx context.Context, cancel context.CancelFunc, session *state.SessionState) {
-	if session.Conn != nil {
-		log.Println("Connection already open")
-		return
+func EventListener(ctx context.Context, session *state.SessionState) {
+	const resetAfter = 30 * time.Second
+
+	var attempts int
+	var lastAttempt time.Time
+
+	for {
+		if attempts == 3 {
+			session.Resume = false
+		}
+		if attempts >= session.MaxRetries {
+			log.Fatal("Backoff timer exceeded, exiting..")
+			return
+		}
+		if time.Since(lastAttempt) > resetAfter {
+			attempts = 0
+		}
+		lastAttempt = time.Now()
+
+		newCtx, cancel := context.WithCancel(ctx)
+		EventHandler(newCtx, cancel, session)
+
+		attempts++
 	}
-
-	url := session.Metadata.Url
-
-	if session.Resume {
-		url = session.ReadyData.ResumeGatewayURL
-	}
-
-	url += "/?v=" + APIversion + "&encoding=json"
-
-	log.Printf("Connecting to socket: %s\n", url)
-
-	conn, _, err := websocket.Dial(ctx, url, nil)
-	if err != nil {
-		log.Printf("Error opening connection: %v\n", err)
-		return
-	}
-	session.Conn = conn
-
-	defer func() {
-		session.Conn.Close(1006, "Normal Closure")
-		session.Conn = nil
-		cancel()
-	}()
-
-	EventHandler(ctx, session)
 }

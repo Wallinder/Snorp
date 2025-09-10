@@ -2,40 +2,14 @@ package main
 
 import (
 	"context"
-	"log"
 	"menial/config"
 	"menial/internal/socket/event"
 	"menial/internal/state"
-	"time"
 )
 
 func Run(s *state.SessionState) {
-
 	ctx := context.Background()
-
-	const resetAfter = 30 * time.Second
-
-	var attempts int
-	var lastAttempt time.Time
-
-	for {
-		if attempts == 3 {
-			s.Resume = false
-		}
-		if attempts >= s.MaxRetries {
-			log.Fatal("Backoff timer exceeded, exiting..")
-			return
-		}
-		if time.Since(lastAttempt) > resetAfter {
-			attempts = 0
-		}
-		lastAttempt = time.Now()
-
-		newCtx, cancel := context.WithCancel(ctx)
-		event.EventListener(newCtx, cancel, s)
-
-		attempts++
-	}
+	event.EventListener(ctx, s)
 }
 
 func main() {
