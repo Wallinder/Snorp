@@ -1,49 +1,51 @@
 package config
 
 import (
+	"encoding/json"
 	"log"
 	"os"
-
-	"gopkg.in/yaml.v3"
 )
 
-type StaticConfig struct {
-	Bot DiscordBot `yaml:"discordBot"`
+type Config struct {
+	Bot DiscordBot `json:"discordBot"`
 }
 
 type DiscordBot struct {
-	Token       string   `yaml:"token"`
-	Permissions int64    `yaml:"permissions"`
-	Gateway     string   `yaml:"gateway"`
-	Api         string   `yaml:"api"`
-	Identity    Identity `yaml:"identity"`
+	Permissions int64    `json:"permissions"`
+	Gateway     string   `json:"gateway"`
+	Api         string   `json:"api"`
+	Identity    Identity `json:"identity"`
 }
 
 type Identity struct {
-	Compress       bool               `yaml:"compress"`
-	LargeThreshold int                `yaml:"largethreshold"`
-	Intents        int64              `yaml:"intents"`
-	Properties     IdentityProperties `yaml:"properties"`
+	Token          string             `json:"token"`
+	Compress       bool               `json:"compress"`
+	LargeThreshold int                `json:"large_threshold"`
+	Intents        int64              `json:"intents"`
+	Properties     IdentityProperties `json:"properties"`
 }
 
 type IdentityProperties struct {
-	Os      string `yaml:"os"`
-	Browser string `yaml:"browser"`
-	Device  string `yaml:"device"`
+	Os      string `json:"os"`
+	Browser string `json:"browser"`
+	Device  string `json:"device"`
 }
 
-func Settings() StaticConfig {
-	fileContent, err := os.ReadFile("../../config/config.yaml")
+func Settings() Config {
+	fileContent, err := os.ReadFile("../../config/config.json")
 	if err != nil {
 		log.Fatalf("Error reading file: %v", err)
 	}
-	var config StaticConfig
-	err = yaml.Unmarshal([]byte(fileContent), &config)
+	var config Config
+
+	err = json.Unmarshal([]byte(fileContent), &config)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	if config.Bot.Token == "" {
+
+	if config.Bot.Identity.Token == "" {
 		log.Fatal("Missing token..")
 	}
+
 	return config
 }

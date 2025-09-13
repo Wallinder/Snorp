@@ -59,7 +59,6 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 			log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
 		}
-
 		var discordPayload DiscordPayload
 
 		err = json.Unmarshal(message, &discordPayload)
@@ -99,7 +98,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			if session.Resume {
 				ResumeConnection(ctx, session.Conn, session)
 			} else {
-				SendIdentify(ctx, session.Conn, session)
+				SendIdentify(ctx, session.Conn, session.Config.Bot.Identity)
 			}
 
 		case HEARTBEAT:

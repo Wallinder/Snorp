@@ -2,6 +2,7 @@ package action
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"snorp/internal/state"
 )
@@ -20,5 +21,8 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
+
+	default:
+		fmt.Println(string(dispatchMessage))
 	}
 }

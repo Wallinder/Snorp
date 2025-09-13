@@ -24,7 +24,7 @@ func ResumeConnection(ctx context.Context, conn *websocket.Conn, session *state.
 	message, err := json.Marshal(Resume{
 		Op: 6,
 		D: ResumeData{
-			Token:     session.Config.Bot.Token,
+			Token:     session.Config.Bot.Identity.Token,
 			SessionId: session.ReadyData.SessionID,
 			Seq:       session.Seq,
 		},

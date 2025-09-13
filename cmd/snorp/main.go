@@ -20,7 +20,7 @@ func main() {
 		MaxRetries: 5,
 	}
 	session.UpdateMetadata(
-		session.Config.Bot.Token,
+		session.Config.Bot.Identity.Token,
 		session.Config.Bot.Gateway,
 	)
 	Run(session)

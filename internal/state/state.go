@@ -17,7 +17,7 @@ type SessionState struct {
 	Metadata   Metadata
 	ReadyData  ReadyData
 	Resume     bool
-	Config     config.StaticConfig
+	Config     config.Config
 	Conn       *websocket.Conn
 	Messages   chan []byte
 	MaxRetries int
