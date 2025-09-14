@@ -1,8 +1,8 @@
 {
   "discordBot": {
     "permissions": 5499996875824,
-    "gateway": "https://discord.com/api/gateway/bot",
-    "api":     "https://discord.com/api/v10",
+    "api": "https://discord.com/api",
+    "api_version": "v10",
     "identity": {
       "token": "",
       "properties": {

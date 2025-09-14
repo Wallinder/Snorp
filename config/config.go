@@ -32,7 +32,7 @@ type IdentityProperties struct {
 }
 
 func Settings() Config {
-	fileContent, err := os.ReadFile("../../config/config.json")
+	fileContent, err := os.ReadFile("config.json")
 	if err != nil {
 		log.Fatalf("Error reading file: %v", err)
 	}

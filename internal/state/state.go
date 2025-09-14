@@ -19,6 +19,7 @@ type SessionState struct {
 	Resume     bool
 	Config     config.Config
 	Conn       *websocket.Conn
+	Client     *http.Client
 	Messages   chan []byte
 	MaxRetries int
 }
@@ -74,10 +75,12 @@ type SessionStartLimit struct {
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
-func (s *SessionState) UpdateMetadata(token string, gateway string) {
+func (s *SessionState) UpdateMetadata(token string, api string) {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
+
+	gateway := api + "/gateway/bot"
 
 	req, err := http.NewRequest("GET", gateway, nil)
 	if err != nil {
