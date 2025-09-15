@@ -14,6 +14,7 @@ type DiscordBot struct {
 	Permissions int64    `json:"permissions"`
 	Gateway     string   `json:"gateway"`
 	Api         string   `json:"api"`
+	ApiVersion  string   `json:"api_version"`
 	Identity    Identity `json:"identity"`
 }
 

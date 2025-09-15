@@ -72,7 +72,7 @@ var SocketErrors = map[int]bool{
 	STATUS_POLICY_VIOLATION:           true,
 	STATUS_MESSAGE_TOO_BIG:            true,
 	STATUS_MANDATORY_EXTENSION:        false,
-	STATUS_INTERNAL_ERROR:             true,
+	STATUS_INTERNAL_ERROR:             false,
 	STATUS_SERVICE_RESTART:            false,
 	STATUS_TRY_AGAIN_LATER:            false,
 	STATUS_BAD_GATEWAY:                false,

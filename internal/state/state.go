@@ -76,7 +76,7 @@ type SessionStartLimit struct {
 }
 
 func (s *SessionState) InitHttpClient() *http.Client {
-	s.Client = &http.Client{
+	return &http.Client{
 		Transport: &http.Transport{
 			MaxIdleConns:       10,
 			IdleConnTimeout:    10 * time.Second,
@@ -85,7 +85,6 @@ func (s *SessionState) InitHttpClient() *http.Client {
 		CheckRedirect: nil,
 		Timeout:       time.Duration(10 * time.Second),
 	}
-	return s.Client
 }
 
 func (s *SessionState) UpdateMetadata(token string, api string) {

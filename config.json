@@ -2,7 +2,7 @@
   "discordBot": {
     "permissions": 5499996875824,
     "api": "https://discord.com/api",
-    "api_version": "v10",
+    "api_version": "10",
     "identity": {
       "token": "",
       "properties": {

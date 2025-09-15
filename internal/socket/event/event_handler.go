@@ -30,7 +30,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 		url = session.ReadyData.ResumeGatewayURL
 	}
 
-	url += "/?v=" + session.Config.Bot.Api + "&encoding=json"
+	url += "/?v=" + session.Config.Bot.ApiVersion + "&encoding=json"
 
 	log.Printf("Connecting to socket: %s\n", url)
 
@@ -66,6 +66,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			log.Printf("Error unmarshaling JSON: %v\n", err)
 			return
 		}
+
 		session.Seq = discordPayload.S
 
 		switch discordPayload.Op {
