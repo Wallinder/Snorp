@@ -30,7 +30,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 		url = session.ReadyData.ResumeGatewayURL
 	}
 
-	url += "/?v=" + APIversion + "&encoding=json"
+	url += "/?v=" + session.Config.Bot.Api + "&encoding=json"
 
 	log.Printf("Connecting to socket: %s\n", url)
 

@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-const APIversion = "10"
-
 func EventListener(ctx context.Context, session *state.SessionState) {
 	const resetAfter = 30 * time.Second
 

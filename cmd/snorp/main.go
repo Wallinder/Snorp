@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"net/http"
 	"snorp/config"
 	"snorp/internal/socket/event"
 	"snorp/internal/state"
-	"time"
 )
 
 func Run(s *state.SessionState) {
@@ -20,15 +18,6 @@ func main() {
 		Resume:     false,
 		Messages:   make(chan []byte),
 		MaxRetries: 5,
-		Client: &http.Client{
-			Transport: &http.Transport{
-				MaxIdleConns:       10,
-				IdleConnTimeout:    10 * time.Second,
-				DisableCompression: true,
-			},
-			CheckRedirect: nil,
-			Timeout:       time.Duration(10 * time.Second),
-		},
 	}
 	session.UpdateMetadata(
 		session.Config.Bot.Identity.Token,

@@ -75,10 +75,21 @@ type SessionStartLimit struct {
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
-func (s *SessionState) UpdateMetadata(token string, api string) {
-	client := &http.Client{
-		Timeout: 10 * time.Second,
+func (s *SessionState) InitHttpClient() *http.Client {
+	s.Client = &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:       10,
+			IdleConnTimeout:    10 * time.Second,
+			DisableCompression: true,
+		},
+		CheckRedirect: nil,
+		Timeout:       time.Duration(10 * time.Second),
 	}
+	return s.Client
+}
+
+func (s *SessionState) UpdateMetadata(token string, api string) {
+	client := s.InitHttpClient()
 
 	gateway := api + "/gateway/bot"
 
