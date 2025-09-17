@@ -13,15 +13,16 @@ import (
 )
 
 type SessionState struct {
-	Seq        int64
-	Metadata   Metadata
-	ReadyData  ReadyData
-	Resume     bool
-	Config     config.Config
-	Conn       *websocket.Conn
-	Client     *http.Client
-	Messages   chan []byte
-	MaxRetries int
+	Seq           int64
+	Metadata      Metadata
+	ReadyData     ReadyData
+	Resume        bool
+	Config        config.Config
+	Conn          *websocket.Conn
+	Client        *http.Client
+	GlobalHeaders map[string][]string
+	Messages      chan []byte
+	MaxRetries    int
 }
 
 type ReadyData struct {
@@ -76,29 +77,36 @@ type SessionStartLimit struct {
 }
 
 func (s *SessionState) InitHttpClient() *http.Client {
-	return &http.Client{
-		Transport: &http.Transport{
-			MaxIdleConns:       10,
-			IdleConnTimeout:    10 * time.Second,
-			DisableCompression: true,
-		},
+	s.Client = &http.Client{
 		CheckRedirect: nil,
 		Timeout:       time.Duration(10 * time.Second),
 	}
+	s.Client.Transport = &http.Transport{
+		MaxIdleConns:       10,
+		IdleConnTimeout:    10 * time.Second,
+		DisableCompression: true,
+	}
+	s.GlobalHeaders = map[string][]string{
+		"Content-Type":  {"application/json"},
+		"User-Agent":    {"DiscordBot (https://github.com/Wallinder/Snorp)"},
+		"Authorization": {fmt.Sprintf("Bot %s", s.Config.Bot.Identity.Token)},
+	}
+	return s.Client
 }
 
 func (s *SessionState) UpdateMetadata(token string, api string) {
-	client := s.InitHttpClient()
-
 	gateway := api + "/gateway/bot"
 
-	req, err := http.NewRequest("GET", gateway, nil)
+	client := s.InitHttpClient()
+
+	request, err := http.NewRequest("GET", gateway, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bot %s", token))
 
-	response, err := client.Do(req)
+	request.Header = s.GlobalHeaders
+
+	response, err := client.Do(request)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -110,6 +118,7 @@ func (s *SessionState) UpdateMetadata(token string, api string) {
 	}
 
 	var metadata *Metadata
+
 	err = json.Unmarshal(body, &metadata)
 	if err != nil {
 		log.Fatal(err)

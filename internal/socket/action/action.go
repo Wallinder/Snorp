@@ -25,8 +25,11 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		//log.Printf("Creating VC in %s\n", guild.Name)
-		//api.CreateVoiceChannel(session.Config.Bot.Api, guild.ID, session.Config.Bot.Identity.Token, session.Client)
+		//fmt.Println(guild.Channels)
+		//for channel := range guild.Channels {
+
+		//}
+		//go api.CreateVoiceChannel(session, guild.ID, guild.Name)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

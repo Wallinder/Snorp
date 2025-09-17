@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"snorp/internal/state"
 )
 
 type Channel struct {
@@ -15,39 +17,47 @@ type Channel struct {
 	Nsfw     bool   `json:"nsfw"`
 }
 
-func CreateVoiceChannel(api, guildID, token string, client *http.Client) error {
-	channel := &Channel{
-		Name:     "Snorp - New Channel",
-		Type:     2,
-		Nsfw:     false,
-		Bitrate:  16000,
-		Position: 0,
-	}
-	body, err := json.Marshal(channel)
+func CreateVoiceChannel(session *state.SessionState, guildID string, guildName string) {
+	log.Printf("Creating VC in %s\n", guildName)
+	body, err := json.Marshal(
+		&Channel{
+			Name:     "♻️New Voice Channel♻️",
+			Type:     2,
+			Nsfw:     false,
+			Bitrate:  16000,
+			Position: 0,
+		},
+	)
 	if err != nil {
-		return err
+		log.Printf("Error creating channel: %s\n", err)
+		return
 	}
 
-	api = api + fmt.Sprintf("/guilds/%s/channels", guildID)
+	api := session.Config.Bot.Api + fmt.Sprintf("/guilds/%s/channels", guildID)
 
-	req, err := http.NewRequest("POST", api, bytes.NewBuffer(body))
+	request, err := http.NewRequest("POST", api, bytes.NewBuffer(body))
 	if err != nil {
-		return err
+		log.Printf("Error creating channel: %s\n", err)
+		return
 	}
 
-	req.Header = GetHeaders(token)
+	request.Header = session.GlobalHeaders
 
-	resp, err := client.Do(req)
+	response, err := session.Client.Do(request)
 	if err != nil {
-		return err
+		log.Printf("Error creating channel: %s\n", err)
+		return
 	}
-	defer resp.Body.Close()
+	defer response.Body.Close()
 
-	statuscode := resp.StatusCode
+	statuscode := response.StatusCode
 
-	if statuscode != 200 {
-		return fmt.Errorf("error creating channel: %v", statuscode)
+	if statuscode == 403 {
+		log.Printf("Error creating, missing permissions: %d\n", statuscode)
+		return
 	}
-
-	return nil
+	if statuscode != 200 && statuscode != 201 {
+		log.Printf("Error creating channel: %d\n", statuscode)
+		return
+	}
 }

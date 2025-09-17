@@ -1,6 +1,6 @@
 {
   "discordBot": {
-    "permissions": 5499996875824,
+    "permissions": 2844878376418416,
     "api": "https://discord.com/api",
     "api_version": "10",
     "identity": {
@@ -12,7 +12,7 @@
       },
       "compress": false,
       "large_threshold": 250,
-      "intents": 1673
+      "intents": 130699
     }
   } 
 }
