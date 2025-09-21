@@ -17,7 +17,7 @@ func main() {
 		Config:     config.Settings(),
 		Resume:     false,
 		Messages:   make(chan []byte),
-		MaxRetries: 5,
+		MaxRetries: 3,
 	}
 	session.UpdateMetadata(
 		session.Config.Bot.Identity.Token,
