@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"snorp/internal/socket/action"
 	"snorp/internal/state"
@@ -110,7 +109,6 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 		case DISPATCH:
 			session.Seq = discordPayload.S
-			fmt.Println(session.Seq)
 			action.DispatchHandler(session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
