@@ -34,12 +34,12 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 	log.Printf("Connecting to socket: %s\n", url)
 
-	conn, _, err := websocket.Dial(ctx, url, nil)
+	var err error
+	session.Conn, _, err = websocket.Dial(ctx, url, nil)
 	if err != nil {
 		log.Printf("Error opening connection: %v\n", err)
 		return
 	}
-	session.Conn = conn
 
 	defer func() {
 		session.Conn.Close(1006, "Normal Closure")
