@@ -12,7 +12,13 @@
       },
       "compress": false,
       "large_threshold": 250,
-      "intents": 130699
+      "intents": 130955
+    },
+    "annoy": {
+      "users": [
+        "the_skinny_nugg3t",
+        "mammle992"
+      ]
     }
-  } 
+  }
 }

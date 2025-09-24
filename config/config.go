@@ -16,6 +16,7 @@ type DiscordBot struct {
 	Api         string   `json:"api"`
 	ApiVersion  string   `json:"api_version"`
 	Identity    Identity `json:"identity"`
+	Annoy       Annoy    `json:"annoy"`
 }
 
 type Identity struct {
@@ -30,6 +31,10 @@ type IdentityProperties struct {
 	Os      string `json:"os"`
 	Browser string `json:"browser"`
 	Device  string `json:"device"`
+}
+
+type Annoy struct {
+	Users []string `json:"users"`
 }
 
 func Settings() Config {

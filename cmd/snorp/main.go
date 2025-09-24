@@ -7,7 +7,7 @@ import (
 	"snorp/internal/state"
 )
 
-func Run(s *state.SessionState) {
+func Start(s *state.SessionState) {
 	ctx := context.Background()
 	event.EventListener(ctx, s)
 }
@@ -19,9 +19,8 @@ func main() {
 		Messages:   make(chan []byte),
 		MaxRetries: 3,
 	}
-	session.UpdateMetadata(
-		session.Config.Bot.Identity.Token,
-		session.Config.Bot.Api,
-	)
-	Run(session)
+	session.InitHttpClient()
+	state.UpdateMetadata(session)
+
+	Start(session)
 }

@@ -25,11 +25,14 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		//fmt.Println(guild.Channels)
-		//for channel := range guild.Channels {
 
-		//}
-		//go api.CreateVoiceChannel(session, guild.ID, guild.Name)
+	case "MESSAGE_CREATE":
+		var message Message
+		err := json.Unmarshal(dispatchMessage, &message)
+		if err != nil {
+			log.Println("Error unmarshaling JSON:", err)
+		}
+		//go annoy.RemoveMessages(session.Config.Bot.Annoy.Users, message.Author.Username)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

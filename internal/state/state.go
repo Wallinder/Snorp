@@ -94,22 +94,18 @@ func (s *SessionState) InitHttpClient() *http.Client {
 	return s.Client
 }
 
-func (s *SessionState) UpdateMetadata(token string, api string) {
-	gateway := api + "/gateway/bot"
+func UpdateMetadata(session *SessionState) {
+	request := HttpRequest{
+		Method: "GET",
+		Uri:    "/gateway/bot",
+		Body:   nil,
+	}
 
-	client := s.InitHttpClient()
-
-	request, err := http.NewRequest("GET", gateway, nil)
+	response, err := session.SendRequest(request)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	request.Header = s.GlobalHeaders
-
-	response, err := client.Do(request)
-	if err != nil {
-		log.Fatal(err)
-	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
@@ -123,5 +119,5 @@ func (s *SessionState) UpdateMetadata(token string, api string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Metadata = *metadata
+	session.Metadata = *metadata
 }
