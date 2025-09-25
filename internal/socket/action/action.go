@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"snorp/internal/etc/mute"
 	"snorp/internal/state"
 )
 
@@ -32,7 +33,7 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		//go annoy.RemoveMessages(session.Config.Bot.Annoy.Users, message.Author.Username)
+		go mute.Messages(session, message.Author.Username, message.ChannelID, message.ID)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

@@ -13,7 +13,7 @@ type HttpRequest struct {
 }
 
 func (session *SessionState) SendRequest(r HttpRequest) (*http.Response, error) {
-	url := session.Config.Bot.Api + r.Uri
+	url := session.Config.Bot.Api + "/v" + session.Config.Bot.ApiVersion + r.Uri
 
 	req, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
@@ -29,8 +29,9 @@ func (session *SessionState) SendRequest(r HttpRequest) (*http.Response, error) 
 
 	statuscode := res.StatusCode
 
-	if statuscode != 200 && statuscode != 201 {
+	if statuscode >= 200 && statuscode < 300 {
+		return res, nil
+	} else {
 		return res, fmt.Errorf("%d", statuscode)
 	}
-	return res, nil
 }

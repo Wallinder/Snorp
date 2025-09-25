@@ -14,9 +14,8 @@
       "large_threshold": 250,
       "intents": 130955
     },
-    "bother": {
+    "mute": {
       "users": [
-        "the_skinny_nugg3t",
         "mammle992"
       ]
     }

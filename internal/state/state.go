@@ -110,7 +110,7 @@ func (session *SessionState) UpdateMetadata() {
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	var metadata *Metadata

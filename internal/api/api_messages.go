@@ -6,10 +6,10 @@ import (
 	"snorp/internal/state"
 )
 
-func DeleteMessage(session *state.SessionState, guildID string, messageID string) {
+func DeleteMessage(session *state.SessionState, channelID string, messageID string) {
 	request := state.HttpRequest{
 		Method: "DELETE",
-		Uri:    fmt.Sprintf("/guilds/%s/messages/%s", guildID, messageID),
+		Uri:    fmt.Sprintf("/channels/%s/messages/%s", channelID, messageID),
 		Body:   nil,
 	}
 

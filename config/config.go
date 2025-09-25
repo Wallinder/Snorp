@@ -16,7 +16,7 @@ type DiscordBot struct {
 	Api         string   `json:"api"`
 	ApiVersion  string   `json:"api_version"`
 	Identity    Identity `json:"identity"`
-	Bother      Bother   `json:"bother"`
+	Mute        Mute     `json:"mute"`
 }
 
 type Identity struct {
@@ -33,7 +33,7 @@ type IdentityProperties struct {
 	Device  string `json:"device"`
 }
 
-type Bother struct {
+type Mute struct {
 	Users []string `json:"users"`
 }
 
