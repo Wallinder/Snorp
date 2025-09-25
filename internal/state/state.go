@@ -76,25 +76,25 @@ type SessionStartLimit struct {
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
-func (s *SessionState) InitHttpClient() *http.Client {
-	s.Client = &http.Client{
+func (session *SessionState) InitHttpClient() *http.Client {
+	session.Client = &http.Client{
 		CheckRedirect: nil,
 		Timeout:       time.Duration(10 * time.Second),
 	}
-	s.Client.Transport = &http.Transport{
+	session.Client.Transport = &http.Transport{
 		MaxIdleConns:       10,
 		IdleConnTimeout:    10 * time.Second,
 		DisableCompression: true,
 	}
-	s.GlobalHeaders = map[string][]string{
+	session.GlobalHeaders = map[string][]string{
 		"Content-Type":  {"application/json"},
 		"User-Agent":    {"DiscordBot (https://github.com/Wallinder/Snorp)"},
-		"Authorization": {fmt.Sprintf("Bot %s", s.Config.Bot.Identity.Token)},
+		"Authorization": {fmt.Sprintf("Bot %s", session.Config.Bot.Identity.Token)},
 	}
-	return s.Client
+	return session.Client
 }
 
-func UpdateMetadata(session *SessionState) {
+func (session *SessionState) UpdateMetadata() {
 	request := HttpRequest{
 		Method: "GET",
 		Uri:    "/gateway/bot",

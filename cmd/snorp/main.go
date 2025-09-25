@@ -7,9 +7,9 @@ import (
 	"snorp/internal/state"
 )
 
-func Start(s *state.SessionState) {
+func Start(session *state.SessionState) {
 	ctx := context.Background()
-	event.EventListener(ctx, s)
+	event.EventListener(ctx, session)
 }
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 		MaxRetries: 3,
 	}
 	session.InitHttpClient()
-	state.UpdateMetadata(session)
+	session.UpdateMetadata()
 
 	Start(session)
 }

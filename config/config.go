@@ -16,7 +16,7 @@ type DiscordBot struct {
 	Api         string   `json:"api"`
 	ApiVersion  string   `json:"api_version"`
 	Identity    Identity `json:"identity"`
-	Annoy       Annoy    `json:"annoy"`
+	Bother      Bother   `json:"bother"`
 }
 
 type Identity struct {
@@ -33,7 +33,7 @@ type IdentityProperties struct {
 	Device  string `json:"device"`
 }
 
-type Annoy struct {
+type Bother struct {
 	Users []string `json:"users"`
 }
 

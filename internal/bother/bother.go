@@ -1,4 +1,4 @@
-package annoy
+package bother
 
 import (
 	"slices"

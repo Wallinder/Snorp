@@ -12,17 +12,17 @@ type HttpRequest struct {
 	Body   io.Reader
 }
 
-func (s *SessionState) SendRequest(r HttpRequest) (*http.Response, error) {
-	url := s.Config.Bot.Api + r.Uri
+func (session *SessionState) SendRequest(r HttpRequest) (*http.Response, error) {
+	url := session.Config.Bot.Api + r.Uri
 
 	req, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header = s.GlobalHeaders
+	req.Header = session.GlobalHeaders
 
-	res, err := s.Client.Do(req)
+	res, err := session.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
