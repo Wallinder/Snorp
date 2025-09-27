@@ -6,8 +6,8 @@ import (
 	"snorp/internal/state"
 )
 
-func Messages(session *state.SessionState, user string, channelID string, messageID string) {
-	if slices.Contains(session.Config.Bot.Mute.Users, user) {
-		api.DeleteMessage(session, channelID, messageID)
+func Messages(session *state.SessionState, message api.Message) {
+	if slices.Contains(session.Config.Bot.Mute.Users, message.Author.Username) {
+		api.DeleteMessage(session, message.ChannelID, message.ID)
 	}
 }

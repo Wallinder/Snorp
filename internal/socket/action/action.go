@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"snorp/internal/api"
 	"snorp/internal/etc/mute"
 	"snorp/internal/state"
 )
@@ -21,19 +22,19 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 		session.ReadyData = readyData
 
 	case "GUILD_CREATE":
-		var guild Guild
+		var guild api.Guild
 		err := json.Unmarshal(dispatchMessage, &guild)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
 
 	case "MESSAGE_CREATE":
-		var message Message
+		var message api.Message
 		err := json.Unmarshal(dispatchMessage, &message)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go mute.Messages(session, message.Author.Username, message.ChannelID, message.ID)
+		go mute.Messages(session, message)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
