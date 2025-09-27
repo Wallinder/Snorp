@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
+	"snorp/internal/etc/channel"
 	"snorp/internal/etc/mute"
 	"snorp/internal/state"
 )
@@ -27,6 +28,7 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
+		go channel.Create(session, guild)
 
 	case "MESSAGE_CREATE":
 		var message api.Message

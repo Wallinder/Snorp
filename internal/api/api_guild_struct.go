@@ -66,20 +66,27 @@ type Guild struct {
 }
 
 type GuildChannels struct {
-	Version              int64  `json:"version"`
-	Type                 int    `json:"type"`
-	Position             int    `json:"position"`
-	PermissionOverwrites []any  `json:"permission_overwrites"`
-	Name                 string `json:"name"`
-	ID                   string `json:"id"`
-	Flags                int    `json:"flags"`
-	Topic                any    `json:"topic,omitempty"`
-	RateLimitPerUser     int    `json:"rate_limit_per_user,omitempty"`
-	ParentID             string `json:"parent_id,omitempty"`
-	LastMessageID        string `json:"last_message_id,omitempty"`
-	UserLimit            int    `json:"user_limit,omitempty"`
-	RtcRegion            any    `json:"rtc_region,omitempty"`
-	Bitrate              int    `json:"bitrate,omitempty"`
+	Version              int64                      `json:"version"`
+	Type                 int                        `json:"type"`
+	Position             int                        `json:"position"`
+	PermissionOverwrites []GuildChannelsPermissions `json:"permission_overwrites"`
+	Name                 string                     `json:"name"`
+	ID                   string                     `json:"id"`
+	Flags                int                        `json:"flags"`
+	Topic                any                        `json:"topic,omitempty"`
+	RateLimitPerUser     int                        `json:"rate_limit_per_user,omitempty"`
+	ParentID             string                     `json:"parent_id,omitempty"`
+	LastMessageID        string                     `json:"last_message_id,omitempty"`
+	UserLimit            int                        `json:"user_limit,omitempty"`
+	RtcRegion            any                        `json:"rtc_region,omitempty"`
+	Bitrate              int                        `json:"bitrate,omitempty"`
+}
+
+type GuildChannelsPermissions struct {
+	ID    string
+	Type  int
+	Allow string
+	Deny  string
 }
 
 type GuildMembers struct {

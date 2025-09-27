@@ -4,40 +4,36 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"net/http"
 	"snorp/internal/state"
 )
 
-type Channel struct {
-	Name     string `json:"name"`
-	Type     int    `json:"type"`
-	Bitrate  int    `json:"bitrate"`
-	Position int    `json:"position"`
-	Nsfw     bool   `json:"nsfw"`
+type NewChannel struct {
+	Name        string                     `json:"name"`
+	Type        int                        `json:"type"`
+	Position    int                        `json:"position"`
+	Permissions []GuildChannelsPermissions `json:"permission_overwrites,omitzero"`
+	Bitrate     int                        `json:"bitrate,omitzero"`
+	Nsfw        bool                       `json:"nsfw,omitzero"`
+	ParentID    string                     `json:"parent_id,omitzero"`
 }
 
-func CreateVoiceChannel(session *state.SessionState, guildID string, vcName string) {
-	channel := &Channel{
-		Name:     vcName,
-		Type:     2,
-		Nsfw:     false,
-		Bitrate:  16000,
-		Position: 0,
-	}
-
-	body, err := json.Marshal(channel)
+func (nc *NewChannel) CreateChannel(session *state.SessionState, guildID string) (*http.Response, error) {
+	body, err := json.Marshal(nc)
 	if err != nil {
-		log.Printf("Error creating channel: %s\n", err)
+		return nil, err
 	}
 
 	request := state.HttpRequest{
-		Method: "GET",
+		Method: "POST",
 		Uri:    fmt.Sprintf("/guilds/%s/channels", guildID),
 		Body:   bytes.NewBuffer(body),
 	}
 
-	_, err = session.SendRequest(request)
+	response, err := session.SendRequest(request)
 	if err != nil {
-		log.Printf("Error creating channel: %s\n", err)
+		return nil, err
 	}
+
+	return response, nil
 }
