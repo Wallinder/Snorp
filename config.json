@@ -1,5 +1,6 @@
 {
   "discordBot": {
+    "superuser_id": "216244586165698560",
     "permissions": 2844878376418416,
     "api": "https://discord.com/api",
     "api_version": "10",

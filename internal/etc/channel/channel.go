@@ -15,9 +15,17 @@ func Create(session *state.SessionState, guild api.Guild) {
 		}
 	}
 
-	categoryChannel := &api.NewChannel{
-		Name:     "Snorp",
-		Type:     4,
+	categoryChannel := &api.GuildChannels{
+		Name: "Snorp",
+		Type: 4,
+		Permissions: []api.GuildChannelsPermissions{
+			{
+				ID:    guild.ID,
+				Type:  0,
+				Allow: "1024",
+				Deny:  "0",
+			},
+		},
 		Position: 0,
 	}
 
@@ -42,11 +50,35 @@ func Create(session *state.SessionState, guild api.Guild) {
 		return
 	}
 
-	adminChannel := &api.NewChannel{
-		Name:     "Admin",
-		Type:     0,
+	adminChannel := &api.GuildChannels{
+		Name: "Admin",
+		Type: 0,
+		Permissions: []api.GuildChannelsPermissions{
+			{
+				ID:    session.ReadyData.User.ID,
+				Type:  1,
+				Allow: "1024",
+				Deny:  "0",
+			},
+			{
+				ID:    guild.ID,
+				Type:  0,
+				Allow: "0",
+				Deny:  "1024",
+			},
+		},
 		Position: 0,
 		ParentID: channel.ID,
+	}
+
+	if session.Config.Bot.SuperuserID != guild.OwnerID {
+		superUser := api.GuildChannelsPermissions{
+			ID:    session.Config.Bot.SuperuserID,
+			Type:  1,
+			Allow: "1024",
+			Deny:  "0",
+		}
+		adminChannel.Permissions = append(adminChannel.Permissions, superUser)
 	}
 
 	_, err = adminChannel.CreateChannel(session, guild.ID)

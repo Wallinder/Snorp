@@ -66,27 +66,27 @@ type Guild struct {
 }
 
 type GuildChannels struct {
-	Version              int64                      `json:"version"`
-	Type                 int                        `json:"type"`
-	Position             int                        `json:"position"`
-	PermissionOverwrites []GuildChannelsPermissions `json:"permission_overwrites"`
-	Name                 string                     `json:"name"`
-	ID                   string                     `json:"id"`
-	Flags                int                        `json:"flags"`
-	Topic                any                        `json:"topic,omitempty"`
-	RateLimitPerUser     int                        `json:"rate_limit_per_user,omitempty"`
-	ParentID             string                     `json:"parent_id,omitempty"`
-	LastMessageID        string                     `json:"last_message_id,omitempty"`
-	UserLimit            int                        `json:"user_limit,omitempty"`
-	RtcRegion            any                        `json:"rtc_region,omitempty"`
-	Bitrate              int                        `json:"bitrate,omitempty"`
+	Version          int64                      `json:"version,omitzero"`
+	Type             int                        `json:"type,omitzero"`
+	Position         int                        `json:"position,omitzero"`
+	Permissions      []GuildChannelsPermissions `json:"permission_overwrites,omitzero"`
+	Name             string                     `json:"name,omitzero"`
+	ID               string                     `json:"id,omitzero"`
+	Flags            int                        `json:"flags,omitzero"`
+	Topic            any                        `json:"topic,omitzero"`
+	RateLimitPerUser int                        `json:"rate_limit_per_user,omitzero"`
+	ParentID         string                     `json:"parent_id,omitzero"`
+	LastMessageID    string                     `json:"last_message_id,omitzero"`
+	UserLimit        int                        `json:"user_limit,omitzero"`
+	RtcRegion        any                        `json:"rtc_region,omitzero"`
+	Bitrate          int                        `json:"bitrate,omitzero"`
 }
 
 type GuildChannelsPermissions struct {
-	ID    string
-	Type  int
-	Allow string
-	Deny  string
+	ID    string `json:"id"`
+	Type  int    `json:"type"`
+	Allow string `json:"allow"`
+	Deny  string `json:"deny"`
 }
 
 type GuildMembers struct {
@@ -105,18 +105,20 @@ type GuildMembers struct {
 }
 
 type GuildUser struct {
+	ID                   string `json:"id"`
 	Username             string `json:"username"`
+	Discriminator        string `json:"discriminator"`
+	GlobalName           any    `json:"global_name"`
+	Avatar               string `json:"avatar"`
+	Bot                  bool   `json:"bot"`
+	System               bool   `json:"system"`
+	MfaEnabled           bool   `json:"mfa_enabled"`
 	PublicFlags          int    `json:"public_flags"`
 	PrimaryGuild         any    `json:"primary_guild"`
-	ID                   string `json:"id"`
-	GlobalName           any    `json:"global_name"`
 	DisplayNameStyles    any    `json:"display_name_styles"`
 	DisplayName          any    `json:"display_name"`
-	Discriminator        string `json:"discriminator"`
 	Collectibles         any    `json:"collectibles"`
-	Bot                  bool   `json:"bot"`
 	AvatarDecorationData any    `json:"avatar_decoration_data"`
-	Avatar               string `json:"avatar"`
 }
 
 type GuildRoles struct {

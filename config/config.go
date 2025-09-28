@@ -11,6 +11,7 @@ type Config struct {
 }
 
 type DiscordBot struct {
+	SuperuserID string   `json:"superuser_id"`
 	Permissions int64    `json:"permissions"`
 	Gateway     string   `json:"gateway"`
 	Api         string   `json:"api"`
