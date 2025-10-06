@@ -1,4 +1,4 @@
-package command
+package api
 
 type ApplicationCommand struct {
 	ID                       string                     `json:"id"`

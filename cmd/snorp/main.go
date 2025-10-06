@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"snorp/config"
-	"snorp/internal/socket/event"
+	"snorp/internal/event"
 	"snorp/internal/state"
 )
 

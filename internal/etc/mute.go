@@ -1,4 +1,4 @@
-package mute
+package etc
 
 import (
 	"slices"

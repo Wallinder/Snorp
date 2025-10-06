@@ -1,4 +1,4 @@
-package command
+package api
 
 const (
 	SUB_COMMAND       = 1

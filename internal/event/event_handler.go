@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"snorp/internal/socket/action"
 	"snorp/internal/state"
 	"time"
 
@@ -109,7 +108,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 		case DISPATCH:
 			session.Seq = discordPayload.S
-			action.DispatchHandler(session, discordPayload.T, discordPayload.D)
+			DispatchHandler(session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
 			session.Resume = true

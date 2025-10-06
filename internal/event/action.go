@@ -1,11 +1,11 @@
-package action
+package event
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/etc/mute"
+	"snorp/internal/etc"
 	"snorp/internal/state"
 )
 
@@ -35,7 +35,7 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go mute.Messages(session, message)
+		go etc.Messages(session, message)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
