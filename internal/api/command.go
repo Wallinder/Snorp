@@ -1,5 +1,11 @@
 package api
 
+import (
+	"fmt"
+	"log"
+	"snorp/internal/state"
+)
+
 const (
 	SUB_COMMAND       = 1
 	SUB_COMMAND_GROUP = 2
@@ -35,3 +41,29 @@ const (
 	APP_HANDLER             = 1 //The app handles the interaction using an interaction token
 	DISCORD_LAUNCH_ACTIVITY = 2 //Discord handles the interaction by launching an Activity and sending a follow-up message without coordinating with the app
 )
+
+func GetGlobalCommand(session *state.SessionState) {
+	request := state.HttpRequest{
+		Method: "GET",
+		Uri:    fmt.Sprintf("/applications/%s/commands", session.ReadyData.User.ID),
+		Body:   nil,
+	}
+
+	_, err := session.SendRequest(request)
+	if err != nil {
+		log.Printf("Error fetching commands: %v\n", err)
+	}
+}
+
+func RegisterGlobalCommand(session *state.SessionState) {
+	request := state.HttpRequest{
+		Method: "POST",
+		Uri:    fmt.Sprintf("/applications/%s/commands", session.ReadyData.User.ID),
+		Body:   nil,
+	}
+
+	_, err := session.SendRequest(request)
+	if err != nil {
+		log.Printf("Error creating command: %v\n", err)
+	}
+}
