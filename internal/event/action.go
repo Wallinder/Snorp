@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,7 +10,7 @@ import (
 	"snorp/internal/state"
 )
 
-func DispatchHandler(session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+func DispatchHandler(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	switch action {
 
 	case "READY":
@@ -20,6 +21,7 @@ func DispatchHandler(session *state.SessionState, action string, dispatchMessage
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
+		//UpdatePresence(ctx, session.Conn)
 
 	case "GUILD_CREATE":
 		var guild api.Guild

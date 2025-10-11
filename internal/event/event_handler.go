@@ -108,7 +108,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 		case DISPATCH:
 			session.Seq = discordPayload.S
-			DispatchHandler(session, discordPayload.T, discordPayload.D)
+			DispatchHandler(ctx, session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
 			session.Resume = true
