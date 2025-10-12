@@ -79,7 +79,7 @@ func DeleteGlobalCommand(session *state.SessionState, commandID string) {
 	}
 }
 
-func RegisterGlobalCommand(session *state.SessionState, command *ApplicationCommand) {
+func CreateGlobalCommand(session *state.SessionState, command *ApplicationCommand) {
 	jsonData, err := json.Marshal(command)
 	if err != nil {
 		log.Printf("Error marshaling command: %v\n", err)

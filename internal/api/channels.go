@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"snorp/internal/state"
 )
 
@@ -25,10 +24,12 @@ const (
 	GUILD_MEDIA         = 16 //Channel that can only contain threads, similar to GUILD_FORUM channels
 )
 
-func CreateChannel(session *state.SessionState, guildID string, channel *GuildChannels) (*http.Response, error) {
+func CreateGuildChannel(session *state.SessionState, guildID string, channel *GuildChannels) (GuildChannels, error) {
+	var newChannel GuildChannels
+
 	body, err := json.Marshal(channel)
 	if err != nil {
-		return nil, err
+		return newChannel, err
 	}
 
 	request := state.HttpRequest{
@@ -39,10 +40,21 @@ func CreateChannel(session *state.SessionState, guildID string, channel *GuildCh
 
 	response, err := session.SendRequest(request)
 	if err != nil {
-		return nil, err
+		return newChannel, err
 	}
 
-	return response, nil
+	body, err = io.ReadAll(response.Body)
+	if err != nil {
+		return newChannel, err
+	}
+	defer response.Body.Close()
+
+	err = json.Unmarshal(body, &newChannel)
+	if err != nil {
+		return newChannel, err
+	}
+
+	return newChannel, nil
 }
 
 func GetGuildChannels(session *state.SessionState, guildID string) (*[]GuildChannels, error) {
@@ -63,6 +75,7 @@ func GetGuildChannels(session *state.SessionState, guildID string) (*[]GuildChan
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 
 	err = json.Unmarshal(body, &channels)
 	if err != nil {

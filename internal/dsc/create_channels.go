@@ -1,26 +1,18 @@
-package etc
+package dsc
 
 import (
-	"encoding/json"
-	"io"
 	"log"
 	"snorp/internal/api"
 	"snorp/internal/state"
 )
 
-func CreateGuildChannel(session *state.SessionState, guild api.Guild) {
-	for _, channel := range guild.Channels {
-		if channel.Name == "Snorp" && channel.Type == 4 {
-			return
-		}
-	}
-
+func CreateDesiredGuildChannels(session *state.SessionState, guildID string, guildOwnerID string) *api.Message {
 	categoryChannel := &api.GuildChannels{
 		Name: "Snorp",
 		Type: api.GUILD_CATEGORY,
 		Permissions: []api.GuildChannelsPermissions{
 			{
-				ID:    guild.ID,
+				ID:    guildID,
 				Type:  0,
 				Allow: "1024",
 				Deny:  "0",
@@ -29,25 +21,10 @@ func CreateGuildChannel(session *state.SessionState, guild api.Guild) {
 		Position: 0,
 	}
 
-	response, err := api.CreateChannel(session, guild.ID, categoryChannel)
+	newCategoryChannel, err := api.CreateGuildChannel(session, guildID, categoryChannel)
 	if err != nil {
 		log.Printf("Error creating category channel: %s\n", err)
-		return
-	}
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer response.Body.Close()
-
-	var channel api.GuildChannels
-
-	err = json.Unmarshal(body, &channel)
-	if err != nil {
-		log.Println(err)
-		return
+		return nil
 	}
 
 	adminChannel := &api.GuildChannels{
@@ -61,17 +38,17 @@ func CreateGuildChannel(session *state.SessionState, guild api.Guild) {
 				Deny:  "0",
 			},
 			{
-				ID:    guild.ID,
+				ID:    guildID,
 				Type:  0,
 				Allow: "0",
 				Deny:  "1024",
 			},
 		},
 		Position: 0,
-		ParentID: channel.ID,
+		ParentID: newCategoryChannel.ID,
 	}
 
-	if session.Config.Bot.SuperuserID != guild.OwnerID {
+	if session.Config.Bot.SuperuserID != guildOwnerID {
 		superUser := api.GuildChannelsPermissions{
 			ID:    session.Config.Bot.SuperuserID,
 			Type:  1,
@@ -81,8 +58,21 @@ func CreateGuildChannel(session *state.SessionState, guild api.Guild) {
 		adminChannel.Permissions = append(adminChannel.Permissions, superUser)
 	}
 
-	_, err = api.CreateChannel(session, guild.ID, adminChannel)
+	newAdminChannel, err := api.CreateGuildChannel(session, guildID, adminChannel)
 	if err != nil {
 		log.Printf("Error creating admin channel: %s\n", err)
+		return nil
 	}
+
+	message := api.Message{
+		Content: "TEST",
+	}
+
+	newMessage, err := api.CreateMessage(session, newAdminChannel.ID, message)
+	if err != nil {
+		log.Printf("Error creating message: %s\n", err)
+		return nil
+	}
+
+	return newMessage
 }
