@@ -38,7 +38,7 @@ const (
 	DISCORD_LAUNCH_ACTIVITY = 2 //Discord handles the interaction by launching an Activity and sending a follow-up message without coordinating with the app
 )
 
-func GetGlobalCommand(session *state.SessionState) []string {
+func GetGlobalCommand(session *state.SessionState) (*[]string, error) {
 	request := state.HttpRequest{
 		Method: "GET",
 		Uri:    fmt.Sprintf("/applications/%s/commands", session.ReadyData.User.ID),
@@ -47,23 +47,23 @@ func GetGlobalCommand(session *state.SessionState) []string {
 
 	response, err := session.SendRequest(request)
 	if err != nil {
-		log.Printf("Error fetching commands: %v\n", err)
+		return nil, err
 	}
 	defer response.Body.Close()
 
-	var commands []string
+	var commands *[]string
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Fatalf("Error reading response body: %v", err)
+		return nil, err
 	}
 
 	err = json.Unmarshal(body, &commands)
 	if err != nil {
-		log.Fatalf("Error unmarshaling json: %v", err)
+		return nil, err
 	}
 
-	return commands
+	return commands, nil
 }
 
 func DeleteGlobalCommand(session *state.SessionState, commandID string) {

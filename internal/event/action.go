@@ -36,7 +36,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		//go etc.Messages(session, message)
+		fmt.Println(message)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

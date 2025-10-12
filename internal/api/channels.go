@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"snorp/internal/state"
 )
@@ -42,4 +43,31 @@ func CreateChannel(session *state.SessionState, guildID string, channel *GuildCh
 	}
 
 	return response, nil
+}
+
+func GetGuildChannels(session *state.SessionState, guildID string) (*[]GuildChannels, error) {
+	request := state.HttpRequest{
+		Method: "GET",
+		Uri:    fmt.Sprintf("/guilds/%s/channels", guildID),
+		Body:   nil,
+	}
+
+	response, err := session.SendRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	var channels *[]GuildChannels
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &channels)
+	if err != nil {
+		return nil, err
+	}
+
+	return channels, nil
 }
