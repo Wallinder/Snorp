@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/etc"
 	"snorp/internal/state"
 
 	"github.com/coder/websocket"
@@ -23,7 +22,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
-		UpdatePresence(ctx, conn)
 
 	case "GUILD_CREATE":
 		var guild api.Guild
@@ -39,7 +37,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go etc.Messages(session, message)
+		//go etc.Messages(session, message)
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

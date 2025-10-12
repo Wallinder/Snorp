@@ -11,14 +11,18 @@
         "browser": "https://github.com/Wallinder/Snorp",
         "device": "Walle-Lab"
       },
+      "presence": {
+        "since": 0,
+        "activities": [{
+          "name": "🥜Jerkmate Ranked🥜",
+          "type": 5
+        }],
+        "status": "online",
+        "afk": false
+      },
       "compress": false,
       "large_threshold": 250,
       "intents": 130955
-    },
-    "mute": {
-      "users": [
-        "mammle992"
-      ]
     }
   }
 }

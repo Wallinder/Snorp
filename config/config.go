@@ -17,7 +17,6 @@ type DiscordBot struct {
 	Api         string   `json:"api"`
 	ApiVersion  string   `json:"api_version"`
 	Identity    Identity `json:"identity"`
-	Mute        Mute     `json:"mute"`
 }
 
 type Identity struct {
@@ -26,6 +25,7 @@ type Identity struct {
 	LargeThreshold int                `json:"large_threshold"`
 	Intents        int64              `json:"intents"`
 	Properties     IdentityProperties `json:"properties"`
+	Presence       PresenceData       `json:"presence"`
 }
 
 type IdentityProperties struct {
@@ -34,8 +34,16 @@ type IdentityProperties struct {
 	Device  string `json:"device"`
 }
 
-type Mute struct {
-	Users []string `json:"users"`
+type PresenceData struct {
+	Since      int        `json:"since"`
+	Activities []Activity `json:"activities"`
+	Status     string     `json:"status"`
+	AFK        bool       `json:"afk"`
+}
+
+type Activity struct {
+	Name string `json:"name"`
+	Type int    `json:"type"`
 }
 
 func Settings() Config {
