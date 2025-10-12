@@ -29,7 +29,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		//go channel.Create(session, guild)
 
 	case "MESSAGE_CREATE":
 		var message api.Message
