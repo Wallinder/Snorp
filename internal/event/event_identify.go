@@ -16,7 +16,7 @@ type Identify struct {
 
 func SendIdentify(ctx context.Context, conn *websocket.Conn, identity config.Identity) {
 	message, err := json.Marshal(Identify{
-		Op: 2,
+		Op: IDENTIFY,
 		D:  identity,
 	})
 	if err != nil {

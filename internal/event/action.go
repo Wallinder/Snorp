@@ -8,9 +8,11 @@ import (
 	"snorp/internal/api"
 	"snorp/internal/etc"
 	"snorp/internal/state"
+
+	"github.com/coder/websocket"
 )
 
-func DispatchHandler(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	switch action {
 
 	case "READY":
@@ -21,7 +23,7 @@ func DispatchHandler(ctx context.Context, session *state.SessionState, action st
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
-		//UpdatePresence(ctx, session.Conn)
+		UpdatePresence(ctx, conn)
 
 	case "GUILD_CREATE":
 		var guild api.Guild

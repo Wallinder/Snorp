@@ -19,7 +19,7 @@ type Heartbeat struct {
 
 func SendHeartbeat(ctx context.Context, conn *websocket.Conn, seq int64) {
 	message, err := json.Marshal(Heartbeat{
-		Op: 1,
+		Op: HEARTBEAT,
 		D:  seq,
 	})
 	if err != nil {

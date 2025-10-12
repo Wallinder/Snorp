@@ -9,34 +9,35 @@ import (
 )
 
 type Presence struct {
-	Op int
-	D  PresenceData
+	Op int          `json:"op"`
+	D  PresenceData `json:"d"`
 }
 
 type PresenceData struct {
-	Since      int        // Unix time (in milliseconds) of when the client went idle, or null if the client is not idle
-	Activities []Activity // array of activity objects	User's activities
-	Status     string     // User's new status
-	AFK        bool       // Whether or not the client is afk
+	Since      int        `json:"since"`
+	Activities []Activity `json:"activities"`
+	Status     string     `json:"status"`
+	AFK        bool       `json:"afk"`
 }
 
 type Activity struct {
-	Name string
-	Type int
-	// add missing
-	// https://discord.com/developers/docs/events/gateway-events#activity-object
+	Name string `json:"name"`
+	Type int    `json:"type"`
 }
 
 func UpdatePresence(ctx context.Context, conn *websocket.Conn) {
 	message, err := json.Marshal(Presence{
 		Op: PRESENCE_UPDATE,
 		D: PresenceData{
-			Since:  0,
-			Status: "Gooning",
-			AFK:    false,
+			Since: 0,
 			Activities: []Activity{
-				{Name: "coding in Go 🐹", Type: 0},
+				{
+					Name: "🥜Jerkmate Ranked🥜",
+					Type: 5,
+				},
 			},
+			Status: "online",
+			AFK:    false,
 		},
 	})
 	if err != nil {

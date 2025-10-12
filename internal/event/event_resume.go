@@ -22,7 +22,7 @@ type ResumeData struct {
 
 func ResumeConnection(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
 	message, err := json.Marshal(Resume{
-		Op: 6,
+		Op: RESUME,
 		D: ResumeData{
 			Token:     session.Config.Bot.Identity.Token,
 			SessionId: session.ReadyData.SessionID,
