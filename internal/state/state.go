@@ -7,22 +7,26 @@ import (
 	"log"
 	"net/http"
 	"snorp/config"
+	"sync"
 	"time"
 
 	"github.com/coder/websocket"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type SessionState struct {
-	Seq           int64
-	Metadata      Metadata
-	ReadyData     ReadyData
-	Resume        bool
-	Config        config.Config
-	Conn          *websocket.Conn
-	Client        *http.Client
-	GlobalHeaders map[string][]string
-	Messages      chan []byte
-	MaxRetries    int
+	Mu             sync.RWMutex
+	Seq            int64
+	Metadata       Metadata
+	ReadyData      ReadyData
+	Resume         bool
+	ConnectionPool *pgxpool.Pool
+	Config         config.Config
+	Conn           *websocket.Conn
+	Client         *http.Client
+	GlobalHeaders  map[string][]string
+	Messages       chan []byte
+	MaxRetries     int
 }
 
 type ReadyData struct {

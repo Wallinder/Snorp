@@ -7,7 +7,13 @@ import (
 )
 
 type Config struct {
-	Bot DiscordBot `json:"discordBot"`
+	Bot        DiscordBot `json:"discordbot"`
+	Postgresql Postgresql `json:"postgresql"`
+}
+
+type Postgresql struct {
+	Enabled          bool   `json:"enabled"`
+	ConnectionString string `json:"connection_string"`
 }
 
 type DiscordBot struct {

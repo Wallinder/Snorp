@@ -1,5 +1,5 @@
 {
-  "discordBot": {
+  "discordbot": {
     "superuser_id": "216244586165698560",
     "permissions": 2844878376418416,
     "api": "https://discord.com/api",
@@ -24,5 +24,9 @@
       "large_threshold": 250,
       "intents": 130955
     }
+  },
+  "postgresql": {
+    "enabled": false,
+    "connection_string": "postgresql://user:password@localhost:5432/snorp"
   }
 }
