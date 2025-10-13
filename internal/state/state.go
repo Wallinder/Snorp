@@ -15,7 +15,7 @@ import (
 )
 
 type SessionState struct {
-	Mu             sync.RWMutex
+	Mu             sync.Mutex
 	Seq            int64
 	Metadata       Metadata
 	ReadyData      ReadyData
