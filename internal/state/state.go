@@ -15,18 +15,18 @@ import (
 )
 
 type SessionState struct {
-	Mu             sync.Mutex
-	Seq            int64
-	Metadata       Metadata
-	ReadyData      ReadyData
-	Resume         bool
-	ConnectionPool *pgxpool.Pool
-	Config         config.Config
-	Conn           *websocket.Conn
-	Client         *http.Client
-	GlobalHeaders  map[string][]string
-	Messages       chan []byte
-	MaxRetries     int
+	Mu            sync.Mutex
+	Seq           int64
+	Metadata      Metadata
+	ReadyData     ReadyData
+	Resume        bool
+	Pool          *pgxpool.Pool
+	Config        config.Config
+	Conn          *websocket.Conn
+	Client        *http.Client
+	GlobalHeaders map[string][]string
+	Messages      chan []byte
+	MaxRetries    int
 }
 
 type ReadyData struct {

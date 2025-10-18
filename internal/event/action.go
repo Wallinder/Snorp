@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
+	"snorp/internal/sql"
 	"snorp/internal/state"
 
 	"github.com/coder/websocket"
@@ -29,6 +30,22 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
+		go func() {
+			conn, err := session.Pool.Acquire(ctx)
+			if err != nil {
+				log.Printf("Error acquiring connection %v\n", err)
+				return
+			}
+
+			sql.InsertGuild(ctx, conn, &guild)
+			for _, channel := range guild.Channels {
+				sql.InsertChannel(ctx, conn, &channel, guild.ID)
+			}
+			for _, member := range guild.Members {
+				sql.InsertUser(ctx, conn, &member)
+				sql.InsertUserGuildMapping(ctx, conn, &member, guild.ID)
+			}
+		}()
 
 	case "MESSAGE_CREATE":
 		var message api.Message

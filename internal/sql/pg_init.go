@@ -3,20 +3,21 @@ package sql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func InitDatabase(ctx context.Context, conn *pgx.Conn) error {
-	_, err := conn.Exec(ctx, `CREATE DATABASE IF NOT EXISTS snorp`)
+func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
+	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return err
 	}
+	defer conn.Release()
 
 	_, err = conn.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS guilds (
             id VARCHAR(64) PRIMARY KEY,
             name TEXT,
-			owner VARCHAR(32)
+			owner_id VARCHAR(32)
         )`,
 	)
 	if err != nil {
@@ -31,7 +32,7 @@ func InitDatabase(ctx context.Context, conn *pgx.Conn) error {
             name VARCHAR(32),
 			type INT,
 			topic TEXT,
-			FOREIGN KEY guild_id REFERENCES guilds(id)
+			FOREIGN KEY (guild_id) REFERENCES guilds(id)
         )`,
 	)
 	if err != nil {
@@ -43,7 +44,7 @@ func InitDatabase(ctx context.Context, conn *pgx.Conn) error {
 			id VARCHAR(64) PRIMARY KEY,
             username VARCHAR(32),
 			global_name VARCHAR(32),
-			primary_guild VARCHAR(64),
+			primary_guild VARCHAR(64)
 		)`,
 	)
 	if err != nil {
@@ -51,7 +52,7 @@ func InitDatabase(ctx context.Context, conn *pgx.Conn) error {
 	}
 
 	_, err = conn.Exec(ctx, // guild <-> users mapping
-		`CREATE TABLE IF NOT EXISTS users_mapping (
+		`CREATE TABLE IF NOT EXISTS user_guild_mapping (
 			user_id VARCHAR(64),
 			guild_id VARCHAR(64),
 			PRIMARY KEY (user_id, guild_id),

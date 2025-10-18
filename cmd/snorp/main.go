@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"snorp/config"
 	"snorp/internal/event"
 	"snorp/internal/sql"
@@ -12,10 +13,17 @@ func Start(session *state.SessionState) {
 	ctx := context.Background()
 
 	if session.Config.Postgresql.Enabled {
-		session.ConnectionPool = sql.CreatePool(
+		session.Pool = sql.CreatePool(
 			ctx,
 			session.Config.Postgresql.ConnectionString,
 		)
+		defer session.Pool.Close()
+
+		err := sql.InitDatabase(ctx, session.Pool)
+		if err != nil {
+			log.Fatalf("Error initializing db: %v", err)
+		}
+
 	}
 
 	event.EventListener(ctx, session)
