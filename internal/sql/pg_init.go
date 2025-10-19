@@ -16,8 +16,8 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 	_, err = conn.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS guilds (
             id VARCHAR(64) PRIMARY KEY,
-            name TEXT,
-			owner_id VARCHAR(32)
+            name VARCHAR(32),
+			owner_id VARCHAR(64)
         )`,
 	)
 	if err != nil {
@@ -44,7 +44,8 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 			id VARCHAR(64) PRIMARY KEY,
             username VARCHAR(32),
 			global_name VARCHAR(32),
-			primary_guild VARCHAR(64)
+			bot BOOLEAN,
+			email TEXT
 		)`,
 	)
 	if err != nil {

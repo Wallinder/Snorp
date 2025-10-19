@@ -68,6 +68,7 @@ type Guild struct {
 type GuildChannels struct {
 	Version          int64                      `json:"version,omitzero"`
 	Type             int                        `json:"type,omitzero"`
+	GuildID          string                     `json:"guild_id,omitzero"`
 	Position         int                        `json:"position,omitzero"`
 	Permissions      []GuildChannelsPermissions `json:"permission_overwrites,omitzero"`
 	Name             string                     `json:"name,omitzero"`
@@ -105,20 +106,28 @@ type GuildMembers struct {
 }
 
 type GuildUser struct {
-	ID                   string `json:"id"`
-	Username             string `json:"username"`
-	Discriminator        string `json:"discriminator"`
-	GlobalName           any    `json:"global_name"`
-	Avatar               string `json:"avatar"`
-	Bot                  bool   `json:"bot"`
-	System               bool   `json:"system"`
-	MfaEnabled           bool   `json:"mfa_enabled"`
-	PublicFlags          int    `json:"public_flags"`
-	PrimaryGuild         any    `json:"primary_guild"`
-	DisplayNameStyles    any    `json:"display_name_styles"`
-	DisplayName          any    `json:"display_name"`
-	Collectibles         any    `json:"collectibles"`
-	AvatarDecorationData any    `json:"avatar_decoration_data"`
+	ID                   string                `json:"id"`
+	Username             string                `json:"username"`
+	Discriminator        string                `json:"discriminator"`
+	GlobalName           string                `json:"global_name"`
+	Avatar               string                `json:"avatar"`
+	Bot                  bool                  `json:"bot"`
+	Email                string                `json:"email"`
+	System               bool                  `json:"system"`
+	MfaEnabled           bool                  `json:"mfa_enabled"`
+	PublicFlags          int                   `json:"public_flags"`
+	PrimaryGuild         GuildUserPrimaryGuild `json:"primary_guild"`
+	DisplayNameStyles    any                   `json:"display_name_styles"`
+	DisplayName          string                `json:"display_name"`
+	Collectibles         any                   `json:"collectibles"`
+	AvatarDecorationData any                   `json:"avatar_decoration_data"`
+}
+
+type GuildUserPrimaryGuild struct {
+	IdentityGuildID string `json:"identity_guild_id"`
+	IdentityEnabled bool   `json:"identity_enabled"`
+	Tag             string `json:"collectitagbles"`
+	Badge           string `json:"badge"`
 }
 
 type GuildRoles struct {

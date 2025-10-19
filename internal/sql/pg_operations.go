@@ -2,14 +2,19 @@ package sql
 
 import (
 	"context"
-	"log"
 	"snorp/internal/api"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func InsertGuild(ctx context.Context, conn *pgxpool.Conn, guild *api.Guild) {
+func InsertGuild(ctx context.Context, pool *pgxpool.Pool, guild *api.Guild) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
 	guildQuery := `INSERT INTO guilds (
 			id, name, owner_id
 		) 
@@ -26,13 +31,20 @@ func InsertGuild(ctx context.Context, conn *pgxpool.Conn, guild *api.Guild) {
 		"owner_id": guild.OwnerID,
 	}
 
-	_, err := conn.Exec(ctx, guildQuery, guildArgs)
+	_, err = conn.Exec(ctx, guildQuery, guildArgs)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+	return nil
 }
 
-func InsertChannel(ctx context.Context, conn *pgxpool.Conn, channel *api.GuildChannels, guildID string) {
+func InsertChannel(ctx context.Context, pool *pgxpool.Pool, channel api.GuildChannels) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
 	channelQuery := `INSERT INTO channels (
 			id, guild_id, parent_id, name, type, topic
 		) 
@@ -48,45 +60,105 @@ func InsertChannel(ctx context.Context, conn *pgxpool.Conn, channel *api.GuildCh
 
 	channelArgs := pgx.NamedArgs{
 		"id":        channel.ID,
-		"guild_id":  guildID,
+		"guild_id":  channel.GuildID,
 		"parent_id": channel.ParentID,
 		"name":      channel.Name,
 		"type":      channel.Type,
 		"topic":     channel.Topic,
 	}
 
-	_, err := conn.Exec(ctx, channelQuery, channelArgs)
+	_, err = conn.Exec(ctx, channelQuery, channelArgs)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+	return nil
 }
 
-func InsertUser(ctx context.Context, conn *pgxpool.Conn, member *api.GuildMembers) {
+func DeleteChannel(ctx context.Context, pool *pgxpool.Pool, channel api.GuildChannels) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	channelQuery := `DELETE FROM channels WHERE id = $1`
+
+	_, err = conn.Exec(ctx, channelQuery, channel.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateChannel(ctx context.Context, pool *pgxpool.Pool, channel api.GuildChannels) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	channelQuery := `UPDATE channels SET
+			guild_id = @guild_id,
+			parent_id = @parent_id,
+			name = @name,
+			type = @type,
+			topic = @topic`
+
+	channelArgs := pgx.NamedArgs{
+		"guild_id":  channel.GuildID,
+		"parent_id": channel.ParentID,
+		"name":      channel.Name,
+		"type":      channel.Type,
+		"topic":     channel.Topic,
+	}
+
+	_, err = conn.Exec(ctx, channelQuery, channelArgs)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func InsertUser(ctx context.Context, pool *pgxpool.Pool, member api.GuildMembers) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
 	userQuery := `INSERT INTO users (
-			id, username, global_name, primary_guild
+			id, username, global_name, bot
 		) 
 		VALUES (
-			@id, @username, @global_name, @primary_guild
+			@id, @username, @global_name, @bot
 		)
 		ON CONFLICT (id) DO UPDATE SET
 			username = @username,
 			global_name = @global_name,
-			primary_guild = @primary_guild`
+			bot = @bot`
 
 	userArgs := pgx.NamedArgs{
-		"id":            member.User.ID,
-		"username":      member.User.Username,
-		"global_name":   member.User.GlobalName,
-		"primary_guild": member.User.PrimaryGuild,
+		"id":          member.User.ID,
+		"username":    member.User.Username,
+		"global_name": member.User.GlobalName,
+		"bot":         member.User.Bot,
+		"email":       member.User.Email,
 	}
 
-	_, err := conn.Exec(ctx, userQuery, userArgs)
+	_, err = conn.Exec(ctx, userQuery, userArgs)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+	return nil
 }
 
-func InsertUserGuildMapping(ctx context.Context, conn *pgxpool.Conn, member *api.GuildMembers, guildID string) {
+func InsertUserGuildMapping(ctx context.Context, pool *pgxpool.Pool, member api.GuildMembers, guildID string) error {
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
 	mappingQuery := `INSERT INTO user_guild_mapping (
 			user_id, guild_id
 		) 
@@ -102,8 +174,9 @@ func InsertUserGuildMapping(ctx context.Context, conn *pgxpool.Conn, member *api
 		"guild_id": guildID,
 	}
 
-	_, err := conn.Exec(ctx, mappingQuery, mappingArgs)
+	_, err = conn.Exec(ctx, mappingQuery, mappingArgs)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+	return nil
 }

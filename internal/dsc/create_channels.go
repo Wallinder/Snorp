@@ -1,12 +1,11 @@
 package dsc
 
 import (
-	"log"
 	"snorp/internal/api"
 	"snorp/internal/state"
 )
 
-func CreateDesiredGuildChannels(session *state.SessionState, guildID string, guildOwnerID string) *api.Message {
+func CreateDesiredGuildChannels(session *state.SessionState, guildID string, guildOwnerID string) error {
 	categoryChannel := &api.GuildChannels{
 		Name: "Snorp",
 		Type: api.GUILD_CATEGORY,
@@ -23,8 +22,7 @@ func CreateDesiredGuildChannels(session *state.SessionState, guildID string, gui
 
 	newCategoryChannel, err := api.CreateGuildChannel(session, guildID, categoryChannel)
 	if err != nil {
-		log.Printf("Error creating category channel: %s\n", err)
-		return nil
+		return err
 	}
 
 	adminChannel := &api.GuildChannels{
@@ -58,21 +56,10 @@ func CreateDesiredGuildChannels(session *state.SessionState, guildID string, gui
 		adminChannel.Permissions = append(adminChannel.Permissions, superUser)
 	}
 
-	newAdminChannel, err := api.CreateGuildChannel(session, guildID, adminChannel)
+	_, err = api.CreateGuildChannel(session, guildID, adminChannel)
 	if err != nil {
-		log.Printf("Error creating admin channel: %s\n", err)
-		return nil
+		return err
 	}
 
-	message := api.Message{
-		Content: "TEST",
-	}
-
-	newMessage, err := api.CreateMessage(session, newAdminChannel.ID, message)
-	if err != nil {
-		log.Printf("Error creating message: %s\n", err)
-		return nil
-	}
-
-	return newMessage
+	return nil
 }
