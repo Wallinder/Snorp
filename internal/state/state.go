@@ -30,21 +30,26 @@ type SessionState struct {
 }
 
 type ReadyData struct {
-	V                    int         `json:"v"`
-	UserSettings         any         `json:"user_settings"`
-	User                 User        `json:"user"`
-	SessionType          string      `json:"session_type"`
-	SessionID            string      `json:"session_id"`
-	ResumeGatewayURL     string      `json:"resume_gateway_url"`
-	Relationships        any         `json:"relationships"`
-	PrivateChannels      any         `json:"private_channels"`
-	Presences            any         `json:"presences"`
-	Guilds               any         `json:"guilds"`
-	GuildJoinRequests    any         `json:"guild_join_requests"`
-	GeoOrderedRtcRegions []string    `json:"geo_ordered_rtc_regions"`
-	GameRelationships    any         `json:"game_relationships"`
-	Auth                 any         `json:"auth"`
-	Application          Application `json:"application"`
+	V                    int                `json:"v"`
+	UserSettings         any                `json:"user_settings"`
+	User                 User               `json:"user"`
+	SessionType          string             `json:"session_type"`
+	SessionID            string             `json:"session_id"`
+	ResumeGatewayURL     string             `json:"resume_gateway_url"`
+	Relationships        any                `json:"relationships"`
+	PrivateChannels      any                `json:"private_channels"`
+	Presences            any                `json:"presences"`
+	Guilds               []UnavailableGuild `json:"guilds"`
+	GuildJoinRequests    any                `json:"guild_join_requests"`
+	GeoOrderedRtcRegions []string           `json:"geo_ordered_rtc_regions"`
+	GameRelationships    any                `json:"game_relationships"`
+	Auth                 any                `json:"auth"`
+	Application          Application        `json:"application"`
+}
+
+type UnavailableGuild struct {
+	ID          string
+	Unavailable bool
 }
 
 type User struct {

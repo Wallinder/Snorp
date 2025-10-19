@@ -71,6 +71,8 @@ type GuildChannels struct {
 	GuildID          string                     `json:"guild_id,omitzero"`
 	Position         int                        `json:"position,omitzero"`
 	Permissions      []GuildChannelsPermissions `json:"permission_overwrites,omitzero"`
+	OwnerID          string                     `json:"owner_id,omitzero"`
+	ApplicationID    string                     `json:"application_id,omitzero"`
 	Name             string                     `json:"name,omitzero"`
 	ID               string                     `json:"id,omitzero"`
 	Flags            int                        `json:"flags,omitzero"`

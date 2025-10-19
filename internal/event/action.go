@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/dsc"
 	"snorp/internal/sql"
 	"snorp/internal/state"
 
@@ -32,12 +31,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		go func() {
-			err = sql.InsertGuild(ctx, session.Pool, &guild)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			err = dsc.CreateDesiredGuildChannels(session, guild.ID, guild.OwnerID)
+			err := sql.InsertGuild(ctx, session.Pool, guild)
 			if err != nil {
 				log.Println(err)
 				return
@@ -50,13 +44,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go func() {
-			err := sql.InsertChannel(ctx, session.Pool, channel)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		}()
 
 	case "CHANNEL_DELETE":
 		var channel api.GuildChannels
@@ -64,13 +51,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go func() {
-			err := sql.DeleteChannel(ctx, session.Pool, channel)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		}()
 
 	case "CHANNEL_UPDATE":
 		var channel api.GuildChannels
@@ -78,13 +58,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go func() {
-			err := sql.UpdateChannel(ctx, session.Pool, channel)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		}()
 
 	case "MESSAGE_CREATE":
 		var message api.Message

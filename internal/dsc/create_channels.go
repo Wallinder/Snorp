@@ -5,28 +5,9 @@ import (
 	"snorp/internal/state"
 )
 
-func CreateDesiredGuildChannels(session *state.SessionState, guildID string, guildOwnerID string) error {
-	categoryChannel := &api.GuildChannels{
-		Name: "Snorp",
-		Type: api.GUILD_CATEGORY,
-		Permissions: []api.GuildChannelsPermissions{
-			{
-				ID:    guildID,
-				Type:  0,
-				Allow: "1024",
-				Deny:  "0",
-			},
-		},
-		Position: 0,
-	}
-
-	newCategoryChannel, err := api.CreateGuildChannel(session, guildID, categoryChannel)
-	if err != nil {
-		return err
-	}
-
+func CreateAdminChannel(session *state.SessionState, guildID string) error {
 	adminChannel := &api.GuildChannels{
-		Name: "Admin",
+		Name: "snorp-admin",
 		Type: api.GUILD_TEXT,
 		Permissions: []api.GuildChannelsPermissions{
 			{
@@ -42,21 +23,19 @@ func CreateDesiredGuildChannels(session *state.SessionState, guildID string, gui
 				Deny:  "1024",
 			},
 		},
+		Topic:    "snorp:admin",
 		Position: 0,
-		ParentID: newCategoryChannel.ID,
 	}
 
-	if session.Config.Bot.SuperuserID != guildOwnerID {
-		superUser := api.GuildChannelsPermissions{
-			ID:    session.Config.Bot.SuperuserID,
-			Type:  1,
-			Allow: "1024",
-			Deny:  "0",
-		}
-		adminChannel.Permissions = append(adminChannel.Permissions, superUser)
+	superUser := api.GuildChannelsPermissions{
+		ID:    session.Config.Bot.SuperuserID,
+		Type:  1,
+		Allow: "1024",
+		Deny:  "0",
 	}
+	adminChannel.Permissions = append(adminChannel.Permissions, superUser)
 
-	_, err = api.CreateGuildChannel(session, guildID, adminChannel)
+	_, err := api.CreateGuildChannel(session, guildID, adminChannel)
 	if err != nil {
 		return err
 	}

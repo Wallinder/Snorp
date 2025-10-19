@@ -39,31 +39,5 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 		return err
 	}
 
-	_, err = conn.Exec(ctx, // combination of guild members and guild users
-		`CREATE TABLE IF NOT EXISTS users (
-			id VARCHAR(64) PRIMARY KEY,
-            username VARCHAR(32),
-			global_name VARCHAR(32),
-			bot BOOLEAN,
-			email TEXT
-		)`,
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.Exec(ctx, // guild <-> users mapping
-		`CREATE TABLE IF NOT EXISTS user_guild_mapping (
-			user_id VARCHAR(64),
-			guild_id VARCHAR(64),
-			PRIMARY KEY (user_id, guild_id),
-			FOREIGN KEY (user_id) REFERENCES users(id),
-			FOREIGN KEY (guild_id) REFERENCES guilds(id)
-		)`,
-	)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

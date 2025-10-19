@@ -57,7 +57,7 @@ func CreateGuildChannel(session *state.SessionState, guildID string, channel *Gu
 	return newChannel, nil
 }
 
-func GetGuildChannels(session *state.SessionState, guildID string) (*[]GuildChannels, error) {
+func GetGuildChannels(session *state.SessionState, guildID string) ([]GuildChannels, error) {
 	request := state.HttpRequest{
 		Method: "GET",
 		Uri:    fmt.Sprintf("/guilds/%s/channels", guildID),
@@ -69,7 +69,7 @@ func GetGuildChannels(session *state.SessionState, guildID string) (*[]GuildChan
 		return nil, err
 	}
 
-	var channels *[]GuildChannels
+	var channels []GuildChannels
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
