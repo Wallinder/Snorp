@@ -32,7 +32,7 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
             name VARCHAR(32),
 			type INT,
 			topic TEXT,
-			FOREIGN KEY (guild_id) REFERENCES guilds(id)
+			FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
         )`,
 	)
 	if err != nil {

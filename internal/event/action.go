@@ -23,6 +23,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
+		go sql.DeleteStaleGuilds(ctx, session.Pool, readyData.Guilds)
 
 	case "GUILD_CREATE":
 		var guild api.Guild
@@ -30,13 +31,23 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go func() {
-			err := sql.InsertGuild(ctx, session.Pool, guild)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		}()
+		go sql.InsertGuild(ctx, session.Pool, guild)
+
+	case "GUILD_DELETE":
+		var guild api.Guild
+		err := json.Unmarshal(dispatchMessage, &guild)
+		if err != nil {
+			log.Println("Error unmarshaling JSON:", err)
+		}
+		go sql.DeleteGuild(ctx, session.Pool, guild.ID)
+
+	case "GUILD_UPDATE":
+		var guild api.Guild
+		err := json.Unmarshal(dispatchMessage, &guild)
+		if err != nil {
+			log.Println("Error unmarshaling JSON:", err)
+		}
+		go sql.UpdateGuild(ctx, session.Pool, guild)
 
 	case "CHANNEL_CREATE":
 		var channel api.GuildChannels
