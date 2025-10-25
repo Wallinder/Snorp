@@ -20,7 +20,7 @@ func DeleteStaleGuilds(ctx context.Context, pool *pgxpool.Pool, guilds []state.U
 	}
 	defer conn.Release()
 
-	guildIDs, err := GetTableIDs(ctx, conn, "guilds")
+	dbGuildIDs, err := GetTableIDs(ctx, conn, "guilds")
 	if err != nil {
 		log.Println(err)
 		return
@@ -31,13 +31,14 @@ func DeleteStaleGuilds(ctx context.Context, pool *pgxpool.Pool, guilds []state.U
 		readyGuilds = append(readyGuilds, guild.ID)
 	}
 
-	for _, dbIDs := range guildIDs {
-		if !slices.Contains(readyGuilds, dbIDs) {
-			_, err = conn.Exec(ctx, `DELETE FROM guilds WHERE id = $1`, dbIDs)
-			if err != nil {
-				log.Println(err)
-				return
-			}
+	for _, dbIDs := range dbGuildIDs {
+		if slices.Contains(readyGuilds, dbIDs) {
+			continue
+		}
+		_, err = conn.Exec(ctx, `DELETE FROM guilds WHERE id = $1`, dbIDs)
+		if err != nil {
+			log.Println(err)
+			return
 		}
 	}
 }
