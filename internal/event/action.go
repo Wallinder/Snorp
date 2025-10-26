@@ -7,7 +7,6 @@ import (
 	"log"
 	"snorp/internal/api"
 	"snorp/internal/jobs"
-	"snorp/internal/sql"
 	"snorp/internal/state"
 
 	"github.com/coder/websocket"
@@ -24,7 +23,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
-		go sql.DeleteStaleGuilds(ctx, session.Pool, readyData.Guilds)
 
 	case "GUILD_CREATE":
 		var guild api.Guild
@@ -32,7 +30,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go sql.InsertGuild(ctx, session.Pool, guild)
 		go jobs.SteamSales(ctx, session, guild)
 
 	case "GUILD_DELETE":
@@ -41,7 +38,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go sql.DeleteGuild(ctx, session.Pool, guild.ID)
 
 	case "GUILD_UPDATE":
 		var guild api.Guild
@@ -49,7 +45,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go sql.UpdateGuild(ctx, session.Pool, guild)
 
 	case "CHANNEL_CREATE":
 		var channel api.GuildChannels
@@ -78,7 +73,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		fmt.Println(string(dispatchMessage))
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

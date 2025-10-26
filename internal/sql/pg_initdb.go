@@ -35,9 +35,10 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 	//		FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
 	//    )`,
 	//)
-	if err != nil {
-		return err
-	}
+
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }

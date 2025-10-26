@@ -12,15 +12,17 @@ import (
 func Start(session *state.SessionState) {
 	ctx := context.Background()
 
-	session.Pool = sql.CreatePool(
-		ctx,
-		session.Config.Postgresql.ConnectionString,
-	)
-	defer session.Pool.Close()
+	if session.Config.Postgresql.Enabled {
+		session.Pool = sql.CreatePool(
+			ctx,
+			session.Config.Postgresql.ConnectionString,
+		)
+		defer session.Pool.Close()
 
-	err := sql.InitDatabase(ctx, session.Pool)
-	if err != nil {
-		log.Fatalf("Error initializing db: %v", err)
+		err := sql.InitDatabase(ctx, session.Pool)
+		if err != nil {
+			log.Fatalf("Error initializing db: %v", err)
+		}
 	}
 
 	event.EventListener(ctx, session)
