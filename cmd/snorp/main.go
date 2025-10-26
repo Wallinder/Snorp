@@ -7,9 +7,11 @@ import (
 	"snorp/internal/event"
 	"snorp/internal/sql"
 	"snorp/internal/state"
+	"time"
 )
 
 func Start(session *state.SessionState) {
+	session.StartTime = time.Now()
 	ctx := context.Background()
 
 	if session.Config.Postgresql.Enabled {

@@ -64,10 +64,10 @@ func SteamSales(ctx context.Context, session *state.SessionState, guild api.Guil
 		return
 	}
 
-	ticker := time.NewTicker(1 * time.Hour)
+	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
 
-	var lastRun time.Time
+	var lastRun = session.StartTime
 	for {
 		select {
 

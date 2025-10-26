@@ -16,6 +16,7 @@ import (
 
 type SessionState struct {
 	Mu            sync.Mutex
+	StartTime     time.Time
 	Seq           int64
 	Metadata      Metadata
 	ReadyData     ReadyData
