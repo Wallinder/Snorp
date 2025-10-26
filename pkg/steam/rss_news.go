@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 )
 
-const OFFICIAL_BLOG_AND_NEWS = "https://store.steampowered.com/feeds/news/collection/steam"
+const STEAM_NEWS = "https://store.steampowered.com/feeds/news/collection/steam"
 
 type SteamNewsRSS struct {
 	XMLName xml.Name    `xml:"rss"`

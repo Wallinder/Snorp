@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
+	"snorp/internal/jobs"
 	"snorp/internal/sql"
 	"snorp/internal/state"
 
@@ -32,6 +33,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		go sql.InsertGuild(ctx, session.Pool, guild)
+		go jobs.SteamSales(ctx, session, guild)
 
 	case "GUILD_DELETE":
 		var guild api.Guild
@@ -76,7 +78,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		fmt.Println(message)
+		fmt.Println(string(dispatchMessage))
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")

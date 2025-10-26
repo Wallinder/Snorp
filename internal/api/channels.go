@@ -84,3 +84,18 @@ func GetGuildChannels(session *state.SessionState, guildID string) ([]GuildChann
 
 	return channels, nil
 }
+
+func DeleteGuildChannels(session *state.SessionState, channelID string) error {
+	request := state.HttpRequest{
+		Method: "DELETE",
+		Uri:    fmt.Sprintf("/channels/%s", channelID),
+		Body:   nil,
+	}
+
+	_, err := session.SendRequest(request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

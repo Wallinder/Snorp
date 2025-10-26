@@ -20,7 +20,7 @@ func DeleteStaleGuilds(ctx context.Context, pool *pgxpool.Pool, guilds []state.U
 	}
 	defer conn.Release()
 
-	dbGuildIDs, err := GetTableIDs(ctx, conn, "guilds")
+	dbIDs, err := GetTableIDs(ctx, conn, "guilds")
 	if err != nil {
 		log.Println(err)
 		return
@@ -31,11 +31,11 @@ func DeleteStaleGuilds(ctx context.Context, pool *pgxpool.Pool, guilds []state.U
 		readyGuilds = append(readyGuilds, guild.ID)
 	}
 
-	for _, dbIDs := range dbGuildIDs {
-		if slices.Contains(readyGuilds, dbIDs) {
+	for _, id := range dbIDs {
+		if slices.Contains(readyGuilds, id) {
 			continue
 		}
-		_, err = conn.Exec(ctx, `DELETE FROM guilds WHERE id = $1`, dbIDs)
+		_, err = conn.Exec(ctx, `DELETE FROM guilds WHERE id = $1`, id)
 		if err != nil {
 			log.Println(err)
 			return
@@ -68,43 +68,6 @@ func InsertGuild(ctx context.Context, pool *pgxpool.Pool, guild api.Guild) {
 	}
 
 	_, err = conn.Exec(ctx, guildQuery, guildArgs)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
-
-func InsertChannel(ctx context.Context, pool *pgxpool.Pool, channel api.GuildChannels) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer conn.Release()
-
-	channelQuery := `INSERT INTO channels (
-			id, guild_id, parent_id, name, type, topic
-		) 
-		VALUES (
-			@id, @guild_id, @parent_id, @name, @type, @topic
-		)
-		ON CONFLICT (id) DO UPDATE SET
-			guild_id = @guild_id,
-			parent_id = @parent_id,
-			name = @name,
-			type = @type,
-			topic = @topic`
-
-	channelArgs := pgx.NamedArgs{
-		"id":        channel.ID,
-		"guild_id":  channel.GuildID,
-		"parent_id": channel.ParentID,
-		"name":      channel.Name,
-		"type":      channel.Type,
-		"topic":     channel.Topic,
-	}
-
-	_, err = conn.Exec(ctx, channelQuery, channelArgs)
 	if err != nil {
 		log.Println(err)
 		return
@@ -146,52 +109,6 @@ func UpdateGuild(ctx context.Context, pool *pgxpool.Pool, guild api.Guild) {
 	}
 
 	_, err = conn.Exec(ctx, guildQuery, guildArgs)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
-
-func DeleteChannel(ctx context.Context, pool *pgxpool.Pool, channel api.GuildChannels) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer conn.Release()
-
-	query := `DELETE FROM channels WHERE id = $1`
-
-	_, err = conn.Exec(ctx, query, channel.ID)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func UpdateChannel(ctx context.Context, pool *pgxpool.Pool, channel api.GuildChannels) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer conn.Release()
-
-	channelQuery := `UPDATE channels SET
-			guild_id = @guild_id,
-			parent_id = @parent_id,
-			name = @name,
-			type = @type,
-			topic = @topic`
-
-	channelArgs := pgx.NamedArgs{
-		"guild_id":  channel.GuildID,
-		"parent_id": channel.ParentID,
-		"name":      channel.Name,
-		"type":      channel.Type,
-		"topic":     channel.Topic,
-	}
-
-	_, err = conn.Exec(ctx, channelQuery, channelArgs)
 	if err != nil {
 		log.Println(err)
 		return

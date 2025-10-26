@@ -30,7 +30,7 @@ func GetSalesData() (*SteamSalesRSS, error) {
 func GetNewsData() (*SteamNewsRSS, error) {
 	var rss *SteamNewsRSS
 
-	response, err := http.Get(STEAM_SALES)
+	response, err := http.Get(STEAM_NEWS)
 	if err != nil {
 		return rss, err
 	}

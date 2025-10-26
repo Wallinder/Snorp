@@ -76,7 +76,7 @@ type GuildChannels struct {
 	Name             string                     `json:"name,omitzero"`
 	ID               string                     `json:"id,omitzero"`
 	Flags            int                        `json:"flags,omitzero"`
-	Topic            any                        `json:"topic,omitzero"`
+	Topic            string                     `json:"topic,omitzero"`
 	RateLimitPerUser int                        `json:"rate_limit_per_user,omitzero"`
 	ParentID         string                     `json:"parent_id,omitzero"`
 	LastMessageID    string                     `json:"last_message_id,omitzero"`
