@@ -30,7 +30,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go jobs.SteamSales(ctx, session, guild)
+		go jobs.SteamFeed(ctx, session, guild)
 
 	case "GUILD_DELETE":
 		var guild api.Guild

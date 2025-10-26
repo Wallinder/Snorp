@@ -52,7 +52,7 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 	}
 }
 
-func SteamSales(ctx context.Context, session *state.SessionState, guild api.Guild) {
+func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild) {
 	salesChannelID, err := FindOrCreateChannel(session, guild, "snorp:steamsales", "steam-sales")
 	if err != nil {
 		log.Println(err)
