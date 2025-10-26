@@ -6,8 +6,13 @@ import (
 	"net/http"
 )
 
-func GetSalesData() (*SteamSalesRSS, error) {
-	var rss *SteamSalesRSS
+const (
+	STEAM_NEWS  = "https://store.steampowered.com/feeds/news/collection/steam"
+	STEAM_SALES = "https://store.steampowered.com/feeds/news/collection/sales"
+)
+
+func GetSalesData() (*SteamRSS, error) {
+	var rss *SteamRSS
 
 	response, err := http.Get(STEAM_SALES)
 	if err != nil {
@@ -27,8 +32,8 @@ func GetSalesData() (*SteamSalesRSS, error) {
 	return rss, nil
 }
 
-func GetNewsData() (*SteamNewsRSS, error) {
-	var rss *SteamNewsRSS
+func GetNewsData() (*SteamRSS, error) {
+	var rss *SteamRSS
 
 	response, err := http.Get(STEAM_NEWS)
 	if err != nil {
