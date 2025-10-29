@@ -8,6 +8,33 @@ import (
 	"snorp/internal/state"
 )
 
+type GuildChannels struct {
+	Version          int64                      `json:"version,omitzero"`
+	Type             int                        `json:"type,omitzero"`
+	GuildID          string                     `json:"guild_id,omitzero"`
+	Position         int                        `json:"position,omitzero"`
+	Permissions      []GuildChannelsPermissions `json:"permission_overwrites,omitzero"`
+	OwnerID          string                     `json:"owner_id,omitzero"`
+	ApplicationID    string                     `json:"application_id,omitzero"`
+	Name             string                     `json:"name,omitzero"`
+	ID               string                     `json:"id,omitzero"`
+	Flags            int                        `json:"flags,omitzero"`
+	Topic            string                     `json:"topic,omitzero"`
+	RateLimitPerUser int                        `json:"rate_limit_per_user,omitzero"`
+	ParentID         string                     `json:"parent_id,omitzero"`
+	LastMessageID    string                     `json:"last_message_id,omitzero"`
+	UserLimit        int                        `json:"user_limit,omitzero"`
+	RtcRegion        any                        `json:"rtc_region,omitzero"`
+	Bitrate          int                        `json:"bitrate,omitzero"`
+}
+
+type GuildChannelsPermissions struct {
+	ID    string `json:"id"`
+	Type  int    `json:"type"`
+	Allow string `json:"allow"`
+	Deny  string `json:"deny"`
+}
+
 const (
 	GUILD_TEXT          = 0  //a text channel within a server
 	DM                  = 1  //a direct message between users

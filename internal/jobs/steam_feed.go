@@ -77,14 +77,14 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 		case <-ticker.C:
 			sales, err := steam.GetSalesData()
 			if err != nil {
-				log.Printf("Error fetching sales data: %v", err)
+				log.Printf("Error fetching sales data: %v\n", err)
 			} else {
 				ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
 			}
 
 			news, err := steam.GetNewsData()
 			if err != nil {
-				log.Printf("Error fetching news data: %v", err)
+				log.Printf("Error fetching news data: %v\n", err)
 			} else {
 				ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
 			}
