@@ -16,24 +16,23 @@ import (
 )
 
 type SessionState struct {
-	Mu             sync.Mutex
-	StartTime      time.Time
-	Seq            int64
-	Metadata       Metadata
-	ReadyData      ReadyData
-	Resume         bool
-	Pool           *pgxpool.Pool
-	Config         config.Config
-	Conn           *websocket.Conn
-	Client         *http.Client
-	MetricServer   *http.Server
-	MetricUri      string
-	MetricPort     int
-	MetricRegistry *prometheus.Registry
-	Metrics        Metrics
-	GlobalHeaders  map[string][]string
-	Messages       chan []byte
-	MaxRetries     int
+	Mu            sync.Mutex
+	StartTime     time.Time
+	Seq           int64
+	Metadata      Metadata
+	ReadyData     ReadyData
+	Resume        bool
+	Pool          *pgxpool.Pool
+	Config        config.Config
+	Conn          *websocket.Conn
+	Client        *http.Client
+	MetricServer  *http.Server
+	MetricUri     string
+	MetricPort    int
+	Metrics       *Metrics
+	GlobalHeaders map[string][]string
+	Messages      chan []byte
+	MaxRetries    int
 }
 
 type Metrics struct {
