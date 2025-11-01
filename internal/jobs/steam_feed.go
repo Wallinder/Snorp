@@ -29,7 +29,7 @@ func FindOrCreateChannel(session *state.SessionState, guild api.Guild, topic, na
 	return created.ID, nil
 }
 
-func ProcessFeedItems(session *state.SessionState, channelID string, items []steam.Item, lastRun time.Time) {
+func ProcessFeedItems(session *state.SessionState, channelID string, items []steam.Item, lastRun time.Time) error {
 	for _, item := range items {
 		pubDate, err := time.Parse(time.RFC1123, item.PubDate)
 		if err != nil {
@@ -46,11 +46,12 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 
 		if _, err := api.CreateMessage(session, channelID, message); err != nil {
 			log.Printf("Error creating message: %v", err)
-			continue
+			return err
 		}
 
 		time.Sleep(3 * time.Second)
 	}
+	return nil
 }
 
 func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild) {
@@ -80,14 +81,20 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			if err != nil {
 				log.Printf("Error fetching sales data: %v\n", err)
 			} else {
-				ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
+				err := ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
+				if err != nil {
+					return
+				}
 			}
 
 			news, err := steam.GetNewsData()
 			if err != nil {
 				log.Printf("Error fetching news data: %v\n", err)
 			} else {
-				ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
+				err := ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
+				if err != nil {
+					return
+				}
 			}
 
 			lastRun = time.Now()
