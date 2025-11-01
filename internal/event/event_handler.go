@@ -110,6 +110,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			log.Println("Received heartbeat..")
 
 		case DISPATCH:
+			session.Metrics.ActiveDispatchMessages.Inc()
 			session.Mu.Lock()
 			session.Seq = discordPayload.S
 			session.Mu.Unlock()

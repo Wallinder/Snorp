@@ -36,8 +36,9 @@ type SessionState struct {
 }
 
 type Metrics struct {
-	TotalReceivedMessages prometheus.Counter
-	TotalDisconnects      prometheus.Counter
+	TotalReceivedMessages  prometheus.Counter
+	TotalDisconnects       prometheus.Counter
+	ActiveDispatchMessages prometheus.Gauge
 }
 
 type ReadyData struct {

@@ -80,4 +80,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 	default:
 		fmt.Println(string(dispatchMessage))
 	}
+
+	session.Metrics.ActiveDispatchMessages.Dec()
 }

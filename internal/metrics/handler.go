@@ -32,5 +32,10 @@ func NewMetrics(session *state.SessionState) {
 			Name: "websocket_total_disconnects",
 			Help: "The total number of websocket disconnections",
 		}),
+
+		ActiveDispatchMessages: promauto.NewGauge(prometheus.GaugeOpts{
+			Name: "websocket_active_dispatch_messages",
+			Help: "The number of active dispatch messages",
+		}),
 	}
 }

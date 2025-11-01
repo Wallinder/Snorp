@@ -65,7 +65,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 		return
 	}
 
-	ticker := time.NewTicker(10 * time.Minute)
+	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	var lastRun = session.StartTime
