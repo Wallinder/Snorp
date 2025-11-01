@@ -58,6 +58,9 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 			log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
 		}
+
+		session.Metrics.TotalReceivedMessages.Inc()
+
 		var discordPayload DiscordPayload
 
 		err = json.Unmarshal(message, &discordPayload)

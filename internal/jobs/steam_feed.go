@@ -43,6 +43,7 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 		message := api.Message{
 			Content: fmt.Sprintf("%s\n%s", item.Title, item.Link),
 		}
+
 		if _, err := api.CreateMessage(session, channelID, message); err != nil {
 			log.Printf("Error creating message: %v", err)
 			continue
@@ -64,7 +65,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 		return
 	}
 
-	ticker := time.NewTicker(30 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 
 	var lastRun = session.StartTime
