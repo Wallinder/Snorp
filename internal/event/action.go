@@ -13,6 +13,8 @@ import (
 )
 
 func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+	defer session.Metrics.ActiveDispatchMessages.Dec()
+
 	switch action {
 
 	case "READY":
@@ -23,6 +25,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
+		go jobs.RegisterCommands(ctx, session)
 
 	case "GUILD_CREATE":
 		var guild api.Guild
@@ -74,12 +77,18 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 
+	case "INTERACTION_CREATE":
+		var commandResponse api.CommandResponse
+		err := json.Unmarshal(dispatchMessage, &commandResponse)
+		if err != nil {
+			log.Println("Error unmarshaling JSON:", err)
+		}
+		go InteractionHandler(ctx, session, commandResponse)
+
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
 
 	default:
 		fmt.Println(string(dispatchMessage))
 	}
-
-	session.Metrics.ActiveDispatchMessages.Dec()
 }

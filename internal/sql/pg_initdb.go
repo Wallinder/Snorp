@@ -14,31 +14,19 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 	defer conn.Release()
 
 	_, err = conn.Exec(ctx,
-		`CREATE TABLE IF NOT EXISTS guilds (
-            id VARCHAR(64) PRIMARY KEY,
-            name VARCHAR(32),
-			owner_id VARCHAR(64)
-        )`,
+		`CREATE TABLE IF NOT EXISTS saved_messages (
+	      	id VARCHAR(64) PRIMARY KEY,
+			type INT,
+			author_id VARCHAR(64),
+			global_name VARCHAR(32),
+			username VARCHAR(32),
+			content TEXT,
+			timestamp DATE
+	    )`,
 	)
 	if err != nil {
 		return err
 	}
-
-	//_, err = conn.Exec(ctx,
-	//	`CREATE TABLE IF NOT EXISTS channels (
-	//      id VARCHAR(64) PRIMARY KEY,
-	//		guild_id VARCHAR(64),
-	//		parent_id VARCHAR(64),
-	//      name VARCHAR(32),
-	//		type INT,
-	//		topic TEXT,
-	//		FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
-	//    )`,
-	//)
-
-	//if err != nil {
-	//	return err
-	//}
 
 	return nil
 }

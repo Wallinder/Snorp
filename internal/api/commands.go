@@ -58,12 +58,16 @@ const (
 	MENTIONABLE       = 9
 	NUMBER            = 10
 	ATTACHMENT        = 11
+)
 
+const (
 	CHAT_INPUT          = 1 //Slash commands; a text-based command that shows up when a user types /
 	USER_COMMAND        = 2 //A UI-based command that shows up when you right click or tap on a user
 	MESSAGE             = 3 //A UI-based command that shows up when you right click or tap on a message
 	PRIMARY_ENTRY_POINT = 4 //A UI-based command that represents the primary way to invoke an app's Activity
+)
 
+const (
 	GUILD_INSTALL = 0 //App is installable to servers
 	USER_INSTALL  = 1 //App is installable to users
 
@@ -75,7 +79,7 @@ const (
 	DISCORD_LAUNCH_ACTIVITY = 2 //Discord handles the interaction by launching an Activity and sending a follow-up message without coordinating with the app
 )
 
-func GetGlobalCommand(session *state.SessionState) (*[]string, error) {
+func GetGlobalCommand(session *state.SessionState) ([]ApplicationCommand, error) {
 	request := state.HttpRequest{
 		Method: "GET",
 		Uri:    fmt.Sprintf("/applications/%s/commands", session.ReadyData.User.ID),
@@ -88,7 +92,7 @@ func GetGlobalCommand(session *state.SessionState) (*[]string, error) {
 	}
 	defer response.Body.Close()
 
-	var commands *[]string
+	var commands []ApplicationCommand
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -116,10 +120,10 @@ func DeleteGlobalCommand(session *state.SessionState, commandID string) {
 	}
 }
 
-func CreateGlobalCommand(session *state.SessionState, command *ApplicationCommand) {
+func CreateGlobalCommand(session *state.SessionState, command *ApplicationCommand) (*ApplicationCommand, error) {
 	jsonData, err := json.Marshal(command)
 	if err != nil {
-		log.Printf("Error marshaling command: %v\n", err)
+		return nil, err
 	}
 
 	reader := bytes.NewReader(jsonData)
@@ -130,8 +134,23 @@ func CreateGlobalCommand(session *state.SessionState, command *ApplicationComman
 		Body:   reader,
 	}
 
-	_, err = session.SendRequest(request)
+	response, err := session.SendRequest(request)
 	if err != nil {
-		log.Printf("Error creating command: %v\n", err)
+		return nil, err
 	}
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	var newCommand *ApplicationCommand
+
+	err = json.Unmarshal(body, &newCommand)
+	if err != nil {
+		return nil, err
+	}
+
+	return newCommand, nil
 }
