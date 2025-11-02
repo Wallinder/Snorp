@@ -14,7 +14,7 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 	defer conn.Release()
 
 	_, err = conn.Exec(ctx,
-		`CREATE TABLE IF NOT EXISTS saved_messages (
+		`CREATE TABLE IF NOT EXISTS archived_messages (
 	      	id VARCHAR(64) PRIMARY KEY,
 			type INT,
 			author_id VARCHAR(64),

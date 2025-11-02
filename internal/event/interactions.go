@@ -42,11 +42,12 @@ func InteractionHandler(ctx context.Context, session *state.SessionState, comman
 						Type: api.CHANNEL_MESSAGE_WITH_SOURCE,
 					}
 					callbackMessage.Data = api.MessageCallbackData{
-						Content: "Message Saved",
+						Content: "Message saved, my liege",
 					}
+
 					err = sql.InsertMessage(ctx, session.Pool, message)
 					if err != nil {
-						callbackMessage.Data.Content = "Failed to save message"
+						callbackMessage.Data.Content = "Failed to save message, sorry"
 						api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
 					} else {
 						api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)

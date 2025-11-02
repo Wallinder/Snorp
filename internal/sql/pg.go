@@ -79,7 +79,7 @@ func InsertMessage(ctx context.Context, pool *pgxpool.Pool, message api.Message)
 		"timestamp":   message.Timestamp,
 	}
 
-	query := `INSERT INTO messages (
+	query := `INSERT INTO archived_messages (
 			id, type, author_id, global_name, username, content, timestamp) 
 		VALUES (
 			@id, @type, @author_id, @global_name, @username, @content, @timestamp

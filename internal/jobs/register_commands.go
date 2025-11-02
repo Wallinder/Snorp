@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/sql"
 	"snorp/internal/state"
 )
 
@@ -17,13 +16,9 @@ func RegisterCommands(ctx context.Context, session *state.SessionState) {
 		Name: ARCHIVE_MESSAGE,
 		Type: api.MESSAGE,
 	}
-	command, err := api.CreateGlobalCommand(session, saveMessageCommand)
+	_, err := api.CreateGlobalCommand(session, saveMessageCommand)
 	if err != nil {
 		log.Println(err)
 		return
-	}
-	err = sql.InsertGlobalCommand(ctx, session.Pool, command)
-	if err != nil {
-		log.Println(err)
 	}
 }
