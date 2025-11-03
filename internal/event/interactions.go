@@ -3,11 +3,13 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"snorp/internal/api"
 	"snorp/internal/jobs"
 	"snorp/internal/sql"
 	"snorp/internal/state"
+	"snorp/pkg/svv"
 )
 
 func InteractionHandler(ctx context.Context, session *state.SessionState, commandResponse api.CommandResponse) {
@@ -15,7 +17,31 @@ func InteractionHandler(ctx context.Context, session *state.SessionState, comman
 		switch commandResponse.Data.Type {
 
 		case api.CHAT_INPUT:
-			return
+			switch commandResponse.Data.Name {
+
+			case jobs.SVV:
+				for _, options := range commandResponse.Data.Options {
+					switch options.Name {
+
+					case jobs.SVV_REGNUMMER:
+
+						callbackMessage := api.MessageCallback{
+							Type: api.CHANNEL_MESSAGE_WITH_SOURCE,
+							Data: api.MessageCallbackData{},
+						}
+
+						data, err := svv.GetVehicle(session.Config.SVV.ApiKey, options.Value)
+						if err != nil {
+							callbackMessage.Data.Content = fmt.Sprintf("Failed to lookup vehicle, %s", err)
+							api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+						}
+						for _, vehicle := range data.KjoretoydataListe {
+							callbackMessage.Data.Content = fmt.Sprintf("%+v\n", vehicle)
+							api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+						}
+					}
+				}
+			}
 
 		case api.USER_COMMAND:
 			return
@@ -46,6 +72,7 @@ func InteractionHandler(ctx context.Context, session *state.SessionState, comman
 					}
 
 					err = sql.InsertMessage(ctx, session.Pool, message)
+
 					if err != nil {
 						callbackMessage.Data.Content = "Failed to save message, sorry"
 						api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)

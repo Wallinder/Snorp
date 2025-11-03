@@ -28,5 +28,8 @@
   "postgresql": {
     "enabled": true,
     "connection_string": "postgresql://snorp:e42UG7n7V79h@localhost:5432/discord"
+  },
+  "svv": {
+    "api_key": ""
   }
 }

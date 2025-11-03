@@ -9,6 +9,11 @@ import (
 type Config struct {
 	Bot        DiscordBot `json:"discordbot"`
 	Postgresql Postgresql `json:"postgresql"`
+	SVV        SVV        `json:"svv"`
+}
+
+type SVV struct {
+	ApiKey string `json:"api_key"`
 }
 
 type Postgresql struct {
