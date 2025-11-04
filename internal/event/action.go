@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
+	"snorp/internal/event/interaction"
 	"snorp/internal/jobs"
 	"snorp/internal/state"
 
@@ -81,7 +82,22 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go InteractionHandler(ctx, session, commandResponse)
+		if commandResponse.Version == 1 {
+			switch commandResponse.Data.Type {
+
+			case api.CHAT_INPUT:
+				go interaction.SlashInteractions(ctx, session, commandResponse)
+
+			case api.USER_COMMAND:
+				go interaction.UserInteractions(ctx, session, commandResponse)
+
+			case api.MESSAGE:
+				go interaction.MessageInteractions(ctx, session, commandResponse)
+
+			case api.PRIMARY_ENTRY_POINT:
+				go interaction.EntryInteractions(ctx, session, commandResponse)
+			}
+		}
 
 	case "RESUMED":
 		log.Println("Connection successfully resumed..")
