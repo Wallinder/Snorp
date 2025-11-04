@@ -1,4 +1,4 @@
-package jobs
+package interaction
 
 import (
 	"context"

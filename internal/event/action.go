@@ -24,7 +24,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			log.Println("Error unmarshaling JSON:", err)
 		}
 		session.ReadyData = readyData
-		go jobs.RegisterCommands(ctx, session)
+		go interaction.RegisterCommands(ctx, session)
 
 	case "GUILD_CREATE":
 		var guild api.Guild

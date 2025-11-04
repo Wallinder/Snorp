@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/jobs"
 	"snorp/internal/sql"
 	"snorp/internal/state"
 )
@@ -27,7 +26,7 @@ func MessageInteractions(ctx context.Context, session *state.SessionState, comma
 
 		switch commandResponse.Data.Name {
 
-		case jobs.ARCHIVE_MESSAGE:
+		case ARCHIVE_MESSAGE:
 			callbackMessage := api.MessageCallback{
 				Type: api.CHANNEL_MESSAGE_WITH_SOURCE,
 			}
