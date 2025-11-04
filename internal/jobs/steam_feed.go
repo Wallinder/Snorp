@@ -36,7 +36,7 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 			log.Printf("Error parsing time: %v", err)
 			continue
 		}
-		if !pubDate.After(lastRun) {
+		if pubDate.After(lastRun) {
 			continue
 		}
 
@@ -66,10 +66,10 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 		return
 	}
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(15 * time.Minute)
 	defer ticker.Stop()
 
-	var lastRun = session.StartTime
+	var lastRun = time.Now()
 	for {
 		select {
 
@@ -96,7 +96,6 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 					return
 				}
 			}
-
 			lastRun = time.Now()
 		}
 	}
