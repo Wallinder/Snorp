@@ -36,7 +36,8 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 			log.Printf("Error parsing time: %v", err)
 			continue
 		}
-		if pubDate.After(lastRun) {
+
+		if !pubDate.After(lastRun) {
 			continue
 		}
 
