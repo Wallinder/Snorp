@@ -28,5 +28,15 @@ func InitDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 		return err
 	}
 
+	_, err = conn.Exec(ctx,
+		`CREATE TABLE IF NOT EXISTS jobs (
+			name VARCHAR(32) PRIMARY KEY,
+	      	timestamp TIMESTAMP
+	    )`,
+	)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

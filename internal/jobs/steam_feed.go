@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
+	"snorp/internal/sql"
 	"snorp/internal/state"
 	"snorp/pkg/steam"
 	"time"
@@ -37,7 +38,7 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 			continue
 		}
 
-		if !pubDate.After(lastRun) {
+		if pubDate.After(lastRun) {
 			continue
 		}
 
@@ -67,10 +68,9 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 		return
 	}
 
-	ticker := time.NewTicker(15 * time.Minute)
+	ticker := time.NewTicker(2 * time.Minute)
 	defer ticker.Stop()
 
-	var lastRun = time.Now()
 	for {
 		select {
 
@@ -78,9 +78,13 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			return
 
 		case <-ticker.C:
+			lastRun, err := sql.GetJobTimestamp(ctx, session.Pool, "steam_feed")
+			if err != nil {
+				return
+			}
+
 			sales, err := steam.GetSalesData()
 			if err != nil {
-				log.Printf("Error fetching sales data: %v\n", err)
 			} else {
 				err := ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
 				if err != nil {
@@ -97,7 +101,12 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 					return
 				}
 			}
-			lastRun = time.Now()
+
+			err = sql.SaveJobTimestamp(ctx, session.Pool, "steam_feed", time.Now())
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		}
 	}
 }
