@@ -2,16 +2,15 @@ module snorp
 
 go 1.25
 
-require (
-	github.com/coder/websocket v1.8.13
-	github.com/jackc/pgx/v5 v5.7.6
-)
+require github.com/coder/websocket v1.8.13
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/jackc/pgx/v5 v5.7.6 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
