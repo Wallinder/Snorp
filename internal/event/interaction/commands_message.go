@@ -10,6 +10,8 @@ import (
 )
 
 func MessageInteractions(ctx context.Context, session *state.SessionState, commandResponse api.CommandResponse) {
+	tx := session.DB.WithContext(ctx)
+
 	var data map[string]json.RawMessage
 	err := json.Unmarshal(commandResponse.Data.Resolved.Messages, &data)
 	if err != nil {
@@ -34,8 +36,15 @@ func MessageInteractions(ctx context.Context, session *state.SessionState, comma
 				Content: "Message saved, my liege",
 			}
 
-			err = sql.InsertMessage(ctx, session.Pool, message)
-
+			err = sql.Insert(tx, &sql.ArchivedMessages{
+				ID:         message.ID,
+				Type:       message.Type,
+				AuthorID:   message.Author.ID,
+				GlobalName: message.Author.GlobalName,
+				Username:   message.Author.Username,
+				Content:    message.Content,
+				Timestamp:  message.Timestamp,
+			})
 			if err != nil {
 				callbackMessage.Data.Content = "Failed to save message, sorry"
 				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)

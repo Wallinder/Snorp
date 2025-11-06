@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"snorp/config"
 	"snorp/internal/event"
@@ -28,16 +27,8 @@ func Start(session *state.SessionState) {
 	go session.MetricServer.ListenAndServe()
 
 	if session.Config.Postgresql.Enabled {
-		session.Pool = sql.CreatePool(
-			ctx,
-			session.Config.Postgresql.ConnectionString,
-		)
-		defer session.Pool.Close()
-
-		err := sql.InitDatabase(ctx, session.Pool)
-		if err != nil {
-			log.Fatalf("Error initializing db: %v", err)
-		}
+		session.DB = sql.CreateConnection(session.Config.Postgresql.ConnectionString)
+		sql.InitDatabase(session.DB)
 	}
 	event.EventListener(ctx, session)
 }

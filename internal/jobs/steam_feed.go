@@ -68,7 +68,9 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 		return
 	}
 
-	ticker := time.NewTicker(2 * time.Minute)
+	tx := session.DB.WithContext(ctx)
+
+	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
 
 	for {
@@ -78,15 +80,20 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			return
 
 		case <-ticker.C:
-			lastRun, err := sql.GetJobTimestamp(ctx, session.Pool, "steam_feed")
+			model, err := sql.GetRowByPrimaryKey(tx, "steam_feed")
 			if err != nil {
+				log.Println(err)
+				return
+			}
+			lastRun, ok := model.(sql.Jobs)
+			if !ok {
 				return
 			}
 
 			sales, err := steam.GetSalesData()
 			if err != nil {
 			} else {
-				err := ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
+				err := ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun.Timestamp)
 				if err != nil {
 					return
 				}
@@ -96,13 +103,13 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			if err != nil {
 				log.Printf("Error fetching news data: %v\n", err)
 			} else {
-				err := ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
+				err := ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun.Timestamp)
 				if err != nil {
 					return
 				}
 			}
 
-			err = sql.SaveJobTimestamp(ctx, session.Pool, "steam_feed", time.Now())
+			err = sql.Insert(tx, &sql.Jobs{Name: "steam_feed", Timestamp: time.Now()})
 			if err != nil {
 				fmt.Println(err)
 				return

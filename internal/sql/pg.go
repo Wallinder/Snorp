@@ -1,108 +1,70 @@
 package sql
 
 import (
-	"context"
 	"log"
-	"snorp/internal/api"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
-func CreatePool(ctx context.Context, connectionString string) *pgxpool.Pool {
-	pool, err := pgxpool.New(ctx, connectionString)
+type Jobs struct {
+	Name      string `gorm:"primaryKey"`
+	Timestamp time.Time
+}
+
+type ArchivedMessages struct {
+	ID         string `gorm:"primaryKey"`
+	Type       int
+	AuthorID   string
+	GlobalName string
+	Username   string
+	Content    string
+	Timestamp  time.Time
+}
+
+func CreateConnection(connectionString string) *gorm.DB {
+	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Unable to connect to postgresql: %v\n", err)
 	}
 
-	conn, err := pool.Acquire(ctx)
+	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatalf("Unable to aquire db connection: %v\n", err)
 	}
-	defer conn.Release()
+	sqlDB.SetMaxIdleConns(10)
 
-	var version string
-	conn.QueryRow(ctx, `SELECT version()`).Scan(&version)
+	sqlDB.SetMaxOpenConns(100)
 
-	log.Printf("Postgres version: %s\n", version)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	return pool
+	return db
 }
 
-func InsertMessage(ctx context.Context, pool *pgxpool.Pool, message api.Message) error {
-	conn, err := pool.Acquire(ctx)
+func InitDatabase(db *gorm.DB) {
+	err := db.AutoMigrate(&ArchivedMessages{})
 	if err != nil {
-		return err
-	}
-	defer conn.Release()
-
-	args := pgx.NamedArgs{
-		"id":          message.ID,
-		"type":        message.Type,
-		"author_id":   message.Author.ID,
-		"global_name": message.Author.GlobalName,
-		"username":    message.Author.Username,
-		"content":     message.Content,
-		"timestamp":   message.Timestamp,
+		log.Fatal(err)
 	}
 
-	query := `INSERT INTO archived_messages (
-			id, type, author_id, global_name, username, content, timestamp) 
-		VALUES (
-			@id, @type, @author_id, @global_name, @username, @content, @timestamp
-		)`
-
-	_, err = conn.Exec(ctx, query, args)
+	err = db.AutoMigrate(&Jobs{})
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-
-	return nil
 }
 
-func GetJobTimestamp(ctx context.Context, pool *pgxpool.Pool, name string) (time.Time, error) {
-	var timestamp time.Time
+func Insert[T any](db *gorm.DB, model *T) error {
+	result := db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(model)
 
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return timestamp, err
-	}
-	defer conn.Release()
-
-	query := `SELECT timestamp FROM jobs WHERE name = $1`
-
-	err = conn.QueryRow(ctx, query, name).Scan(timestamp)
-	if err != nil {
-		return timestamp, nil
-	}
-
-	return timestamp, err
+	return result.Error
 }
 
-func SaveJobTimestamp(ctx context.Context, pool *pgxpool.Pool, name string, timestamp time.Time) error {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return err
-	}
-	defer conn.Release()
-
-	args := pgx.NamedArgs{
-		"name":      name,
-		"timestamp": timestamp,
-	}
-
-	query := `INSERT INTO jobs(name, timestamp)
-		VALUES (
-			@name, @timestamp
-		) 
-		ON CONFLICT (name) DO UPDATE SET 
-			timestamp = @timestamp`
-
-	_, err = conn.Exec(ctx, query, args)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func GetRowByPrimaryKey(db *gorm.DB, id string) (any, error) {
+	var model any
+	result := db.First(&model, 1)
+	return model, result.Error
 }

@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
+	"gorm.io/gorm"
 )
 
 type SessionState struct {
@@ -22,7 +22,7 @@ type SessionState struct {
 	Metadata      Metadata
 	ReadyData     ReadyData
 	Resume        bool
-	Pool          *pgxpool.Pool
+	DB            *gorm.DB
 	Config        config.Config
 	Conn          *websocket.Conn
 	Client        *http.Client
