@@ -10,6 +10,8 @@ import (
 	"snorp/internal/sql"
 	"snorp/internal/state"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func Start(session *state.SessionState) {
@@ -27,7 +29,10 @@ func Start(session *state.SessionState) {
 	go session.MetricServer.ListenAndServe()
 
 	if session.Config.Postgresql.Enabled {
-		session.DB = sql.CreateConnection(session.Config.Postgresql.ConnectionString)
+		session.DB = sql.CreateConnection(
+			session.Config.Postgresql.ConnectionString,
+			&session.DBSettings,
+		)
 		sql.InitDatabase(session.DB)
 	}
 	event.EventListener(ctx, session)
@@ -41,6 +46,12 @@ func main() {
 		MaxRetries: 3,
 		MetricUri:  "/metrics",
 		MetricPort: 8080,
+	}
+	session.DBSettings = state.DBSettings{
+		GormConfig:      &gorm.Config{},
+		MaxIdleConns:    10,
+		MaxOpenConns:    100,
+		ConnMaxLifetime: time.Hour,
 	}
 	session.InitHttpClient()
 	session.UpdateMetadata()

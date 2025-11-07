@@ -38,7 +38,7 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 			continue
 		}
 
-		if pubDate.After(lastRun) {
+		if !pubDate.After(lastRun) {
 			continue
 		}
 
@@ -70,7 +70,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 
 	tx := session.DB.WithContext(ctx)
 
-	ticker := time.NewTicker(30 * time.Minute)
+	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -80,13 +80,10 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			return
 
 		case <-ticker.C:
-			model, err := sql.GetRowByPrimaryKey(tx, "steam_feed")
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			lastRun, ok := model.(sql.Jobs)
-			if !ok {
+			var lastRun sql.Jobs
+			result := tx.Where("name = ?", "steam_feed").First(&lastRun)
+			if result.Error != nil {
+				log.Println(result.Error)
 				return
 			}
 
@@ -111,7 +108,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 
 			err = sql.Insert(tx, &sql.Jobs{Name: "steam_feed", Timestamp: time.Now()})
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return
 			}
 		}

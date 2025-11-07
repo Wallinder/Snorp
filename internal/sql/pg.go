@@ -2,6 +2,7 @@ package sql
 
 import (
 	"log"
+	"snorp/internal/state"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -24,8 +25,8 @@ type ArchivedMessages struct {
 	Timestamp  time.Time
 }
 
-func CreateConnection(connectionString string) *gorm.DB {
-	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
+func CreateConnection(connectionString string, settings *state.DBSettings) *gorm.DB {
+	db, err := gorm.Open(postgres.Open(connectionString), settings.GormConfig)
 	if err != nil {
 		log.Fatalf("Unable to connect to postgresql: %v\n", err)
 	}
@@ -34,11 +35,11 @@ func CreateConnection(connectionString string) *gorm.DB {
 	if err != nil {
 		log.Fatalf("Unable to aquire db connection: %v\n", err)
 	}
-	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxIdleConns(settings.MaxIdleConns)
 
-	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxOpenConns(settings.MaxOpenConns)
 
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(settings.ConnMaxLifetime)
 
 	return db
 }
@@ -61,10 +62,4 @@ func Insert[T any](db *gorm.DB, model *T) error {
 	}).Create(model)
 
 	return result.Error
-}
-
-func GetRowByPrimaryKey(db *gorm.DB, id string) (any, error) {
-	var model any
-	result := db.First(&model, 1)
-	return model, result.Error
 }

@@ -23,6 +23,7 @@ type SessionState struct {
 	ReadyData     ReadyData
 	Resume        bool
 	DB            *gorm.DB
+	DBSettings    DBSettings
 	Config        config.Config
 	Conn          *websocket.Conn
 	Client        *http.Client
@@ -33,6 +34,13 @@ type SessionState struct {
 	GlobalHeaders map[string][]string
 	Messages      chan []byte
 	MaxRetries    int
+}
+
+type DBSettings struct {
+	GormConfig      *gorm.Config
+	MaxIdleConns    int
+	MaxOpenConns    int
+	ConnMaxLifetime time.Duration
 }
 
 type Metrics struct {
