@@ -1,9 +1,11 @@
 package metrics
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"snorp/internal/state"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -48,5 +50,24 @@ func NewMetrics(session *state.SessionState) {
 			Name: "websocket_total_disconnects",
 			Help: "The total number of websocket disconnections",
 		}),
+
+		AccumulatedMessages: promauto.NewGauge(prometheus.GaugeOpts{
+			Name: "websocket_accumelated_messages",
+			Help: "The number of websocket messages within a timeperiod",
+		}),
+	}
+}
+
+func MessageMonitor(ctx context.Context, session *state.SessionState, messages chan []byte) {
+	for {
+		select {
+		case <-ctx.Done():
+			session.Metrics.AccumulatedMessages.Set(0)
+			return
+		case <-messages:
+			session.Metrics.AccumulatedMessages.Inc()
+			time.Sleep(3 * time.Second)
+			session.Metrics.AccumulatedMessages.Dec()
+		}
 	}
 }

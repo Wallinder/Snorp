@@ -47,6 +47,7 @@ type Metrics struct {
 	TotalMessages         *prometheus.CounterVec
 	TotalDispatchMessages *prometheus.CounterVec
 	TotalHttpRequests     *prometheus.CounterVec
+	AccumulatedMessages   prometheus.Gauge
 	TotalDisconnects      prometheus.Counter
 }
 
