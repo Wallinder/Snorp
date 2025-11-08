@@ -18,23 +18,12 @@ func Start(session *state.SessionState) {
 	session.StartTime = time.Now()
 	ctx := context.Background()
 
-	metricAddr := fmt.Sprintf(":%d", session.MetricPort)
-	session.MetricServer = &http.Server{
-		Addr:           metricAddr,
-		Handler:        metrics.MetricHandler(session),
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	go session.MetricServer.ListenAndServe()
+	session.DB = sql.CreateConnection(
+		session.Config.Postgresql.ConnectionString,
+		&session.DBSettings,
+	)
+	sql.InitDatabase(session.DB)
 
-	if session.Config.Postgresql.Enabled {
-		session.DB = sql.CreateConnection(
-			session.Config.Postgresql.ConnectionString,
-			&session.DBSettings,
-		)
-		sql.InitDatabase(session.DB)
-	}
 	event.EventListener(ctx, session)
 }
 
@@ -47,6 +36,15 @@ func main() {
 		MetricUri:  "/metrics",
 		MetricPort: 8080,
 	}
+	session.MetricServer = &http.Server{
+		Addr:           fmt.Sprintf(":%d", session.MetricPort),
+		Handler:        metrics.MetricHandler(session),
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	go session.MetricServer.ListenAndServe()
+
 	session.DBSettings = state.DBSettings{
 		GormConfig:      &gorm.Config{},
 		MaxIdleConns:    10,

@@ -44,9 +44,10 @@ type DBSettings struct {
 }
 
 type Metrics struct {
-	TotalReceivedMessages  prometheus.Counter
-	TotalDisconnects       prometheus.Counter
-	ActiveDispatchMessages prometheus.Gauge
+	TotalMessages         *prometheus.CounterVec
+	TotalDispatchMessages *prometheus.CounterVec
+	TotalHttpRequests     *prometheus.CounterVec
+	TotalDisconnects      prometheus.Counter
 }
 
 type ReadyData struct {
@@ -134,7 +135,6 @@ func (session *SessionState) UpdateMetadata() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)

@@ -17,7 +17,6 @@ type SVV struct {
 }
 
 type Postgresql struct {
-	Enabled          bool   `json:"enabled"`
 	ConnectionString string `json:"connection_string"`
 }
 

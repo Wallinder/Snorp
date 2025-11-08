@@ -14,6 +14,8 @@ import (
 )
 
 func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+	session.Metrics.TotalDispatchMessages.WithLabelValues(action).Inc()
+
 	switch action {
 
 	case "READY":

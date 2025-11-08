@@ -15,11 +15,12 @@ type HttpRequest struct {
 func (session *SessionState) SendRequest(r HttpRequest) (*http.Response, error) {
 	url := session.Config.Bot.Api + "/v" + session.Config.Bot.ApiVersion + r.Uri
 
+	session.Metrics.TotalHttpRequests.WithLabelValues(r.Method, r.Uri).Inc()
+
 	req, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
 		return nil, err
 	}
-
 	req.Header = session.GlobalHeaders
 
 	res, err := session.Client.Do(req)

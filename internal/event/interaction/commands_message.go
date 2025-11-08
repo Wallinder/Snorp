@@ -33,7 +33,7 @@ func MessageInteractions(ctx context.Context, session *state.SessionState, comma
 				Type: api.CHANNEL_MESSAGE_WITH_SOURCE,
 			}
 			callbackMessage.Data = api.MessageCallbackData{
-				Content: "Message saved, my liege",
+				Content: "Message archived, my liege",
 			}
 
 			err = sql.Insert(tx, &sql.ArchivedMessages{
@@ -46,7 +46,7 @@ func MessageInteractions(ctx context.Context, session *state.SessionState, comma
 				Timestamp:  message.Timestamp,
 			})
 			if err != nil {
-				callbackMessage.Data.Content = "Failed to save message, sorry"
+				callbackMessage.Data.Content = "Failed to archive message, sorry"
 				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
 			} else {
 				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)

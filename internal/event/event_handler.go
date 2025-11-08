@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"snorp/internal/state"
+	"strconv"
 	"time"
 
 	"github.com/coder/websocket"
@@ -59,8 +60,6 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
 		}
 
-		session.Metrics.TotalReceivedMessages.Inc()
-
 		var discordPayload DiscordPayload
 
 		err = json.Unmarshal(message, &discordPayload)
@@ -68,6 +67,9 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			log.Printf("Error unmarshaling JSON: %v\n", err)
 			return
 		}
+
+		opCode := strconv.Itoa(discordPayload.Op)
+		session.Metrics.TotalMessages.WithLabelValues(opCode).Inc()
 
 		switch discordPayload.Op {
 

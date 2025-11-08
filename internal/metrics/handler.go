@@ -23,10 +23,26 @@ func MetricHandler(session *state.SessionState) *http.ServeMux {
 
 func NewMetrics(session *state.SessionState) {
 	session.Metrics = &state.Metrics{
-		TotalReceivedMessages: promauto.NewCounter(prometheus.CounterOpts{
+		TotalMessages: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: "websocket_total_received_messages",
 			Help: "The total number of received websocket messages",
-		}),
+		},
+			[]string{"opcode"},
+		),
+
+		TotalDispatchMessages: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: "websocket_total_received_dispatch_messages",
+			Help: "The total number of received websocket messages",
+		},
+			[]string{"action"},
+		),
+
+		TotalHttpRequests: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: "http_total_client_requests",
+			Help: "The total number of client requests",
+		},
+			[]string{"method", "path"},
+		),
 
 		TotalDisconnects: promauto.NewCounter(prometheus.CounterOpts{
 			Name: "websocket_total_disconnects",

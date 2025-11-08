@@ -26,7 +26,6 @@
     }
   },
   "postgresql": {
-    "enabled": true,
     "connection_string": "postgresql://snorp:e42UG7n7V79h@192.168.1.100:5432/discord"
   },
   "svv": {
