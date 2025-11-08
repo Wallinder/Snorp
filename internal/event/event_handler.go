@@ -68,8 +68,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			return
 		}
 
-		opCode := strconv.Itoa(discordPayload.Op)
-		session.Metrics.TotalMessages.WithLabelValues(opCode).Inc()
+		go session.Metrics.TotalMessages.WithLabelValues(strconv.Itoa(discordPayload.Op)).Inc()
 
 		switch discordPayload.Op {
 
