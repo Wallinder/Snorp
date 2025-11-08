@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"snorp/internal/metrics"
 	"snorp/internal/state"
 	"strconv"
 	"time"
@@ -42,10 +41,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 		return
 	}
 
-	accumulatedMessages := make(chan []byte, 100)
-
 	defer func() {
-		close(accumulatedMessages)
 		session.Conn.Close(1006, "Normal Closure")
 		session.Conn = nil
 		cancel()
@@ -63,10 +59,6 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 			log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
 		}
-
-		accumulatedMessages <- message
-
-		go metrics.MessageMonitor(ctx, session, accumulatedMessages)
 
 		var discordPayload DiscordPayload
 
