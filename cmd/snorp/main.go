@@ -7,7 +7,6 @@ import (
 	"snorp/config"
 	"snorp/internal/event"
 	"snorp/internal/metrics"
-	"snorp/internal/sql"
 	"snorp/internal/state"
 	"time"
 
@@ -18,11 +17,13 @@ func Start(session *state.SessionState) {
 	session.StartTime = time.Now()
 	ctx := context.Background()
 
-	session.DB = sql.CreateConnection(
+	session.DB = state.CreateConnection(
 		session.Config.Postgresql.ConnectionString,
 		&session.DBSettings,
 	)
-	sql.InitDatabase(session.DB)
+	session.InitDatabase()
+
+	session.UpdateMetadata()
 
 	event.EventListener(ctx, session)
 }
@@ -52,7 +53,6 @@ func main() {
 		ConnMaxLifetime: time.Hour,
 	}
 	session.InitHttpClient()
-	session.UpdateMetadata()
 
 	Start(session)
 }

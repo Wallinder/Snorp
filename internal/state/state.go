@@ -47,7 +47,6 @@ type Metrics struct {
 	TotalMessages         *prometheus.CounterVec
 	TotalDispatchMessages *prometheus.CounterVec
 	TotalHttpRequests     *prometheus.CounterVec
-	AccumulatedMessages   prometheus.Gauge
 	TotalDisconnects      prometheus.Counter
 }
 
@@ -143,11 +142,19 @@ func (session *SessionState) UpdateMetadata() {
 		log.Fatal(err)
 	}
 
-	var metadata *Metadata
+	var metadata Metadata
 
 	err = json.Unmarshal(body, &metadata)
 	if err != nil {
 		log.Fatal(err)
 	}
-	session.Metadata = *metadata
+
+	if len(session.Config.Bot.Identity.Shards) < 2 {
+		shards := []int{0, metadata.Shards}
+		log.Printf("No shards in config, using values from gateway: %d", shards)
+
+		session.Config.Bot.Identity.Shards = shards
+	}
+
+	session.Metadata = metadata
 }

@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/sql"
 	"snorp/internal/state"
 	"snorp/pkg/steam"
 	"time"
+
+	"gorm.io/gorm/clause"
 )
 
 func FindOrCreateChannel(session *state.SessionState, guild api.Guild, topic, name string) (string, error) {
@@ -80,7 +81,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			return
 
 		case <-ticker.C:
-			var lastRun sql.Jobs
+			var lastRun state.Jobs
 			result := tx.Where("name = ?", "steam_feed").First(&lastRun)
 			if result.Error != nil {
 				log.Println(result.Error)
@@ -106,8 +107,11 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 				}
 			}
 
-			err = sql.Insert(tx, &sql.Jobs{Name: "steam_feed", Timestamp: time.Now()})
-			if err != nil {
+			result = tx.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(&state.Jobs{Name: "steam_feed", Timestamp: time.Now()})
+
+			if result.Error != nil {
 				log.Println(err)
 				return
 			}

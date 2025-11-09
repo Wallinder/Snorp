@@ -36,6 +36,7 @@ type Identity struct {
 	Intents        int64              `json:"intents"`
 	Properties     IdentityProperties `json:"properties"`
 	Presence       PresenceData       `json:"presence"`
+	Shards         []int              `json:"shards,omitempty"`
 }
 
 type IdentityProperties struct {

@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"snorp/internal/api"
-	"snorp/internal/sql"
 	"snorp/internal/state"
+
+	"gorm.io/gorm/clause"
 )
 
 func MessageInteractions(ctx context.Context, session *state.SessionState, commandResponse api.CommandResponse) {
@@ -36,7 +37,9 @@ func MessageInteractions(ctx context.Context, session *state.SessionState, comma
 				Content: "Message archived, my liege",
 			}
 
-			err = sql.Insert(tx, &sql.ArchivedMessages{
+			result := tx.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).Create(&state.ArchivedMessages{
 				ID:         message.ID,
 				Type:       message.Type,
 				AuthorID:   message.Author.ID,
@@ -45,7 +48,7 @@ func MessageInteractions(ctx context.Context, session *state.SessionState, comma
 				Content:    message.Content,
 				Timestamp:  message.Timestamp,
 			})
-			if err != nil {
+			if result.Error != nil {
 				callbackMessage.Data.Content = "Failed to archive message, sorry"
 				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
 			} else {

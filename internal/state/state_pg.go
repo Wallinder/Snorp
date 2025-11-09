@@ -1,13 +1,11 @@
-package sql
+package state
 
 import (
 	"log"
-	"snorp/internal/state"
 	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Jobs struct {
@@ -25,7 +23,7 @@ type ArchivedMessages struct {
 	Timestamp  time.Time
 }
 
-func CreateConnection(connectionString string, settings *state.DBSettings) *gorm.DB {
+func CreateConnection(connectionString string, settings *DBSettings) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(connectionString), settings.GormConfig)
 	if err != nil {
 		log.Fatalf("Unable to connect to postgresql: %v\n", err)
@@ -44,22 +42,14 @@ func CreateConnection(connectionString string, settings *state.DBSettings) *gorm
 	return db
 }
 
-func InitDatabase(db *gorm.DB) {
-	err := db.AutoMigrate(&ArchivedMessages{})
+func (session *SessionState) InitDatabase() {
+	err := session.DB.AutoMigrate(&ArchivedMessages{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = db.AutoMigrate(&Jobs{})
+	err = session.DB.AutoMigrate(&Jobs{})
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func Insert[T any](db *gorm.DB, model *T) error {
-	result := db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(model)
-
-	return result.Error
 }
