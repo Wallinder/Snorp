@@ -10,42 +10,39 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func MetricHandler(session *state.SessionState) *http.ServeMux {
-	router := http.DefaultServeMux
-
+func Collector(session *state.SessionState) {
 	NewMetrics(session)
 
 	log.Printf("Metrics available at :%d%s\n", session.MetricPort, session.MetricUri)
-	router.Handle(session.MetricUri, promhttp.Handler())
+	http.Handle(session.MetricUri, promhttp.Handler())
 
-	return router
 }
 
 func NewMetrics(session *state.SessionState) {
 	session.Metrics = &state.Metrics{
 		TotalMessages: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "websocket_total_received_messages",
+			Name: "snorp_websocket_total_received_messages",
 			Help: "The total number of received websocket messages",
 		},
 			[]string{"opcode"},
 		),
 
 		TotalDispatchMessages: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "websocket_total_received_dispatch_messages",
+			Name: "snorp_websocket_total_received_dispatch_messages",
 			Help: "The total number of received websocket messages",
 		},
 			[]string{"action"},
 		),
 
 		TotalHttpRequests: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "http_total_client_requests",
+			Name: "snorp_http_total_client_requests",
 			Help: "The total number of client requests",
 		},
 			[]string{"method", "path"},
 		),
 
 		TotalDisconnects: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "websocket_total_disconnects",
+			Name: "snorp_websocket_total_disconnects",
 			Help: "The total number of websocket disconnections",
 		}),
 	}

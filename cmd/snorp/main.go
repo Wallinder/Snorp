@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"snorp/config"
 	"snorp/internal/event"
 	"snorp/internal/metrics"
@@ -37,14 +35,7 @@ func main() {
 		MetricUri:  "/metrics",
 		MetricPort: 8080,
 	}
-	session.MetricServer = &http.Server{
-		Addr:           fmt.Sprintf(":%d", session.MetricPort),
-		Handler:        metrics.MetricHandler(session),
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	go session.MetricServer.ListenAndServe()
+	go metrics.Collector(session)
 
 	session.DBSettings = state.DBSettings{
 		GormConfig:      &gorm.Config{},
