@@ -7,18 +7,13 @@ import (
 	"snorp/internal/metrics"
 	"snorp/internal/state"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 func Start(session *state.SessionState) {
 	session.StartTime = time.Now()
 	ctx := context.Background()
 
-	session.DB = state.CreateConnection(
-		session.Config.Postgresql.ConnectionString,
-		&session.DBSettings,
-	)
+	session.DB = session.CreateConnection()
 	session.InitDatabase()
 
 	session.UpdateMetadata()
@@ -37,12 +32,6 @@ func main() {
 	}
 	go metrics.Collector(session)
 
-	session.DBSettings = state.DBSettings{
-		GormConfig:      &gorm.Config{},
-		MaxIdleConns:    10,
-		MaxOpenConns:    100,
-		ConnMaxLifetime: time.Hour,
-	}
 	session.InitHttpClient()
 
 	Start(session)

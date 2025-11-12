@@ -18,6 +18,14 @@ type SVV struct {
 
 type Postgresql struct {
 	ConnectionString string `json:"connection_string"`
+	Gorm             Gorm   `json:"gorm"`
+}
+
+type Gorm struct {
+	SingularTable   bool `json:"singular_table"`
+	MaxIdleConns    int  `json:"max_idle_conns"`
+	MaxOpenConns    int  `json:"max_open_conns"`
+	ConnMaxLifetime int  `json:"conn_max_lifetime"`
 }
 
 type DiscordBot struct {

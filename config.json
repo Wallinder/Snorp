@@ -26,7 +26,13 @@
     }
   },
   "postgresql": {
-    "connection_string": "postgresql://snorp:e42UG7n7V79h@192.168.1.100:5432/discord"
+    "connection_string": "postgresql://snorp:e42UG7n7V79h@192.168.1.100:5432/discord",
+    "gorm": {
+      "singular_table": true,
+      "max_idle_conns": 10,
+      "max_open_conns": 100,
+      "conn_max_lifetime": 3600
+    }
   },
   "svv": {
     "api_key": ""
