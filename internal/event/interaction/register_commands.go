@@ -9,8 +9,10 @@ import (
 
 const (
 	ARCHIVE_MESSAGE = "Archive Message"
-	SVV             = "svv"
-	SVV_REGNUMMER   = "regnummer"
+)
+const (
+	SVV           = "svv"
+	SVV_REGNUMMER = "regnummer"
 )
 
 func RegisterCommands(ctx context.Context, session *state.SessionState) {

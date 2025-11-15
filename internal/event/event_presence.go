@@ -10,8 +10,8 @@ import (
 )
 
 type Presence struct {
-	Op int                 `json:"op"`
-	D  config.PresenceData `json:"d"`
+	Op int             `json:"op"`
+	D  config.Presence `json:"d"`
 }
 
 func UpdatePresence(ctx context.Context, conn *websocket.Conn, presence Presence) {

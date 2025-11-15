@@ -82,11 +82,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 
 		case <-ticker.C:
 			var lastRun state.Jobs
-			result := tx.Where("name = ?", "steam_feed").First(&lastRun)
-			if result.Error != nil {
-				log.Println(result.Error)
-				return
-			}
+			tx.Where("name = ?", "steam_feed").Find(&lastRun)
 
 			sales, err := steam.GetSalesData()
 			if err != nil {
@@ -107,7 +103,7 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 				}
 			}
 
-			result = tx.Clauses(clause.OnConflict{
+			result := tx.Clauses(clause.OnConflict{
 				UpdateAll: true,
 			}).Create(&state.Jobs{Name: "steam_feed", Timestamp: time.Now()})
 

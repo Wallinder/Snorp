@@ -43,7 +43,7 @@ type Identity struct {
 	LargeThreshold int                `json:"large_threshold"`
 	Intents        int64              `json:"intents"`
 	Properties     IdentityProperties `json:"properties"`
-	Presence       PresenceData       `json:"presence"`
+	Presence       Presence           `json:"presence"`
 	Shards         []int              `json:"shards,omitempty"`
 }
 
@@ -53,7 +53,7 @@ type IdentityProperties struct {
 	Device  string `json:"device"`
 }
 
-type PresenceData struct {
+type Presence struct {
 	Since      int        `json:"since"`
 	Activities []Activity `json:"activities"`
 	Status     string     `json:"status"`
