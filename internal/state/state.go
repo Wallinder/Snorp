@@ -142,8 +142,8 @@ func (session *SessionState) UpdateMetadata() {
 	}
 
 	if len(session.Config.Bot.Identity.Shards) == 0 {
-		shards := []int{0, metadata.Shards}
-		log.Printf("No shards in config, using values from gateway: %d", shards)
+		shards := []int{0, 1}
+		log.Printf("No shards in config, using default value: %d", shards)
 
 		session.Config.Bot.Identity.Shards = shards
 	}
