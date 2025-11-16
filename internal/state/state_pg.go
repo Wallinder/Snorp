@@ -9,11 +9,6 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-type Jobs struct {
-	Name      string `gorm:"primaryKey"`
-	Timestamp time.Time
-}
-
 type ArchivedMessages struct {
 	ID         string `gorm:"primaryKey"`
 	Type       int
@@ -50,11 +45,6 @@ func (session *SessionState) CreateConnection() *gorm.DB {
 
 func (session *SessionState) InitDatabase() {
 	err := session.DB.AutoMigrate(&ArchivedMessages{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = session.DB.AutoMigrate(&Jobs{})
 	if err != nil {
 		log.Fatal(err)
 	}

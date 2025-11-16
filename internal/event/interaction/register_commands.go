@@ -13,9 +13,17 @@ const (
 const (
 	SVV           = "svv"
 	SVV_REGNUMMER = "regnummer"
+
+	STEAM       = "steam"
+	STEAM_NEWS  = "news"
+	STEAM_SALES = "sales"
 )
 
 func RegisterCommands(ctx context.Context, session *state.SessionState) {
+	//commands, _ := api.GetGlobalCommand(session)
+	//for _, command := range commands {
+	//	fmt.Println(command)
+	//}
 	saveMessageCommand := &api.ApplicationCommand{
 		Name: ARCHIVE_MESSAGE,
 		Type: api.MESSAGE,
@@ -32,7 +40,7 @@ func RegisterCommands(ctx context.Context, session *state.SessionState) {
 		Description: "Statens Vegvesen",
 		Options: []api.ApplicationCommandOption{
 			{
-				Name:        "regnummer",
+				Name:        SVV_REGNUMMER,
 				Description: "Hent Kjøretøydata",
 				Type:        3,
 				Required:    true,
@@ -40,6 +48,31 @@ func RegisterCommands(ctx context.Context, session *state.SessionState) {
 		},
 	}
 	_, err = api.CreateGlobalCommand(session, svv)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	steamNews := &api.ApplicationCommand{
+		Name:        STEAM,
+		Type:        api.CHAT_INPUT,
+		Description: "Steam Operations",
+		Options: []api.ApplicationCommandOption{
+			{
+				Name:        STEAM_SALES,
+				Description: "Creates a steam-sales channel",
+				Type:        1,
+				Required:    false,
+			},
+			{
+				Name:        STEAM_NEWS,
+				Description: "Creates a steam-news channel",
+				Type:        1,
+				Required:    false,
+			},
+		},
+	}
+	_, err = api.CreateGlobalCommand(session, steamNews)
 	if err != nil {
 		log.Println(err)
 		return

@@ -33,6 +33,7 @@ type SessionState struct {
 	GlobalHeaders map[string][]string
 	Messages      chan []byte
 	MaxRetries    int
+	Jobs          Jobs
 }
 
 type Metrics struct {
@@ -40,6 +41,11 @@ type Metrics struct {
 	TotalDispatchMessages *prometheus.CounterVec
 	TotalHttpRequests     *prometheus.CounterVec
 	TotalDisconnects      prometheus.Counter
+}
+
+type Jobs struct {
+	SteamNews  []string
+	SteamSales []string
 }
 
 type ReadyData struct {

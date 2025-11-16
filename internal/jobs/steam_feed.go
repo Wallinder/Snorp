@@ -8,12 +8,15 @@ import (
 	"snorp/internal/state"
 	"snorp/pkg/steam"
 	"time"
-
-	"gorm.io/gorm/clause"
 )
 
-func FindOrCreateChannel(session *state.SessionState, guild api.Guild, topic, name string) (string, error) {
-	for _, channel := range guild.Channels {
+func FindOrCreateChannel(session *state.SessionState, guildID string, topic, name string) (string, error) {
+	channels, err := api.GetGuildChannels(session, guildID)
+	if err != nil {
+		return "", err
+	}
+
+	for _, channel := range channels {
 		if channel.Topic == topic {
 			return channel.ID, nil
 		}
@@ -24,7 +27,7 @@ func FindOrCreateChannel(session *state.SessionState, guild api.Guild, topic, na
 		Type:  api.GUILD_TEXT,
 		Topic: topic,
 	}
-	created, err := api.CreateGuildChannel(session, guild.ID, newChannel)
+	created, err := api.CreateGuildChannel(session, guildID, newChannel)
 	if err != nil {
 		return "", fmt.Errorf("failed to create channel %s: %w", name, err)
 	}
@@ -57,22 +60,17 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 	return nil
 }
 
-func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild) {
-	salesChannelID, err := FindOrCreateChannel(session, guild, "snorp:steamsales", "steam-sales")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	newsChannelID, err := FindOrCreateChannel(session, guild, "snorp:steamnews", "steam-news")
+func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID string) {
+	newsChannelID, err := FindOrCreateChannel(session, guildID, "snorp:steamnews", "steam-news")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	tx := session.DB.WithContext(ctx)
-
-	ticker := time.NewTicker(15 * time.Second)
+	ticker := time.NewTicker(15 * time.Minute)
 	defer ticker.Stop()
+
+	var lastRun time.Time
 
 	for {
 		select {
@@ -81,36 +79,42 @@ func SteamFeed(ctx context.Context, session *state.SessionState, guild api.Guild
 			return
 
 		case <-ticker.C:
-			var lastRun state.Jobs
-			tx.Where("name = ?", "steam_feed").Find(&lastRun)
-
-			sales, err := steam.GetSalesData()
-			if err != nil {
-			} else {
-				err := ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun.Timestamp)
-				if err != nil {
-					return
-				}
-			}
-
 			news, err := steam.GetNewsData()
 			if err != nil {
 				log.Printf("Error fetching news data: %v\n", err)
 			} else {
-				err := ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun.Timestamp)
-				if err != nil {
-					return
-				}
+				ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
 			}
+			lastRun = time.Now()
+		}
+	}
+}
 
-			result := tx.Clauses(clause.OnConflict{
-				UpdateAll: true,
-			}).Create(&state.Jobs{Name: "steam_feed", Timestamp: time.Now()})
+func SteamSalesFeed(ctx context.Context, session *state.SessionState, guildID string) {
+	salesChannelID, err := FindOrCreateChannel(session, guildID, "snorp:steamsales", "steam-sales")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-			if result.Error != nil {
-				log.Println(err)
-				return
+	ticker := time.NewTicker(15 * time.Minute)
+	defer ticker.Stop()
+
+	var lastRun time.Time
+
+	for {
+		select {
+
+		case <-ctx.Done():
+			return
+
+		case <-ticker.C:
+			sales, err := steam.GetSalesData()
+			if err != nil {
+			} else {
+				ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
 			}
+			lastRun = time.Now()
 		}
 	}
 }
