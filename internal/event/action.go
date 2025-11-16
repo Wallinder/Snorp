@@ -108,7 +108,6 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		fmt.Println(string(dispatchMessage))
 		fmt.Println(presence)
 
 	default:

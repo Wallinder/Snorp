@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"snorp/internal/state"
@@ -16,6 +17,7 @@ func Collector(session *state.SessionState) {
 	log.Printf("Metrics available at :%d%s\n", session.MetricPort, session.MetricUri)
 	http.Handle(session.MetricUri, promhttp.Handler())
 
+	http.ListenAndServe(fmt.Sprintf(":%d", session.MetricPort), nil)
 }
 
 func NewMetrics(session *state.SessionState) {
