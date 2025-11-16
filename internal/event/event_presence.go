@@ -9,12 +9,12 @@ import (
 	"github.com/coder/websocket"
 )
 
-type Presence struct {
-	Op int             `json:"op"`
-	D  config.Presence `json:"d"`
+type PresenceUpdate struct {
+	Op int                     `json:"op"`
+	D  config.IdentityPresence `json:"d"`
 }
 
-func UpdatePresence(ctx context.Context, conn *websocket.Conn, presence Presence) {
+func UpdatePresence(ctx context.Context, conn *websocket.Conn, presence PresenceUpdate) {
 	message, err := json.Marshal(presence)
 	if err != nil {
 		log.Printf("Failed to unmarshal presence: %v\n", err)

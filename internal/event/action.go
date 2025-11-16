@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"snorp/config"
 	"snorp/internal/api"
 	"snorp/internal/event/interaction"
 	"snorp/internal/jobs"
@@ -106,11 +105,12 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 		log.Println("Connection successfully resumed..")
 
 	case "PRESENCE_UPDATE":
-		var presence config.Presence
+		var presence api.Presence
 		err := json.Unmarshal(dispatchMessage, &presence)
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
+		fmt.Println(string(dispatchMessage))
 		fmt.Println(presence)
 
 	default:

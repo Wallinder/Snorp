@@ -66,7 +66,7 @@ type Guild struct {
 }
 
 type GuildMembers struct {
-	User                       GuildUser `json:"user"`
+	User                       User      `json:"user"`
 	Roles                      []string  `json:"roles"`
 	PremiumSince               any       `json:"premium_since"`
 	Pending                    bool      `json:"pending"`
@@ -78,24 +78,6 @@ type GuildMembers struct {
 	CommunicationDisabledUntil any       `json:"communication_disabled_until"`
 	Banner                     any       `json:"banner"`
 	Avatar                     any       `json:"avatar"`
-}
-
-type GuildUser struct {
-	ID                   string                `json:"id"`
-	Username             string                `json:"username"`
-	Discriminator        string                `json:"discriminator"`
-	GlobalName           string                `json:"global_name"`
-	Avatar               string                `json:"avatar"`
-	Bot                  bool                  `json:"bot"`
-	Email                string                `json:"email"`
-	System               bool                  `json:"system"`
-	MfaEnabled           bool                  `json:"mfa_enabled"`
-	PublicFlags          int                   `json:"public_flags"`
-	PrimaryGuild         GuildUserPrimaryGuild `json:"primary_guild"`
-	DisplayNameStyles    any                   `json:"display_name_styles"`
-	DisplayName          string                `json:"display_name"`
-	Collectibles         any                   `json:"collectibles"`
-	AvatarDecorationData any                   `json:"avatar_decoration_data"`
 }
 
 type GuildUserPrimaryGuild struct {
