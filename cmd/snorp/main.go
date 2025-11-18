@@ -29,6 +29,10 @@ func main() {
 		MaxRetries: 3,
 		MetricUri:  "/metrics",
 		MetricPort: 8080,
+		Jobs: state.Jobs{
+			SteamNews:  make(map[string]bool),
+			SteamSales: make(map[string]bool),
+		},
 	}
 	go metrics.Collector(session)
 

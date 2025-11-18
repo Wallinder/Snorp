@@ -44,8 +44,8 @@ type Metrics struct {
 }
 
 type Jobs struct {
-	SteamNews  []string
-	SteamSales []string
+	SteamNews  map[string]bool
+	SteamSales map[string]bool
 }
 
 type ReadyData struct {

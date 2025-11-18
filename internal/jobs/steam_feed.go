@@ -61,6 +61,11 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 }
 
 func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID string) {
+	session.Jobs.SteamNews[guildID] = true
+	defer func() {
+		session.Jobs.SteamNews[guildID] = false
+	}()
+
 	newsChannelID, err := FindOrCreateChannel(session, guildID, "snorp:steamnews", "steam-news")
 	if err != nil {
 		log.Println(err)
@@ -83,7 +88,10 @@ func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID str
 			if err != nil {
 				log.Printf("Error fetching news data: %v\n", err)
 			} else {
-				ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
+				err := ProcessFeedItems(session, newsChannelID, news.Channel.Item, lastRun)
+				if err != nil {
+					return
+				}
 			}
 			lastRun = time.Now()
 		}
@@ -91,6 +99,11 @@ func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID str
 }
 
 func SteamSalesFeed(ctx context.Context, session *state.SessionState, guildID string) {
+	session.Jobs.SteamSales[guildID] = true
+	defer func() {
+		session.Jobs.SteamSales[guildID] = false
+	}()
+
 	salesChannelID, err := FindOrCreateChannel(session, guildID, "snorp:steamsales", "steam-sales")
 	if err != nil {
 		log.Println(err)
@@ -112,7 +125,10 @@ func SteamSalesFeed(ctx context.Context, session *state.SessionState, guildID st
 			sales, err := steam.GetSalesData()
 			if err != nil {
 			} else {
-				ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
+				err := ProcessFeedItems(session, salesChannelID, sales.Channel.Item, lastRun)
+				if err != nil {
+					return
+				}
 			}
 			lastRun = time.Now()
 		}
