@@ -9,7 +9,7 @@ import (
 	"snorp/pkg/svv"
 )
 
-func SlashInteractions(ctx context.Context, session *state.SessionState, commandResponse api.CommandResponse) {
+func SlashInteractions(mainCtx context.Context, session *state.SessionState, commandResponse api.CommandResponse) {
 	callbackMessage := api.MessageCallback{
 		Type: api.CHANNEL_MESSAGE_WITH_SOURCE,
 		Data: api.MessageCallbackData{},
@@ -55,10 +55,10 @@ func SlashInteractions(ctx context.Context, session *state.SessionState, command
 				callbackMessage.Data.Content = "Created a steam-news channel"
 				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
 
-				go jobs.SteamNewsFeed(ctx, session, commandResponse.GuildID)
+				go jobs.SteamNewsFeed(mainCtx, session, commandResponse.GuildID)
 
 			case STEAM_SALES:
-				if session.Jobs.SteamNews[commandResponse.GuildID] {
+				if session.Jobs.SteamSales[commandResponse.GuildID] {
 					callbackMessage.Data.Content = "This guild already have an active steam-sales job"
 					api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
 					return
@@ -67,7 +67,7 @@ func SlashInteractions(ctx context.Context, session *state.SessionState, command
 				callbackMessage.Data.Content = "Created a steam-sales channel"
 				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
 
-				go jobs.SteamSalesFeed(ctx, session, commandResponse.GuildID)
+				go jobs.SteamSalesFeed(mainCtx, session, commandResponse.GuildID)
 			}
 		}
 	}

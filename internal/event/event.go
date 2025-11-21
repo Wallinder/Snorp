@@ -24,7 +24,7 @@ func EventListener(ctx context.Context, session *state.SessionState) {
 		lastAttempt = time.Now()
 
 		newCtx, cancel := context.WithCancel(ctx)
-		EventHandler(newCtx, cancel, session)
+		EventHandler(newCtx, ctx, cancel, session)
 
 		session.Metrics.TotalDisconnects.Inc()
 		attempts++

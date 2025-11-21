@@ -18,7 +18,7 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state.SessionState) {
+func EventHandler(ctx context.Context, mainCtx context.Context, cancel context.CancelFunc, session *state.SessionState) {
 	if session.Conn != nil {
 		log.Println("Connection already open")
 		return
@@ -114,7 +114,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			session.Mu.Lock()
 			session.Seq = discordPayload.S
 			session.Mu.Unlock()
-			DispatchHandler(ctx, session.Conn, session, discordPayload.T, discordPayload.D)
+			DispatchHandler(ctx, mainCtx, session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
 			session.Resume = true

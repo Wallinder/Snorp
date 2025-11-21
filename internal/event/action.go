@@ -8,11 +8,9 @@ import (
 	"snorp/internal/api"
 	"snorp/internal/event/interaction"
 	"snorp/internal/state"
-
-	"github.com/coder/websocket"
 )
 
-func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+func DispatchHandler(ctx context.Context, mainCtx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	go session.Metrics.TotalDispatchMessages.WithLabelValues(action).Inc()
 
 	switch action {
@@ -86,7 +84,7 @@ func DispatchHandler(ctx context.Context, conn *websocket.Conn, session *state.S
 			switch commandResponse.Data.Type {
 
 			case api.CHAT_INPUT:
-				go interaction.SlashInteractions(ctx, session, commandResponse)
+				go interaction.SlashInteractions(mainCtx, session, commandResponse)
 
 			case api.USER_COMMAND:
 				go interaction.UserInteractions(ctx, session, commandResponse)

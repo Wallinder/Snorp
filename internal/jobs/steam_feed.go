@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const MAX_RETRIES = 3
+
 func FindOrCreateChannel(session *state.SessionState, guildID string, topic, name string) (string, error) {
 	channels, err := api.GetGuildChannels(session, guildID)
 	if err != nil {
@@ -50,11 +52,17 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 			Content: fmt.Sprintf("%s\n%s", item.Title, item.Link),
 		}
 
-		if _, err := api.CreateMessage(session, channelID, message); err != nil {
-			log.Printf("Error creating message: %v", err)
-			return err
+		attempts := 0
+		for {
+			if attempts >= MAX_RETRIES {
+				return fmt.Errorf("exceeded retry limit, when sending message to channel: %v", channelID)
+			}
+			if _, err := api.CreateMessage(session, channelID, message); err != nil {
+				log.Printf("Error creating message: %v\n", err)
+				attempts++
+			}
+			break
 		}
-
 		time.Sleep(3 * time.Second)
 	}
 	return nil
@@ -62,6 +70,7 @@ func ProcessFeedItems(session *state.SessionState, channelID string, items []ste
 
 func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID string) {
 	session.Jobs.SteamNews[guildID] = true
+
 	defer func() {
 		session.Jobs.SteamNews[guildID] = false
 	}()
@@ -72,7 +81,7 @@ func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID str
 		return
 	}
 
-	ticker := time.NewTicker(15 * time.Minute)
+	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
 
 	var lastRun time.Time
@@ -100,6 +109,7 @@ func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID str
 
 func SteamSalesFeed(ctx context.Context, session *state.SessionState, guildID string) {
 	session.Jobs.SteamSales[guildID] = true
+
 	defer func() {
 		session.Jobs.SteamSales[guildID] = false
 	}()
@@ -110,7 +120,7 @@ func SteamSalesFeed(ctx context.Context, session *state.SessionState, guildID st
 		return
 	}
 
-	ticker := time.NewTicker(15 * time.Minute)
+	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
 
 	var lastRun time.Time
