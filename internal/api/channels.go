@@ -126,3 +126,22 @@ func DeleteGuildChannels(session *state.SessionState, channelID string) error {
 
 	return nil
 }
+
+func FindOrCreateChannel(session *state.SessionState, newChannel *GuildChannels, guildID string) (string, error) {
+	channels, err := GetGuildChannels(session, guildID)
+	if err != nil {
+		return "", err
+	}
+
+	for _, channel := range channels {
+		if channel.Topic == newChannel.Topic {
+			return channel.ID, nil
+		}
+	}
+
+	created, err := CreateGuildChannel(session, guildID, newChannel)
+	if err != nil {
+		return "", fmt.Errorf("failed to create channel %s: %w", newChannel.Name, err)
+	}
+	return created.ID, nil
+}

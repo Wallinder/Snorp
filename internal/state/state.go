@@ -147,6 +147,8 @@ func (session *SessionState) UpdateMetadata() {
 		log.Fatal(err)
 	}
 
+	log.Printf("Recommended amount of shards: %d\n", metadata.Shards)
+
 	if len(session.Config.Bot.Identity.Shards) == 0 {
 		shards := []int{0, 1}
 		log.Printf("No shards in config, using default value: %d", shards)

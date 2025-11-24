@@ -14,7 +14,6 @@ func Start(session *state.SessionState) {
 	ctx := context.Background()
 
 	session.DB = session.CreateConnection()
-	session.InitDatabase()
 
 	session.UpdateMetadata()
 

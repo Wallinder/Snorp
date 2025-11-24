@@ -40,12 +40,10 @@ func (session *SessionState) CreateConnection() *gorm.DB {
 
 	sqlDB.SetConnMaxLifetime(time.Duration(session.Config.Postgresql.Gorm.ConnMaxLifetime) * time.Second)
 
-	return db
-}
-
-func (session *SessionState) InitDatabase() {
-	err := session.DB.AutoMigrate(&ArchivedMessages{})
+	err = db.AutoMigrate(&ArchivedMessages{})
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return db
 }

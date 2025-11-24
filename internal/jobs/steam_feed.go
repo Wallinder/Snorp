@@ -12,30 +12,6 @@ import (
 
 const MAX_RETRIES = 3
 
-func FindOrCreateChannel(session *state.SessionState, guildID string, topic, name string) (string, error) {
-	channels, err := api.GetGuildChannels(session, guildID)
-	if err != nil {
-		return "", err
-	}
-
-	for _, channel := range channels {
-		if channel.Topic == topic {
-			return channel.ID, nil
-		}
-	}
-
-	newChannel := &api.GuildChannels{
-		Name:  name,
-		Type:  api.GUILD_TEXT,
-		Topic: topic,
-	}
-	created, err := api.CreateGuildChannel(session, guildID, newChannel)
-	if err != nil {
-		return "", fmt.Errorf("failed to create channel %s: %w", name, err)
-	}
-	return created.ID, nil
-}
-
 func ProcessFeedItems(session *state.SessionState, channelID string, items []steam.Item, lastRun time.Time) error {
 	for _, item := range items {
 		pubDate, err := time.Parse(time.RFC1123, item.PubDate)
@@ -75,7 +51,13 @@ func SteamNewsFeed(ctx context.Context, session *state.SessionState, guildID str
 		session.Jobs.SteamNews[guildID] = false
 	}()
 
-	newsChannelID, err := FindOrCreateChannel(session, guildID, "snorp:steamnews", "steam-news")
+	newChannel := &api.GuildChannels{
+		Name:  "steam-news",
+		Type:  api.GUILD_TEXT,
+		Topic: "snorp:steamnews",
+	}
+
+	newsChannelID, err := api.FindOrCreateChannel(session, newChannel, guildID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -114,7 +96,13 @@ func SteamSalesFeed(ctx context.Context, session *state.SessionState, guildID st
 		session.Jobs.SteamSales[guildID] = false
 	}()
 
-	salesChannelID, err := FindOrCreateChannel(session, guildID, "snorp:steamsales", "steam-sales")
+	newChannel := &api.GuildChannels{
+		Name:  "steam-sales",
+		Type:  api.GUILD_TEXT,
+		Topic: "snorp:steamsales",
+	}
+
+	salesChannelID, err := api.FindOrCreateChannel(session, newChannel, guildID)
 	if err != nil {
 		log.Println(err)
 		return

@@ -78,6 +78,7 @@ type GuildMembers struct {
 	CommunicationDisabledUntil any       `json:"communication_disabled_until"`
 	Banner                     any       `json:"banner"`
 	Avatar                     any       `json:"avatar"`
+	GuildID                    string    `json:"guild_id,omitzero"` // GUILD_MEMBER_ADD has en extra field
 }
 
 type GuildUserPrimaryGuild struct {

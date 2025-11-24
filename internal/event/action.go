@@ -7,6 +7,7 @@ import (
 	"log"
 	"snorp/internal/api"
 	"snorp/internal/event/interaction"
+	"snorp/internal/jobs"
 	"snorp/internal/state"
 )
 
@@ -24,6 +25,14 @@ func DispatchHandler(ctx context.Context, mainCtx context.Context, session *stat
 		}
 		session.ReadyData = readyData
 		go interaction.RegisterCommands(ctx, session)
+
+	case "GUILD_MEMBER_ADD":
+		var member api.GuildMembers
+		err := json.Unmarshal(dispatchMessage, &member)
+		if err != nil {
+			log.Println("Error unmarshaling JSON:", err)
+		}
+		go jobs.Welcome(session, member)
 
 	case "GUILD_CREATE":
 		var guild api.Guild
