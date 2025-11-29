@@ -30,20 +30,25 @@ type ApplicationCommand struct {
 }
 
 type ApplicationCommandOption struct {
-	Type                     int      `json:"type,omitzero"`
-	Name                     string   `json:"name,omitzero"`
-	NameLocalizations        []string `json:"name_localizations,omitzero"`
-	Description              string   `json:"description,omitzero"`
-	DescriptionLocalizations []string `json:"description_localizations,omitzero"`
-	Required                 bool     `json:"required,omitzero"`
-	Choices                  []string `json:"choices,omitzero"`
-	Options                  []int    `json:"options,omitzero"`
-	ChannelTypes             []int    `json:"channel_types,omitzero"`
-	MinValue                 int      `json:"min_value,omitzero"`
-	MaxValue                 int      `json:"max_value,omitzero"`
-	MinLength                int      `json:"min_length,omitzero"`
-	MaxLength                int      `json:"max_length,omitzero"`
-	Autocomplete             bool     `json:"autocomplete,omitzero"`
+	Type                     int                         `json:"type,omitzero"`
+	Name                     string                      `json:"name,omitzero"`
+	NameLocalizations        []string                    `json:"name_localizations,omitzero"`
+	Description              string                      `json:"description,omitzero"`
+	DescriptionLocalizations []string                    `json:"description_localizations,omitzero"`
+	Required                 bool                        `json:"required,omitzero"`
+	Choices                  []ApplicationCommandChoices `json:"choices,omitzero"`
+	Options                  []int                       `json:"options,omitzero"`
+	ChannelTypes             []int                       `json:"channel_types,omitzero"`
+	MinValue                 int                         `json:"min_value,omitzero"`
+	MaxValue                 int                         `json:"max_value,omitzero"`
+	MinLength                int                         `json:"min_length,omitzero"`
+	MaxLength                int                         `json:"max_length,omitzero"`
+	Autocomplete             bool                        `json:"autocomplete,omitzero"`
+}
+
+type ApplicationCommandChoices struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 const (

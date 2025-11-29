@@ -26,9 +26,6 @@ type SessionState struct {
 	Config        config.Config
 	Conn          *websocket.Conn
 	Client        *http.Client
-	MetricServer  *http.Server
-	MetricUri     string
-	MetricPort    int
 	Metrics       *Metrics
 	GlobalHeaders map[string][]string
 	Messages      chan []byte
@@ -37,6 +34,8 @@ type SessionState struct {
 }
 
 type Metrics struct {
+	Uri                   string
+	Port                  int
 	TotalMessages         *prometheus.CounterVec
 	TotalDispatchMessages *prometheus.CounterVec
 	TotalHttpRequests     *prometheus.CounterVec
@@ -44,6 +43,7 @@ type Metrics struct {
 }
 
 type Jobs struct {
+	Welcome    map[string]string
 	SteamNews  map[string]bool
 	SteamSales map[string]bool
 }

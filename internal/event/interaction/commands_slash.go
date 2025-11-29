@@ -3,6 +3,7 @@ package interaction
 import (
 	"context"
 	"fmt"
+	"log"
 	"snorp/internal/api"
 	"snorp/internal/jobs"
 	"snorp/internal/state"
@@ -41,33 +42,61 @@ func SlashInteractions(mainCtx context.Context, session *state.SessionState, com
 			}
 		}
 
-	case STEAM:
+	case CREATE:
 		for _, options := range commandResponse.Data.Options {
 			switch options.Name {
 
-			case STEAM_NEWS:
-				if session.Jobs.SteamNews[commandResponse.GuildID] {
-					callbackMessage.Data.Content = "This guild already have an active steam-news job"
+			case CREATE_CHANNEL:
+
+				switch options.Value {
+
+				case CHANNEL_WELCOME:
+					if session.Jobs.Welcome[commandResponse.GuildID] != "" {
+						callbackMessage.Data.Content = "This guild already have a welcome channel"
+						api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+						return
+					}
+
+					callbackMessage.Data.Content = "Created a welcome channel"
 					api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
-					return
-				}
 
-				callbackMessage.Data.Content = "Created a steam-news channel"
-				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+					newChannel := &api.GuildChannels{
+						Name:  "new-phone-who-dis",
+						Type:  api.GUILD_TEXT,
+						Topic: "snorp:welcome",
+					}
 
-				go jobs.SteamNewsFeed(mainCtx, session, commandResponse.GuildID)
+					channelID, err := api.FindOrCreateChannel(session, newChannel, commandResponse.GuildID)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+					session.Jobs.Welcome[commandResponse.GuildID] = channelID
 
-			case STEAM_SALES:
-				if session.Jobs.SteamSales[commandResponse.GuildID] {
-					callbackMessage.Data.Content = "This guild already have an active steam-sales job"
+				case CHANNEL_STEAM_NEWS:
+					if session.Jobs.SteamNews[commandResponse.GuildID] {
+						callbackMessage.Data.Content = "This guild already have an active steam-news job"
+						api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+						return
+					}
+
+					callbackMessage.Data.Content = "Created a steam-news channel"
 					api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
-					return
+
+					go jobs.SteamNewsFeed(mainCtx, session, commandResponse.GuildID)
+
+				case CHANNEL_STEAM_SALES:
+					if session.Jobs.SteamSales[commandResponse.GuildID] {
+						callbackMessage.Data.Content = "This guild already have an active steam-sales job"
+						api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+						return
+					}
+
+					callbackMessage.Data.Content = "Created a steam-sales channel"
+					api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
+
+					go jobs.SteamSalesFeed(mainCtx, session, commandResponse.GuildID)
 				}
-
-				callbackMessage.Data.Content = "Created a steam-sales channel"
-				api.InteractionMsgCallback(session, commandResponse.ID, commandResponse.Token, callbackMessage)
-
-				go jobs.SteamSalesFeed(mainCtx, session, commandResponse.GuildID)
 			}
 		}
 	}

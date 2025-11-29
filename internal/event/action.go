@@ -32,7 +32,7 @@ func DispatchHandler(ctx context.Context, mainCtx context.Context, session *stat
 		if err != nil {
 			log.Println("Error unmarshaling JSON:", err)
 		}
-		go jobs.Welcome(session, member)
+		go jobs.WelcomeUser(session, member)
 
 	case "GUILD_CREATE":
 		var guild api.Guild

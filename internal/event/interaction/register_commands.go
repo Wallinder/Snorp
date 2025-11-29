@@ -10,13 +10,17 @@ import (
 const (
 	ARCHIVE_MESSAGE = "Archive Message"
 )
+
 const (
 	SVV           = "svv"
 	SVV_REGNUMMER = "regnummer"
 
-	STEAM       = "steam"
-	STEAM_NEWS  = "news"
-	STEAM_SALES = "sales"
+	CREATE         = "create"
+	CREATE_CHANNEL = "channel"
+
+	CHANNEL_WELCOME     = "welcome-channel"
+	CHANNEL_STEAM_NEWS  = "steam_news"
+	CHANNEL_STEAM_SALES = "steam_sales"
 )
 
 func RegisterCommands(ctx context.Context, session *state.SessionState) {
@@ -53,26 +57,34 @@ func RegisterCommands(ctx context.Context, session *state.SessionState) {
 		return
 	}
 
-	steamNews := &api.ApplicationCommand{
-		Name:        STEAM,
+	welcome := &api.ApplicationCommand{
+		Name:        CREATE,
 		Type:        api.CHAT_INPUT,
-		Description: "Steam Operations",
+		Description: "Create resource",
 		Options: []api.ApplicationCommandOption{
 			{
-				Name:        STEAM_SALES,
-				Description: "Creates a steam-sales channel",
-				Type:        1,
+				Name:        CREATE_CHANNEL,
+				Description: "channel",
+				Type:        3,
 				Required:    false,
-			},
-			{
-				Name:        STEAM_NEWS,
-				Description: "Creates a steam-news channel",
-				Type:        1,
-				Required:    false,
+				Choices: []api.ApplicationCommandChoices{
+					{
+						Name:  "welcome",
+						Value: CHANNEL_WELCOME,
+					},
+					{
+						Name:  "steam-news",
+						Value: CHANNEL_STEAM_NEWS,
+					},
+					{
+						Name:  "steam-sales",
+						Value: CHANNEL_STEAM_SALES,
+					},
+				},
 			},
 		},
 	}
-	_, err = api.CreateGlobalCommand(session, steamNews)
+	_, err = api.CreateGlobalCommand(session, welcome)
 	if err != nil {
 		log.Println(err)
 		return

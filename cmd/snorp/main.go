@@ -26,14 +26,17 @@ func main() {
 		Resume:     false,
 		Messages:   make(chan []byte),
 		MaxRetries: 3,
-		MetricUri:  "/metrics",
-		MetricPort: 8080,
+		Metrics: &state.Metrics{
+			Uri:  "/metrics",
+			Port: 8080,
+		},
 		Jobs: state.Jobs{
+			Welcome:    make(map[string]string),
 			SteamNews:  make(map[string]bool),
 			SteamSales: make(map[string]bool),
 		},
 	}
-	go metrics.Collector(session)
+	go metrics.Collector(session.Metrics)
 
 	session.InitHttpClient()
 

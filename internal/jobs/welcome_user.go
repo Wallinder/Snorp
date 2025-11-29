@@ -7,24 +7,17 @@ import (
 	"snorp/internal/state"
 )
 
-func Welcome(session *state.SessionState, member api.GuildMembers) {
-	channel := &api.GuildChannels{
-		Name:  "new-phone-who-dis",
-		Type:  api.GUILD_TEXT,
-		Topic: "snorp:welcome",
-	}
-
-	channelID, err := api.FindOrCreateChannel(session, channel, member.GuildID)
-	if err != nil {
-		log.Println(err)
+func WelcomeUser(session *state.SessionState, member api.GuildMembers) {
+	if session.Jobs.Welcome[member.GuildID] == "" {
+		fmt.Println("test")
 		return
 	}
 
 	newMessage := api.Message{
-		Content: fmt.Sprintf("Welcome to %s", member.User.GlobalName),
+		Content: fmt.Sprintf("Welcome to %s", member.User.DisplayName),
 	}
 
-	_, err = api.CreateMessage(session, channelID, newMessage)
+	_, err := api.CreateMessage(session, session.Jobs.Welcome[member.GuildID], newMessage)
 	if err != nil {
 		log.Println(err)
 		return
