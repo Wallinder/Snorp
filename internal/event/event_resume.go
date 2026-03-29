@@ -3,7 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"snorp/internal/state"
 
 	"github.com/coder/websocket"
@@ -20,7 +20,7 @@ type ResumeData struct {
 	Seq       int64  `json:"seq"`
 }
 
-func ResumeConnection(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
+func resumeConnection(ctx context.Context, conn *websocket.Conn, session *state.SessionState) {
 	message, err := json.Marshal(Resume{
 		Op: RESUME,
 		D: ResumeData{
@@ -30,14 +30,15 @@ func ResumeConnection(ctx context.Context, conn *websocket.Conn, session *state.
 		},
 	})
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("failed to marshal resume message", "error", err)
+		return
 	}
-	log.Println("Resuming connection..")
+	slog.Info("Resuming connection..")
 
 	session.Resume = false
 
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
-		log.Printf("Resuming failed: %s\n", err)
+		slog.Error("resuming failed", "error", err)
 	}
 }

@@ -2,30 +2,12 @@ package config
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"os"
 )
 
 type Config struct {
-	Bot        DiscordBot `json:"discordbot"`
-	Postgresql Postgresql `json:"postgresql"`
-	SVV        SVV        `json:"svv"`
-}
-
-type SVV struct {
-	ApiKey string `json:"api_key"`
-}
-
-type Postgresql struct {
-	ConnectionString string `json:"connection_string"`
-	Gorm             Gorm   `json:"gorm"`
-}
-
-type Gorm struct {
-	SingularTable   bool `json:"singular_table"`
-	MaxIdleConns    int  `json:"max_idle_conns"`
-	MaxOpenConns    int  `json:"max_open_conns"`
-	ConnMaxLifetime int  `json:"conn_max_lifetime"`
+	Bot DiscordBot `json:"discord_bot"`
 }
 
 type DiscordBot struct {
@@ -65,21 +47,58 @@ type Activity struct {
 	Type int    `json:"type"`
 }
 
-func Settings() Config {
+func newDefaultConfig() *Config {
+	return &Config{
+		Bot: DiscordBot{
+			SuperuserID: "216244586165698560",
+			Permissions: 2031514586918128,
+			Api:         "https://discord.com/api",
+			ApiVersion:  "10",
+			Identity: Identity{
+				Properties: IdentityProperties{
+					Os:      "Linux",
+					Browser: "https://github.com/Wallinder/Snorp",
+					Device:  "Walle-Lab",
+				},
+				Presence: IdentityPresence{
+					Since: 0,
+					Activities: []Activity{
+						{
+							Name: "🥜Jerkmate Ranked🥜",
+							Type: 5,
+						},
+					},
+					Status: "online",
+					AFK:    false,
+				},
+				Token:          os.Getenv("DISCORD_TOKEN"),
+				Compress:       false,
+				LargeThreshold: 250,
+				Intents:        130955,
+			},
+		},
+	}
+}
+
+func (c *Config) readJsonConfig() {
 	fileContent, err := os.ReadFile("config.json")
 	if err != nil {
-		log.Fatalf("Error reading file: %v", err)
+		slog.Error("unable to read config", "error", err)
+		os.Exit(1)
 	}
-	var config Config
-
-	err = json.Unmarshal([]byte(fileContent), &config)
-	if err != nil {
-		log.Fatalf("error: %v", err)
+	if err = json.Unmarshal(fileContent, &c); err != nil {
+		slog.Error("unable to unmarshal config", "error", err)
+		os.Exit(1)
 	}
+}
 
+func NewConfig() *Config {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+	config := newDefaultConfig()
+	config.readJsonConfig()
 	if config.Bot.Identity.Token == "" {
-		log.Fatal("Missing token..")
+		slog.Error("missing token", "error", "token is empty")
+		os.Exit(1)
 	}
-
 	return config
 }

@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"snorp/internal/state"
 
@@ -14,7 +14,7 @@ import (
 func Collector(metrics *state.Metrics) {
 	NewMetrics(metrics)
 
-	log.Printf("Metrics available at :%d%s\n", metrics.Port, metrics.Uri)
+	slog.Info("metrics endpoint running", "port", metrics.Port, "uri", metrics.Uri)
 	http.Handle(metrics.Uri, promhttp.Handler())
 
 	http.ListenAndServe(fmt.Sprintf(":%d", metrics.Port), nil)

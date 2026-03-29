@@ -2,17 +2,16 @@ package state
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"snorp/config"
 	"sync"
 	"time"
 
 	"github.com/coder/websocket"
 	"github.com/prometheus/client_golang/prometheus"
-	"gorm.io/gorm"
 )
 
 type SessionState struct {
@@ -22,15 +21,13 @@ type SessionState struct {
 	Metadata      Metadata
 	ReadyData     ReadyData
 	Resume        bool
-	DB            *gorm.DB
-	Config        config.Config
+	Config        *config.Config
 	Conn          *websocket.Conn
 	Client        *http.Client
 	Metrics       *Metrics
 	GlobalHeaders map[string][]string
 	Messages      chan []byte
 	MaxRetries    int
-	Jobs          Jobs
 }
 
 type Metrics struct {
@@ -40,12 +37,6 @@ type Metrics struct {
 	TotalDispatchMessages *prometheus.CounterVec
 	TotalHttpRequests     *prometheus.CounterVec
 	TotalDisconnects      prometheus.Counter
-}
-
-type Jobs struct {
-	Welcome    map[string]string
-	SteamNews  map[string]bool
-	SteamSales map[string]bool
 }
 
 type ReadyData struct {
@@ -104,57 +95,49 @@ type SessionStartLimit struct {
 	MaxConcurrency int `json:"max_concurrency"`
 }
 
-func (session *SessionState) InitHttpClient() *http.Client {
-	session.Client = &http.Client{
-		CheckRedirect: nil,
-		Timeout:       time.Duration(10 * time.Second),
+func NewState() *SessionState {
+	state := newDefaultState()
+	state.newHttpClient()
+	state.setMetadata()
+	if len(state.Config.Bot.Identity.Shards) == 0 {
+		shards := []int{0, 1}
+		slog.Info("using default sharding", "shards", shards)
+		state.Config.Bot.Identity.Shards = shards
 	}
-	session.Client.Transport = &http.Transport{
-		MaxIdleConns:       10,
-		IdleConnTimeout:    10 * time.Second,
-		DisableCompression: true,
-	}
-	session.GlobalHeaders = map[string][]string{
-		"Content-Type":  {"application/json"},
-		"User-Agent":    {"DiscordBot (https://github.com/Wallinder/Snorp)"},
-		"Authorization": {fmt.Sprintf("Bot %s", session.Config.Bot.Identity.Token)},
-	}
-	return session.Client
+	slog.Info("recommended sharding", "shards", state.Metadata.Shards)
+	return state
 }
 
-func (session *SessionState) UpdateMetadata() {
-	request := HttpRequest{
-		Method: "GET",
-		Uri:    "/gateway/bot",
-		Body:   nil,
+func newDefaultState() *SessionState {
+	return &SessionState{
+		Config:     config.NewConfig(),
+		Resume:     false,
+		Messages:   make(chan []byte),
+		MaxRetries: 3,
+		Metrics: &Metrics{
+			Uri:  "/metrics",
+			Port: 8080,
+		},
+		StartTime: time.Now(),
 	}
+}
 
-	response, err := session.SendRequest(request)
+func (s *SessionState) setMetadata() {
+	response, err := s.NewDiscordRequest("GET", "/gateway/bot", nil)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("unable to update metadata", "error", err)
+		os.Exit(1)
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("unable to update metadata", "error", err)
+		os.Exit(1)
 	}
 
-	var metadata Metadata
-
-	err = json.Unmarshal(body, &metadata)
-	if err != nil {
-		log.Fatal(err)
+	if err = json.Unmarshal(body, &s.Metadata); err != nil {
+		slog.Error("unable to update metadata", "error", err)
+		os.Exit(1)
 	}
-
-	log.Printf("Recommended amount of shards: %d\n", metadata.Shards)
-
-	if len(session.Config.Bot.Identity.Shards) == 0 {
-		shards := []int{0, 1}
-		log.Printf("No shards in config, using default value: %d", shards)
-
-		session.Config.Bot.Identity.Shards = shards
-	}
-
-	session.Metadata = metadata
 }

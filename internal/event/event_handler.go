@@ -3,7 +3,8 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
+	"os"
 	"snorp/internal/state"
 	"strconv"
 	"time"
@@ -18,9 +19,9 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func EventHandler(ctx context.Context, mainCtx context.Context, cancel context.CancelFunc, session *state.SessionState) {
+func eventHandler(ctx context.Context, cancel context.CancelFunc, session *state.SessionState) {
 	if session.Conn != nil {
-		log.Println("Connection already open")
+		slog.Info("connection already open")
 		return
 	}
 
@@ -32,18 +33,20 @@ func EventHandler(ctx context.Context, mainCtx context.Context, cancel context.C
 
 	url += "/?v=" + session.Config.Bot.ApiVersion + "&encoding=json"
 
-	log.Printf("Connecting to socket: %s\n", url)
+	slog.Info("connecting to websocket", "url", url)
 
 	var err error
 	session.Conn, _, err = websocket.Dial(ctx, url, nil)
 	if err != nil {
-		log.Printf("Error opening connection: %v\n", err)
+		slog.Error("error opening connection", "error", err)
 		return
 	}
 
 	defer func() {
 		session.Conn.Close(1006, "Normal Closure")
+		session.Mu.Lock()
 		session.Conn = nil
+		session.Mu.Unlock()
 		cancel()
 	}()
 
@@ -53,35 +56,37 @@ func EventHandler(ctx context.Context, mainCtx context.Context, cancel context.C
 			errorCode := int(websocket.CloseStatus(err))
 
 			if SocketErrors[int(errorCode)] || errorCode == -1 {
-				log.Printf("Errorcode %d: %v\n", errorCode, err)
+				slog.Error("socket failure", "error", err, "code", errorCode)
+				session.Mu.Lock()
 				session.Resume = true
+				session.Mu.Unlock()
 				return
 			}
-			log.Fatalf("Unrecoverable error %d: %v\n", errorCode, err)
+			slog.Error("unrecoverable", "error", err)
+			os.Exit(1)
 		}
 
 		var discordPayload DiscordPayload
-
 		err = json.Unmarshal(message, &discordPayload)
 		if err != nil {
-			log.Printf("Error unmarshaling JSON: %v\n", err)
+			slog.Error("error unmarshaling json", "error", err)
 			return
 		}
 
-		go session.Metrics.TotalMessages.WithLabelValues(strconv.Itoa(discordPayload.Op)).Inc()
+		session.Metrics.TotalMessages.WithLabelValues(strconv.Itoa(discordPayload.Op)).Inc()
 
 		switch discordPayload.Op {
 
 		case HELLO:
-			var heartbeat HeartbeatInterval
+			var heartbeat int
 			err := json.Unmarshal(discordPayload.D, &heartbeat)
 			if err != nil {
-				log.Printf("Error unmarshaling JSON: %v\n", err)
+				slog.Error("error unmarshaling json", "error", err)
 				return
 			}
 
 			go func(interval int) {
-				log.Printf("Starting heartbeat with an interval of %d seconds!\n", interval/1000)
+				slog.Info("starting heartbeat", "interval", interval/1000)
 
 				ticker := time.NewTicker(time.Duration(interval) * time.Millisecond)
 				defer ticker.Stop()
@@ -92,48 +97,52 @@ func EventHandler(ctx context.Context, mainCtx context.Context, cancel context.C
 						return
 
 					case <-ticker.C:
-						SendHeartbeat(ctx, session.Conn, session.Seq)
+						sendHeartbeat(ctx, session.Conn, session.Seq)
 					}
 				}
-			}(heartbeat.Interval)
+			}(heartbeat)
 
 			if session.Resume {
-				ResumeConnection(ctx, session.Conn, session)
+				resumeConnection(ctx, session.Conn, session)
 			} else {
-				SendIdentify(ctx, session.Conn, session.Config.Bot.Identity)
+				identify(ctx, session.Conn, session.Config.Bot.Identity)
 			}
 
 		case HEARTBEAT:
-			log.Printf("Received opcode %d, sending hearbeat immediately..\n", discordPayload.Op)
-			SendHeartbeat(ctx, session.Conn, session.Seq)
+			slog.Info("received heartbeat", "opcode", HEARTBEAT)
+			slog.Info("sending heartbeat immediately", "opcode", HEARTBEAT)
+			sendHeartbeat(ctx, session.Conn, session.Seq)
 
 		case HEARTBEAT_ACK:
-			log.Println("Received heartbeat..")
+			slog.Info("received heartbeat", "opcode", HEARTBEAT_ACK)
 
 		case DISPATCH:
 			session.Mu.Lock()
 			session.Seq = discordPayload.S
 			session.Mu.Unlock()
-			DispatchHandler(ctx, mainCtx, session, discordPayload.T, discordPayload.D)
+			dispatchHandler(ctx, session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
 			session.Resume = true
-			log.Printf("Received %d, trying to reconnect..\n", RECONNECT)
+			slog.Info("trying to reconnect..", "opcode", RECONNECT)
 			return
 
 		case INVALID_SESSION:
 			var invalid bool
 			err := json.Unmarshal(discordPayload.D, &invalid)
 			if err != nil {
-				log.Println("Error unmarshaling JSON:", err)
+				slog.Error("failed to unmarshal json", "error", err)
 				return
 			}
+			slog.Warn("invalid session, trying to reconnect.", "opcode", INVALID_SESSION)
+
+			session.Mu.Lock()
 			if invalid {
 				session.Resume = true
 			} else {
 				session.Resume = false
 			}
-			log.Printf("Received %d, trying to reconnect..\n", INVALID_SESSION)
+			session.Mu.Unlock()
 			return
 		}
 	}

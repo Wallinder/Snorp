@@ -2,7 +2,7 @@ package event
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"snorp/internal/state"
 	"time"
 )
@@ -15,7 +15,7 @@ func EventListener(ctx context.Context, session *state.SessionState) {
 
 	for {
 		if attempts >= session.MaxRetries {
-			log.Fatal("Backoff timer exceeded, exiting..")
+			slog.Error("backoff timer exceeded, exiting..")
 			return
 		}
 		if time.Since(lastAttempt) > resetAfter {
@@ -24,7 +24,7 @@ func EventListener(ctx context.Context, session *state.SessionState) {
 		lastAttempt = time.Now()
 
 		newCtx, cancel := context.WithCancel(ctx)
-		EventHandler(newCtx, ctx, cancel, session)
+		eventHandler(newCtx, cancel, session)
 
 		session.Metrics.TotalDisconnects.Inc()
 		attempts++

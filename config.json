@@ -1,5 +1,5 @@
 {
-  "discordbot": {
+  "discord_bot": {
     "superuser_id": "216244586165698560",
     "permissions": 2031514586918128,
     "api": "https://discord.com/api",
@@ -24,17 +24,5 @@
       "large_threshold": 250,
       "intents": 130955
     }
-  },
-  "postgresql": {
-    "connection_string": "postgresql://snorp:e42UG7n7V79h@192.168.1.100:5432/discord",
-    "gorm": {
-      "singular_table": true,
-      "max_idle_conns": 10,
-      "max_open_conns": 100,
-      "conn_max_lifetime": 3600
-    }
-  },
-  "svv": {
-    "api_key": ""
   }
 }

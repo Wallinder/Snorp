@@ -3,7 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"snorp/config"
 
 	"github.com/coder/websocket"
@@ -14,15 +14,16 @@ type PresenceUpdate struct {
 	D  config.IdentityPresence `json:"d"`
 }
 
-func UpdatePresence(ctx context.Context, conn *websocket.Conn, presence PresenceUpdate) {
+func updatePresence(ctx context.Context, conn *websocket.Conn, presence PresenceUpdate) {
 	message, err := json.Marshal(presence)
 	if err != nil {
-		log.Printf("Failed to unmarshal presence: %v\n", err)
+		slog.Error("failed to unmarshal presence", "error", err)
+		return
 	}
-	log.Println("Updating presence..")
+	slog.Info("updating presence..")
 
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
-		log.Printf("Updating presence failed: %v\n", err)
+		slog.Error("updating presence failed", "error", err)
 	}
 }

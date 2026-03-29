@@ -3,7 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"snorp/config"
 
 	"github.com/coder/websocket"
@@ -14,18 +14,19 @@ type Identify struct {
 	D  config.Identity `json:"d"`
 }
 
-func SendIdentify(ctx context.Context, conn *websocket.Conn, identity config.Identity) {
+func identify(ctx context.Context, conn *websocket.Conn, identity config.Identity) {
 	message, err := json.Marshal(Identify{
 		Op: IDENTIFY,
 		D:  identity,
 	})
 	if err != nil {
-		log.Fatalf("Failed to unmarshal identity: %v", err)
+		slog.Error("failed to unmarshal identity", "error", err)
+		return
 	}
-	log.Println("Identifying..")
+	slog.Info("identifying..")
 
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
-		log.Fatalf("Identity failed: %v", err)
+		slog.Error("identity failed", "error", err)
 	}
 }
