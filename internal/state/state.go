@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -113,6 +114,11 @@ func (s *SessionState) setMetadata() {
 		LogAndExit("unable to send discord request", err, 1)
 	}
 	defer response.Body.Close()
+
+	statusCode := response.StatusCode
+	if statusCode < 200 || statusCode >= 300 {
+		LogAndExit("received bad statuscode", errors.New(response.Status), 1)
+	}
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {

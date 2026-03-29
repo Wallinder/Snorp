@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	http.Handle("/metrics", promhttp.Handler())
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		state.LogAndExit("httpserver panic", err, 1)
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	ctx := context.Background()
+	http.Handle("/metrics", promhttp.Handler())
+	go http.ListenAndServe(":8080", nil)
+
 	session := state.NewState()
 
 	event.Listener(ctx, session)

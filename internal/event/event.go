@@ -14,19 +14,27 @@ func Listener(ctx context.Context, session *state.SessionState) {
 	var lastAttempt time.Time
 
 	for {
-		if attempts >= session.MaxRetries {
-			slog.Error("backoff timer exceeded, exiting..")
+		select {
+		case <-ctx.Done():
+			slog.Info("listener shutting down")
 			return
-		}
-		if time.Since(lastAttempt) > resetAfter {
-			attempts = 0
-		}
-		lastAttempt = time.Now()
 
-		newCtx, cancel := context.WithCancel(ctx)
-		eventHandler(newCtx, cancel, session)
+		default:
+			if attempts >= session.MaxRetries {
+				slog.Error("backoff timer exceeded, exiting..")
+				return
+			}
+			if time.Since(lastAttempt) > resetAfter {
+				attempts = 0
+			}
+			lastAttempt = time.Now()
 
-		TotalDisconnects.Inc()
-		attempts++
+			newCtx, cancel := context.WithCancel(ctx)
+			eventHandler(newCtx, session)
+			cancel()
+
+			TotalDisconnects.Inc()
+			attempts++
+		}
 	}
 }
