@@ -72,8 +72,8 @@ func eventHandler(ctx context.Context, session *state.SessionState) {
 		switch discordPayload.Op {
 
 		case HELLO:
-			var heartbeat int
-			err := json.Unmarshal(discordPayload.D, &heartbeat)
+			var Interval Interval
+			err := json.Unmarshal(discordPayload.D, &Interval)
 			if err != nil {
 				slog.Error("error unmarshaling json", "error", err)
 				return
@@ -94,7 +94,7 @@ func eventHandler(ctx context.Context, session *state.SessionState) {
 						sendHeartbeat(ctx, session.Conn, session.Seq)
 					}
 				}
-			}(heartbeat)
+			}(Interval.Heartbeat)
 
 			if session.Resume {
 				resumeConnection(ctx, session.Conn, session)

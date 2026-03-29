@@ -8,6 +8,10 @@ import (
 	"github.com/coder/websocket"
 )
 
+type Interval struct {
+	Heartbeat int `json:"heartbeat_interval"`
+}
+
 type Heartbeat struct {
 	Op int   `json:"op"`
 	D  int64 `json:"d"`
