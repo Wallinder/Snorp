@@ -1,4 +1,4 @@
-package event
+package dispatcher
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 	"snorp/internal/state"
 )
 
-func dispatchHandler(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
-	session.Metrics.TotalDispatchMessages.WithLabelValues(action).Inc()
+func Actions(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+	TotalDispatchMessages.WithLabelValues(action).Inc()
 
 	switch action {
 

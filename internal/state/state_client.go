@@ -31,7 +31,8 @@ type discordRoundTripper struct {
 func (drt *discordRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	slog.Info("discord request", "method", req.Method, "url", req.URL.Path)
 
-	drt.state.Metrics.TotalHttpRequests.WithLabelValues(req.Method, req.URL.Path).Inc()
+	TotalClientHttpRequests.WithLabelValues(req.Method, req.URL.String()).Inc()
+
 	req.Header = map[string][]string{
 		"Content-Type":  {"application/json"},
 		"User-Agent":    {"DiscordBot (https://github.com/Wallinder/Snorp)"},

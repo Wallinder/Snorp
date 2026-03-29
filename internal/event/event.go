@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func EventListener(ctx context.Context, session *state.SessionState) {
+func Listener(ctx context.Context, session *state.SessionState) {
 	const resetAfter = 30 * time.Second
 
 	var attempts int
@@ -26,7 +26,7 @@ func EventListener(ctx context.Context, session *state.SessionState) {
 		newCtx, cancel := context.WithCancel(ctx)
 		eventHandler(newCtx, cancel, session)
 
-		session.Metrics.TotalDisconnects.Inc()
+		TotalDisconnects.Inc()
 		attempts++
 	}
 }

@@ -2,16 +2,21 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"snorp/internal/event"
-	"snorp/internal/metrics"
 	"snorp/internal/state"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
-	session := state.NewState()
-
-	go metrics.Collector(session.Metrics)
+	http.Handle("/metrics", promhttp.Handler())
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		state.LogAndExit("httpserver panic", err, 1)
+	}
 
 	ctx := context.Background()
-	event.EventListener(ctx, session)
+	session := state.NewState()
+
+	event.Listener(ctx, session)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"os"
+	"snorp/internal/dispatcher"
 	"snorp/internal/state"
 	"strconv"
 	"time"
@@ -44,9 +44,7 @@ func eventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 	defer func() {
 		session.Conn.Close(1006, "Normal Closure")
-		session.Mu.Lock()
-		session.Conn = nil
-		session.Mu.Unlock()
+		session.SetConnection(nil)
 		cancel()
 	}()
 
@@ -57,13 +55,10 @@ func eventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 			if SocketErrors[int(errorCode)] || errorCode == -1 {
 				slog.Error("socket failure", "error", err, "code", errorCode)
-				session.Mu.Lock()
-				session.Resume = true
-				session.Mu.Unlock()
+				session.SetResume(true)
 				return
 			}
-			slog.Error("unrecoverable", "error", err)
-			os.Exit(1)
+			state.LogAndExit("unrecoverable", err, 1)
 		}
 
 		var discordPayload DiscordPayload
@@ -73,7 +68,7 @@ func eventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			return
 		}
 
-		session.Metrics.TotalMessages.WithLabelValues(strconv.Itoa(discordPayload.Op)).Inc()
+		TotalMessages.WithLabelValues(strconv.Itoa(discordPayload.Op)).Inc()
 
 		switch discordPayload.Op {
 
@@ -117,13 +112,11 @@ func eventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			slog.Info("received heartbeat", "opcode", HEARTBEAT_ACK)
 
 		case DISPATCH:
-			session.Mu.Lock()
-			session.Seq = discordPayload.S
-			session.Mu.Unlock()
-			dispatchHandler(ctx, session, discordPayload.T, discordPayload.D)
+			session.SetSequence(discordPayload.S)
+			dispatcher.Actions(ctx, session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
-			session.Resume = true
+			session.SetResume(true)
 			slog.Info("trying to reconnect..", "opcode", RECONNECT)
 			return
 
@@ -136,13 +129,11 @@ func eventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 			slog.Warn("invalid session, trying to reconnect.", "opcode", INVALID_SESSION)
 
-			session.Mu.Lock()
 			if invalid {
-				session.Resume = true
+				session.SetResume(true)
 			} else {
-				session.Resume = false
+				session.SetResume(false)
 			}
-			session.Mu.Unlock()
 			return
 		}
 	}

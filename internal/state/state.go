@@ -11,32 +11,20 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 type SessionState struct {
-	Mu            sync.Mutex
-	StartTime     time.Time
-	Seq           int64
-	Metadata      Metadata
-	ReadyData     ReadyData
-	Resume        bool
-	Config        *config.Config
-	Conn          *websocket.Conn
-	Client        *http.Client
-	Metrics       *Metrics
-	GlobalHeaders map[string][]string
-	Messages      chan []byte
-	MaxRetries    int
-}
-
-type Metrics struct {
-	Uri                   string
-	Port                  int
-	TotalMessages         *prometheus.CounterVec
-	TotalDispatchMessages *prometheus.CounterVec
-	TotalHttpRequests     *prometheus.CounterVec
-	TotalDisconnects      prometheus.Counter
+	Mu         sync.Mutex
+	StartTime  time.Time
+	Seq        int64
+	Metadata   Metadata
+	ReadyData  ReadyData
+	Resume     bool
+	Config     *config.Config
+	Conn       *websocket.Conn
+	Client     *http.Client
+	Messages   chan []byte
+	MaxRetries int
 }
 
 type ReadyData struct {
@@ -98,6 +86,7 @@ type SessionStartLimit struct {
 func NewState() *SessionState {
 	state := newDefaultState()
 	state.newHttpClient()
+
 	state.setMetadata()
 	if len(state.Config.Bot.Identity.Shards) == 0 {
 		shards := []int{0, 1}
@@ -114,30 +103,46 @@ func newDefaultState() *SessionState {
 		Resume:     false,
 		Messages:   make(chan []byte),
 		MaxRetries: 3,
-		Metrics: &Metrics{
-			Uri:  "/metrics",
-			Port: 8080,
-		},
-		StartTime: time.Now(),
+		StartTime:  time.Now(),
 	}
 }
 
 func (s *SessionState) setMetadata() {
 	response, err := s.NewDiscordRequest("GET", "/gateway/bot", nil)
 	if err != nil {
-		slog.Error("unable to update metadata", "error", err)
-		os.Exit(1)
+		LogAndExit("unable to send discord request", err, 1)
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		slog.Error("unable to update metadata", "error", err)
-		os.Exit(1)
+		LogAndExit("unable to read discord metadata", err, 1)
 	}
 
 	if err = json.Unmarshal(body, &s.Metadata); err != nil {
-		slog.Error("unable to update metadata", "error", err)
-		os.Exit(1)
+		LogAndExit("unable to update metadata", err, 1)
 	}
+}
+
+func (s *SessionState) SetResume(resume bool) {
+	s.Mu.Lock()
+	s.Resume = resume
+	s.Mu.Unlock()
+}
+
+func (s *SessionState) SetConnection(conn *websocket.Conn) {
+	s.Mu.Lock()
+	s.Conn = conn
+	s.Mu.Unlock()
+}
+
+func (s *SessionState) SetSequence(seq int64) {
+	s.Mu.Lock()
+	s.Seq = seq
+	s.Mu.Unlock()
+}
+
+func LogAndExit(msg string, err error, exitcode int) {
+	slog.Error(msg, "error", err)
+	os.Exit(exitcode)
 }
