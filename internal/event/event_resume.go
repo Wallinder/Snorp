@@ -34,7 +34,7 @@ func resumeConnection(ctx context.Context, conn *websocket.Conn, session *state.
 		return
 	}
 
-	session.Resume = false
+	session.SetResume(false)
 
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
