@@ -33,7 +33,6 @@ func resumeConnection(ctx context.Context, conn *websocket.Conn, session *state.
 		slog.Error("failed to marshal resume message", "error", err)
 		return
 	}
-	slog.Info("Resuming connection..")
 
 	session.Resume = false
 
