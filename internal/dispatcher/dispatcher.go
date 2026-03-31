@@ -13,7 +13,7 @@ func Actions(ctx context.Context, session *state.SessionState, action string, di
 	switch action {
 
 	case "READY":
-		slog.Info("handshake complete..")
+		slog.Info("handshake complete", "action", action)
 		var readyData state.ReadyData
 		if err := json.Unmarshal(dispatchMessage, &readyData); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
@@ -39,6 +39,6 @@ func Actions(ctx context.Context, session *state.SessionState, action string, di
 	case "INTERACTION_CREATE":
 
 	case "RESUMED":
-		slog.Info("connection resumed")
+		slog.Info("connection resumed", "action", action)
 	}
 }

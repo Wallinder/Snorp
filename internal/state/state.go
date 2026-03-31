@@ -23,6 +23,7 @@ type SessionState struct {
 	Resume     bool
 	Config     *config.Config
 	Conn       *websocket.Conn
+	Server     *http.Server
 	Client     *http.Client
 	Messages   chan []byte
 	MaxRetries int
@@ -86,7 +87,7 @@ type SessionStartLimit struct {
 
 func NewState() *SessionState {
 	state := newDefaultState()
-	state.newHttpClient()
+	state.Client = newHttpClient(state.Config.Bot.Identity.Token)
 
 	state.setMetadata()
 	if len(state.Config.Bot.Identity.Shards) == 0 {
@@ -105,6 +106,7 @@ func newDefaultState() *SessionState {
 		Messages:   make(chan []byte),
 		MaxRetries: 3,
 		StartTime:  time.Now(),
+		Server:     newHttpServer(),
 	}
 }
 

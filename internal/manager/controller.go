@@ -1,22 +1,30 @@
-package event
+package manager
 
 import (
 	"context"
 	"log/slog"
+	"snorp/internal/event"
+	"snorp/internal/server"
 	"snorp/internal/state"
 	"time"
 )
 
-func Listener(ctx context.Context, session *state.SessionState) {
+func Controller(ctx context.Context, session *state.SessionState) {
 	const resetAfter = 30 * time.Second
 
 	var attempts int
 	var lastAttempt time.Time
 
+	go session.RunHttpServer(server.RequestHandler())
+
 	for {
 		select {
 		case <-ctx.Done():
-			slog.Info("listener shutting down")
+			slog.Info("controller shutting down")
+			err := session.Server.Shutdown(context.Background())
+			if err != nil {
+				state.LogAndExit("failed to gracefully stop server", err, 1)
+			}
 			return
 
 		default:
@@ -30,7 +38,7 @@ func Listener(ctx context.Context, session *state.SessionState) {
 			lastAttempt = time.Now()
 
 			newCtx, cancel := context.WithCancel(ctx)
-			eventHandler(newCtx, session)
+			event.EventHandler(newCtx, session)
 			cancel()
 
 			TotalDisconnects.Inc()

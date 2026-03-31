@@ -23,7 +23,6 @@ func identify(ctx context.Context, conn *websocket.Conn, identity config.Identit
 		slog.Error("failed to unmarshal identity", "error", err)
 		return
 	}
-	slog.Info("identifying..")
 
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {

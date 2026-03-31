@@ -11,7 +11,6 @@ type Config struct {
 }
 
 type DiscordBot struct {
-	SuperuserID string   `json:"superuser_id"`
 	Permissions int64    `json:"permissions"`
 	Gateway     string   `json:"gateway"`
 	Api         string   `json:"api"`
@@ -50,7 +49,6 @@ type Activity struct {
 func newDefaultConfig() *Config {
 	return &Config{
 		Bot: DiscordBot{
-			SuperuserID: "216244586165698560",
 			Permissions: 2031514586918128,
 			Api:         "https://discord.com/api",
 			ApiVersion:  "10",

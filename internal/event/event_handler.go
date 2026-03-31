@@ -19,7 +19,7 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func eventHandler(ctx context.Context, session *state.SessionState) {
+func EventHandler(ctx context.Context, session *state.SessionState) {
 	if session.Conn != nil {
 		slog.Info("connection already open")
 		return
@@ -116,7 +116,7 @@ func eventHandler(ctx context.Context, session *state.SessionState) {
 
 		case RECONNECT:
 			session.SetResume(true)
-			slog.Info("trying to reconnect..", "opcode", RECONNECT)
+			slog.Info("reconnecting", "opcode", RECONNECT)
 			return
 
 		case INVALID_SESSION:
