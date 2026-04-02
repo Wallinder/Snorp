@@ -1,9 +1,9 @@
 package receiver
 
 type Reciever interface {
-	Notify(msg string)
+	Notify() error
 }
 
-func Notify(reciever Reciever, msg string) {
-	reciever.Notify(msg)
+func Notify(reciever Reciever) {
+	reciever.Notify()
 }

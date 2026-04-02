@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+const (
+	SNORP_DEFAULT = "./sprites/snorp_default.png"
+	SNORP_DIRTY   = "./sprites/snorp_dirty.png"
+	SNORP_HAPPY   = "./sprites/snorp_happy.png"
+	SNORP_HUNGRY  = "./sprites/snorp_hungry.png"
+	SNORP_SAD     = "./sprites/snorp_sad.png"
+	SNORP_TIRED   = "./sprites/snorp_tired.png"
+)
+
 type Tamagotchi struct {
 	Name      string
 	StartTime time.Time
@@ -13,6 +22,7 @@ type Tamagotchi struct {
 	LastSleep time.Time
 	LastFeed  time.Time
 	OnStart   func()
+	OnDirty   func()
 	OnTired   func()
 	OnHungry  func()
 	receiver.Reciever

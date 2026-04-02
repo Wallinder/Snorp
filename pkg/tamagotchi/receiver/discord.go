@@ -2,15 +2,20 @@ package receiver
 
 type DiscordMessage struct {
 	ChannelID string
-	Content   string
-	Embeds    []Embed
+	Embeds    []Embed `json:"embeds"`
 }
 
 type Embed struct {
-	Title       string
-	Description string
+	Title       string `json:"title"`
+	Type        string `json:"type"`
+	Description string `json:"decription"`
+	Image       Image  `json:"image"`
 }
 
-func (d *DiscordMessage) Notify(msg string) {
+type Image struct {
+	Url string `json:"url"`
+}
 
+func (d *DiscordMessage) Notify() error {
+	return nil
 }

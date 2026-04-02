@@ -1,27 +1,29 @@
 {
-  "discord_bot": {
-    "permissions": 2031514586918128,
-    "api": "https://discord.com/api",
-    "api_version": "10",
-    "identity": {
-      "token": "",
-      "properties": {
-        "os": "Linux",
-        "browser": "https://github.com/Wallinder/Snorp",
-        "device": "Walle-Lab"
-      },
-      "presence": {
-        "since": 0,
-        "activities": [{
-          "name": "🥜Jerkmate Ranked🥜",
-          "type": 5
-        }],
-        "status": "online",
-        "afk": false
-      },
-      "compress": false,
-      "large_threshold": 250,
-      "intents": 130955
+    "discord_bot": {
+        "permissions": 2031514586918128,
+        "api": "https://discord.com/api",
+        "api_version": "10",
+        "identity": {
+            "token": "",
+            "properties": {
+                "os": "Linux",
+                "browser": "https://github.com/Wallinder/Snorp",
+                "device": "Walle-Lab"
+            },
+            "presence": {
+                "since": 0,
+                "activities": [
+                    {
+                        "name": "🥜Jerkmate Ranked🥜",
+                        "type": 5
+                    }
+                ],
+                "status": "online",
+                "afk": false
+            },
+            "compress": false,
+            "large_threshold": 250,
+            "intents": 130955
+        }
     }
-  }
 }
