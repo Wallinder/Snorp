@@ -130,6 +130,17 @@ func (s *SessionState) setMetadata() {
 	}
 }
 
+func LogAndExit(msg string, err error, exitcode int) {
+	slog.Error(msg, "error", err)
+	os.Exit(exitcode)
+}
+
+func (s *SessionState) SetReadyData(readyData ReadyData) {
+	s.Mu.Lock()
+	s.ReadyData = readyData
+	s.Mu.Unlock()
+}
+
 func (s *SessionState) SetResume(resume bool) {
 	s.Mu.Lock()
 	s.Resume = resume
@@ -146,9 +157,4 @@ func (s *SessionState) SetSequence(seq int64) {
 	s.Mu.Lock()
 	s.Seq = seq
 	s.Mu.Unlock()
-}
-
-func LogAndExit(msg string, err error, exitcode int) {
-	slog.Error(msg, "error", err)
-	os.Exit(exitcode)
 }

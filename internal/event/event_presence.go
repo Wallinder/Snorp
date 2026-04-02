@@ -20,7 +20,6 @@ func updatePresence(ctx context.Context, conn *websocket.Conn, presence Presence
 		slog.Error("failed to unmarshal presence", "error", err)
 		return
 	}
-
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {
 		slog.Error("updating presence failed", "error", err)
