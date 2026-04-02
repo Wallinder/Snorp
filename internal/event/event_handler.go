@@ -19,7 +19,7 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func EventHandler(ctx context.Context, session *state.SessionState) {
+func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state.SessionState) {
 	if session.Conn != nil {
 		slog.Info("connection already open")
 		return
@@ -45,6 +45,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 	defer func() {
 		session.Conn.Close(1006, "Normal Closure")
 		session.SetConnection(nil)
+		cancel()
 	}()
 
 	for {
@@ -72,8 +73,8 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 		switch discordPayload.Op {
 
 		case HELLO:
-			var Interval Interval
-			err := json.Unmarshal(discordPayload.D, &Interval)
+			var interval Interval
+			err := json.Unmarshal(discordPayload.D, &interval)
 			if err != nil {
 				slog.Error("error unmarshaling json", "error", err)
 				return
@@ -94,7 +95,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 						sendHeartbeat(ctx, session.Conn, session.Seq)
 					}
 				}
-			}(Interval.Heartbeat)
+			}(interval.Heartbeat)
 
 			if session.Resume {
 				resumeConnection(ctx, session.Conn, session)

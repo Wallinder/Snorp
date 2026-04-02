@@ -39,8 +39,7 @@ func Controller(ctx context.Context, session *state.SessionState) {
 			lastAttempt = time.Now()
 
 			newCtx, cancel := context.WithCancel(ctx)
-			event.EventHandler(newCtx, session)
-			cancel()
+			event.EventHandler(newCtx, cancel, session)
 
 			TotalDisconnects.Inc()
 			attempts++

@@ -11,7 +11,7 @@ import (
 func newHttpClient(discordToken string) *http.Client {
 	return &http.Client{
 		CheckRedirect: nil,
-		Timeout:       time.Duration(5 * time.Second),
+		Timeout:       5 * time.Second,
 		Transport:     newTransport(discordToken),
 	}
 }
