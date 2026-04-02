@@ -15,13 +15,14 @@ func Controller(ctx context.Context, session *state.SessionState) {
 	var attempts int
 	var lastAttempt time.Time
 
-	go session.RunHttpServer(server.RequestHandler())
+	httpServer := server.NewHttpServer()
+	go server.RunHttpServer(httpServer)
 
 	for {
 		select {
 		case <-ctx.Done():
 			slog.Info("controller shutting down")
-			err := session.Server.Shutdown(context.Background())
+			err := httpServer.Shutdown(context.Background())
 			if err != nil {
 				state.LogAndExit("failed to gracefully stop server", err, 1)
 			}
