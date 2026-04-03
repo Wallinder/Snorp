@@ -109,7 +109,7 @@ func newDefaultState() *SessionState {
 }
 
 func (s *SessionState) setMetadata() {
-	response, err := s.NewDiscordRequest("GET", "/gateway/bot", nil)
+	response, err := s.NewRequest("GET", "/gateway/bot", nil)
 	if err != nil {
 		LogAndExit("unable to send discord request", err, 1)
 	}

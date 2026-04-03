@@ -1,7 +1,7 @@
 package tamagotchi
 
 import (
-	"snorp/pkg/tamagotchi/receiver"
+	"context"
 	"time"
 )
 
@@ -16,27 +16,44 @@ const (
 
 type Tamagotchi struct {
 	Name      string
+	Dead      bool
 	StartTime time.Time
-	Age       int64
-	Awake     bool
 	LastSleep time.Time
 	LastFeed  time.Time
-	OnStart   func()
-	OnDirty   func()
-	OnTired   func()
-	OnHungry  func()
-	receiver.Reciever
+	LastWash  time.Time
+	Settings  Settings
+	Reciever
 }
 
-func Start(name string) {
-	tamagotchi := newDefaultTamagotchi()
-	tamagotchi.Name = name
+type Settings struct {
+	ReconcileInterval time.Duration
+	TimeUntilHungry   time.Duration
+	TimeUntilSleepy   time.Duration
+	TimeUntilDirty    time.Duration
+	TimeUntilDead     time.Duration
+}
+
+func Start(ctx context.Context, tamagotchi *Tamagotchi) {
+	if tamagotchi == nil {
+		tamagotchi = newDefaultTamagotchi()
+	}
+	tamagotchi.startLifeCycle(ctx)
 }
 
 func newDefaultTamagotchi() *Tamagotchi {
 	return &Tamagotchi{
 		Name:      "gomatchi",
 		StartTime: time.Now(),
-		Awake:     true,
+		LastSleep: time.Now(),
+		LastFeed:  time.Now(),
+		LastWash:  time.Now(),
+		Dead:      false,
+		Settings: Settings{
+			ReconcileInterval: 10 * time.Minute,
+			TimeUntilHungry:   4 * time.Hour,
+			TimeUntilSleepy:   8 * time.Hour,
+			TimeUntilDirty:    4 * time.Hour,
+			TimeUntilDead:     168 * time.Hour,
+		},
 	}
 }

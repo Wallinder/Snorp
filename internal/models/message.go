@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Message struct {
 	Content      string       `json:"content,omitempty"`
@@ -25,14 +27,14 @@ type Embed struct {
 	Type        string         `json:"type,omitempty"`
 	Description string         `json:"description,omitempty"`
 	URL         string         `json:"url,omitempty"`
-	Timestamp   time.Time      `json:"timestamp,omitempty"`
+	Timestamp   time.Time      `json:"timestamp"`
 	Color       int            `json:"color,omitempty"`
-	Footer      EmbedFooter    `json:"footer,omitempty"`
-	Image       EmbedImage     `json:"image,omitempty"`
-	Thumbnail   EmbedThumbnail `json:"thumbnail,omitempty"`
-	Video       EmbedVideo     `json:"video,omitempty"`
-	Provider    EmbedProvider  `json:"provider,omitempty"`
-	Author      EmbedAuthor    `json:"author,omitempty"`
+	Footer      EmbedFooter    `json:"footer"`
+	Image       EmbedImage     `json:"image"`
+	Thumbnail   EmbedThumbnail `json:"thumbnail"`
+	Video       EmbedVideo     `json:"video"`
+	Provider    EmbedProvider  `json:"provider"`
+	Author      EmbedAuthor    `json:"author"`
 	Fields      []EmbedField   `json:"fields,omitempty"`
 }
 

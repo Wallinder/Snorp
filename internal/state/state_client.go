@@ -43,7 +43,7 @@ func (drt *discordRoundTripper) RoundTrip(req *http.Request) (*http.Response, er
 	return resp, err
 }
 
-func (s *SessionState) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
+func (s *SessionState) NewRequest(method string, uri string, body io.Reader) (*http.Response, error) {
 	url := s.Config.Bot.Api + "/v" + s.Config.Bot.ApiVersion + uri
 
 	request, err := http.NewRequest(method, url, body)
