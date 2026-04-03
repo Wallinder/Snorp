@@ -16,13 +16,13 @@ const (
 
 type Tamagotchi struct {
 	Name      string
-	Dead      bool
 	StartTime time.Time
 	LastSleep time.Time
 	LastFeed  time.Time
 	LastWash  time.Time
 	Settings  Settings
-	Reciever
+	Status    Status
+	Send      chan<- Status
 }
 
 type Settings struct {
@@ -31,6 +31,16 @@ type Settings struct {
 	TimeUntilSleepy   time.Duration
 	TimeUntilDirty    time.Duration
 	TimeUntilDead     time.Duration
+}
+
+type Status struct {
+	Indifferent bool
+	Happy       bool
+	Sad         bool
+	isDead      bool
+	Hungry      bool
+	Dirty       bool
+	Sleeping    bool
 }
 
 func Start(ctx context.Context, tamagotchi *Tamagotchi) {
@@ -42,18 +52,18 @@ func Start(ctx context.Context, tamagotchi *Tamagotchi) {
 
 func newDefaultTamagotchi() *Tamagotchi {
 	return &Tamagotchi{
-		Name:      "gomatchi",
+		Name:      "snorp",
 		StartTime: time.Now(),
 		LastSleep: time.Now(),
 		LastFeed:  time.Now(),
 		LastWash:  time.Now(),
-		Dead:      false,
 		Settings: Settings{
 			ReconcileInterval: 10 * time.Minute,
 			TimeUntilHungry:   4 * time.Hour,
-			TimeUntilSleepy:   8 * time.Hour,
-			TimeUntilDirty:    4 * time.Hour,
+			TimeUntilSleepy:   6 * time.Hour,
+			TimeUntilDirty:    12 * time.Hour,
 			TimeUntilDead:     168 * time.Hour,
 		},
+		Send: make(chan<- Status),
 	}
 }

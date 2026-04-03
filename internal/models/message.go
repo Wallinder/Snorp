@@ -4,7 +4,8 @@ import (
 	"time"
 )
 
-type Message struct {
+// message create
+type MessageCreate struct {
 	Content      string       `json:"content,omitempty"`
 	Nonce        string       `json:"nonce,omitempty"`
 	TTS          bool         `json:"tts,omitempty"`
@@ -78,4 +79,52 @@ type EmbedField struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
 	Inline bool   `json:"inline,omitempty"`
+}
+
+// message reaction add
+type MessageReactionAdd struct {
+	UserID          string `json:"user_id"`
+	Type            int    `json:"type"`
+	MessageID       string `json:"message_id"`
+	MessageAuthorID string `json:"message_author_id"`
+	Member          Member `json:"member"`
+	Emoji           Emoji  `json:"emoji"`
+	ChannelID       string `json:"channel_id"`
+	Burst           bool   `json:"burst"`
+	GuildID         string `json:"guild_id"`
+}
+
+type Member struct {
+	User                       User      `json:"user"`
+	Roles                      []any     `json:"roles"`
+	PremiumSince               any       `json:"premium_since"`
+	Pending                    bool      `json:"pending"`
+	Nick                       any       `json:"nick"`
+	Mute                       bool      `json:"mute"`
+	JoinedAt                   time.Time `json:"joined_at"`
+	Flags                      int       `json:"flags"`
+	Deaf                       bool      `json:"deaf"`
+	CommunicationDisabledUntil any       `json:"communication_disabled_until"`
+	Banner                     any       `json:"banner"`
+	Avatar                     any       `json:"avatar"`
+}
+
+type User struct {
+	Username             string `json:"username"`
+	PublicFlags          int    `json:"public_flags"`
+	PrimaryGuild         any    `json:"primary_guild"`
+	ID                   string `json:"id"`
+	GlobalName           string `json:"global_name"`
+	DisplayNameStyles    any    `json:"display_name_styles"`
+	DisplayName          string `json:"display_name"`
+	Discriminator        string `json:"discriminator"`
+	Collectibles         any    `json:"collectibles"`
+	Bot                  bool   `json:"bot"`
+	AvatarDecorationData any    `json:"avatar_decoration_data"`
+	Avatar               string `json:"avatar"`
+}
+
+type Emoji struct {
+	Name string `json:"name"`
+	ID   any    `json:"id"`
 }

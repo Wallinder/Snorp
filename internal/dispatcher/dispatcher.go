@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"snorp/internal/state"
 )
@@ -22,5 +23,8 @@ func Actions(ctx context.Context, session *state.SessionState, action string, di
 
 	case "RESUMED":
 		slog.Info("connection resumed", "action", action)
+
+	default:
+		fmt.Println(string(dispatchMessage))
 	}
 }

@@ -5,6 +5,29 @@ import (
 	"time"
 )
 
+func (t *Tamagotchi) startLifeCycle(ctx context.Context) {
+	ticker := time.NewTicker(t.Settings.ReconcileInterval)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case <-ticker.C:
+			t.Status.isDead = t.isDead()
+			if t.needFood() {
+				t.onHungry()
+			}
+			if t.needWash() {
+				t.onDirty()
+			}
+			if t.needSleep() {
+				t.onSleep()
+			}
+		}
+	}
+}
+
 func (t *Tamagotchi) needSleep() bool {
 	return time.Since(t.LastSleep) > t.Settings.TimeUntilSleepy
 }
@@ -19,33 +42,4 @@ func (t *Tamagotchi) needFood() bool {
 
 func (t *Tamagotchi) isDead() bool {
 	return time.Since(t.LastFeed) > t.Settings.TimeUntilDead
-}
-
-func (t *Tamagotchi) startLifeCycle(ctx context.Context) {
-	ticker := time.NewTicker(t.Settings.ReconcileInterval)
-
-	var totalControlLoops int64
-	for {
-		select {
-		case <-ctx.Done():
-			return
-
-		case <-ticker.C:
-			if t.isDead() {
-				t.Dead = true
-				return
-			}
-
-			if t.needFood() {
-			}
-
-			if t.needWash() {
-			}
-
-			if t.needSleep() {
-			}
-
-			totalControlLoops++
-		}
-	}
 }
