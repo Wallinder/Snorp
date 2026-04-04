@@ -14,15 +14,15 @@ func (t *Tamagotchi) startLifeCycle(ctx context.Context) {
 			return
 
 		case <-ticker.C:
-			t.Status.isDead = t.isDead()
-			if t.needFood() {
-				t.onHungry()
+			newStatus := Status{
+				isDead:   t.isDead(),
+				Hungry:   t.needFood(),
+				Dirty:    t.needWash(),
+				Sleeping: t.needSleep(),
 			}
-			if t.needWash() {
-				t.onDirty()
-			}
-			if t.needSleep() {
-				t.onSleep()
+			if newStatus != t.Status {
+				t.Send <- t.Status
+				t.Status = newStatus
 			}
 		}
 	}

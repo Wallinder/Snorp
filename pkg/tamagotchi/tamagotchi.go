@@ -34,13 +34,12 @@ type Settings struct {
 }
 
 type Status struct {
-	Indifferent bool
-	Happy       bool
-	Sad         bool
-	isDead      bool
-	Hungry      bool
-	Dirty       bool
-	Sleeping    bool
+	Happy    bool
+	Sad      bool
+	isDead   bool
+	Hungry   bool
+	Dirty    bool
+	Sleeping bool
 }
 
 func Start(ctx context.Context, tamagotchi *Tamagotchi) {
@@ -58,7 +57,7 @@ func newDefaultTamagotchi() *Tamagotchi {
 		LastFeed:  time.Now(),
 		LastWash:  time.Now(),
 		Settings: Settings{
-			ReconcileInterval: 10 * time.Minute,
+			ReconcileInterval: 5 * time.Minute,
 			TimeUntilHungry:   4 * time.Hour,
 			TimeUntilSleepy:   6 * time.Hour,
 			TimeUntilDirty:    12 * time.Hour,

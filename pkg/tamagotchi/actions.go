@@ -13,18 +13,3 @@ func (t *Tamagotchi) Wash(food string) {
 	t.Status.Dirty = false
 	t.Send <- t.Status
 }
-
-func (t *Tamagotchi) onHungry() {
-	status := Status{}
-	t.Send <- status
-}
-
-func (t *Tamagotchi) onDirty() {
-	status := Status{}
-	t.Send <- status
-}
-
-func (t *Tamagotchi) onSleep() {
-	status := Status{}
-	t.Send <- status
-}
