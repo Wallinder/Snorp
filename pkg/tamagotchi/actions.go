@@ -4,7 +4,6 @@ import "time"
 
 func (t *Tamagotchi) Feed(food string) {
 	t.LastFeed = time.Now()
-	t.Status.Happy = true
 	t.Send <- t.Status
 }
 

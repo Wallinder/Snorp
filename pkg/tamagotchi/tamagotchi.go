@@ -34,8 +34,6 @@ type Settings struct {
 }
 
 type Status struct {
-	Happy    bool
-	Sad      bool
 	isDead   bool
 	Hungry   bool
 	Dirty    bool
