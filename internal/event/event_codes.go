@@ -44,6 +44,8 @@ const (
 	STATUS_TRY_AGAIN_LATER            = 1013
 	STATUS_BAD_GATEWAY                = 1014
 	STATUS_TLS_HANDSHAKE              = 1015
+
+	ERROR_IS_NIL = -1
 )
 
 var SocketErrors = map[int]bool{
@@ -77,4 +79,6 @@ var SocketErrors = map[int]bool{
 	STATUS_TRY_AGAIN_LATER:            false,
 	STATUS_BAD_GATEWAY:                false,
 	STATUS_TLS_HANDSHAKE:              false,
+
+	ERROR_IS_NIL: true,
 }

@@ -50,10 +50,11 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 	for {
 		_, message, err := session.Conn.Read(ctx)
+
 		if err != nil {
 			errorCode := int(websocket.CloseStatus(err))
 
-			if SocketErrors[int(errorCode)] || errorCode == -1 {
+			if SocketErrors[errorCode] {
 				slog.Error("socket failure", "error", err, "code", errorCode)
 				session.SetResume(true)
 				return
