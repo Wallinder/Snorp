@@ -37,7 +37,7 @@ type Guild struct {
 	Emojis                                 []any       `json:"emojis"`
 	MemberCount                            int         `json:"member_count"`
 	Description                            any         `json:"description"`
-	Roles                                  []Role      `json:"roles"`
+	Roles                                  any         `json:"roles,omitempty"`
 	ModeratorReporting                     any         `json:"moderator_reporting"`
 	LatestOnboardingQuestionID             any         `json:"latest_onboarding_question_id"`
 	SystemChannelID                        string      `json:"system_channel_id"`

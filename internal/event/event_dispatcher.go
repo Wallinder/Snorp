@@ -10,11 +10,11 @@ import (
 
 func Dispatcher(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	TotalDispatchMessages.WithLabelValues(action).Inc()
+	slog.Info("event", "type", "DISPATCH", "action", action)
 
 	switch action {
 
 	case "READY":
-		slog.Info("handshake complete", "action", action)
 		var readyData state.ReadyData
 		if err := json.Unmarshal(dispatchMessage, &readyData); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
@@ -22,7 +22,6 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 		session.SetReadyData(readyData)
 
 	case "RESUMED":
-		slog.Info("connection resumed", "action", action)
 
 	case "GUILD_CREATE":
 		var guild models.Guild

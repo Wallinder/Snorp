@@ -29,7 +29,7 @@ type discordRoundTripper struct {
 }
 
 func (drt *discordRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	slog.Info("discord request", "method", req.Method, "url", req.URL.Path)
+	slog.Info("client request", "method", req.Method, "url", req.URL.Path)
 
 	TotalClientHttpRequests.WithLabelValues(req.Method, req.URL.Path).Inc()
 

@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"snorp/config"
 	"sync"
 	"time"
 
@@ -21,7 +20,7 @@ type SessionState struct {
 	Metadata   Metadata
 	ReadyData  ReadyData
 	Resume     bool
-	Config     *config.Config
+	Config     *Config
 	Conn       *websocket.Conn
 	Client     *http.Client
 	Messages   chan []byte
@@ -94,13 +93,13 @@ func NewState() *SessionState {
 		slog.Info("using default sharding", "shards", shards)
 		state.Config.Bot.Identity.Shards = shards
 	}
-	slog.Info("recommended sharding", "shards", state.Metadata.Shards)
+	slog.Info("recommended by discord", "shards", state.Metadata.Shards)
 	return state
 }
 
 func newDefaultState() *SessionState {
 	return &SessionState{
-		Config:     config.NewConfig(),
+		Config:     NewConfig(),
 		Resume:     false,
 		Messages:   make(chan []byte),
 		MaxRetries: 3,

@@ -73,6 +73,8 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 		switch discordPayload.Op {
 
 		case HELLO:
+			slog.Info("event", "type", "HELLO", "opcode", HELLO)
+
 			var interval Interval
 			err := json.Unmarshal(discordPayload.D, &interval)
 			if err != nil {
@@ -81,8 +83,6 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 
 			go func(interval int) {
-				slog.Info("starting heartbeat", "interval", interval/1000)
-
 				ticker := time.NewTicker(time.Duration(interval) * time.Millisecond)
 				defer ticker.Stop()
 
@@ -104,12 +104,11 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 
 		case HEARTBEAT:
-			slog.Info("received heartbeat", "opcode", HEARTBEAT)
-			slog.Info("sending heartbeat immediately", "opcode", HEARTBEAT)
+			slog.Info("event", "type", "HEARTBEAT", "opcode", HEARTBEAT)
 			sendHeartbeat(ctx, session.Conn, session.Seq)
 
 		case HEARTBEAT_ACK:
-			slog.Info("received heartbeat", "opcode", HEARTBEAT_ACK)
+			slog.Info("event", "type", "HEARTBEAT_ACK", "opcode", HEARTBEAT_ACK)
 
 		case DISPATCH:
 			session.SetSequence(discordPayload.S)
@@ -117,7 +116,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 		case RECONNECT:
 			session.SetResume(true)
-			slog.Info("reconnecting", "opcode", RECONNECT)
+			slog.Info("event", "type", "RECONNECT", "opcode", RECONNECT)
 			return
 
 		case INVALID_SESSION:
@@ -127,7 +126,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 				slog.Error("failed to unmarshal json", "error", err)
 				return
 			}
-			slog.Warn("invalid session, trying to reconnect.", "opcode", INVALID_SESSION)
+			slog.Warn("event", "type", "INVALID_SESSION", "opcode", INVALID_SESSION)
 
 			if invalid {
 				session.SetResume(true)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"snorp/config"
 	"snorp/internal/state"
 
 	"github.com/coder/websocket"
@@ -38,11 +37,11 @@ func sendHeartbeat(ctx context.Context, conn *websocket.Conn, seq int64) {
 // IDENTIFY
 
 type Identify struct {
-	Op int             `json:"op"`
-	D  config.Identity `json:"d"`
+	Op int            `json:"op"`
+	D  state.Identity `json:"d"`
 }
 
-func identify(ctx context.Context, conn *websocket.Conn, identity config.Identity) {
+func identify(ctx context.Context, conn *websocket.Conn, identity state.Identity) {
 	message, err := json.Marshal(Identify{
 		Op: IDENTIFY,
 		D:  identity,
@@ -60,8 +59,8 @@ func identify(ctx context.Context, conn *websocket.Conn, identity config.Identit
 // PRESENCE
 
 type PresenceUpdate struct {
-	Op int                     `json:"op"`
-	D  config.IdentityPresence `json:"d"`
+	Op int                    `json:"op"`
+	D  state.IdentityPresence `json:"d"`
 }
 
 func updatePresence(ctx context.Context, conn *websocket.Conn, presence PresenceUpdate) {

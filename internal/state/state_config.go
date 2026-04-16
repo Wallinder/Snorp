@@ -1,7 +1,8 @@
-package config
+package state
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"os"
 )
@@ -81,12 +82,10 @@ func newDefaultConfig() *Config {
 func (c *Config) readJsonConfig() {
 	fileContent, err := os.ReadFile("config.json")
 	if err != nil {
-		slog.Error("unable to read config", "error", err)
-		os.Exit(1)
+		LogAndExit("unable to read config", err, 1)
 	}
 	if err = json.Unmarshal(fileContent, &c); err != nil {
-		slog.Error("unable to unmarshal config", "error", err)
-		os.Exit(1)
+		LogAndExit("unable to unmarshal config", err, 1)
 	}
 }
 
@@ -95,8 +94,7 @@ func NewConfig() *Config {
 	config := newDefaultConfig()
 	config.readJsonConfig()
 	if config.Bot.Identity.Token == "" {
-		slog.Error("missing token", "error", "token is empty")
-		os.Exit(1)
+		LogAndExit("no token was provided in config", fmt.Errorf("missing token"), 1)
 	}
 	return config
 }
