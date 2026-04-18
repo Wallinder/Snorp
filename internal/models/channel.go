@@ -4,7 +4,7 @@ type Channel struct {
 	Version              int64     `json:"version"`
 	Type                 int       `json:"type"`
 	Position             int       `json:"position"`
-	PermissionOverwrites []any     `json:"permission_overwrites"`
+	PermissionOverwrites []*any    `json:"permission_overwrites"`
 	Name                 string    `json:"name"`
 	ID                   string    `json:"id"`
 	Flags                int       `json:"flags"`

@@ -50,7 +50,7 @@ func newDefaultConfig() *Config {
 				},
 				Presence: models.Presence{
 					Since: 0,
-					Activities: []models.Activity{
+					Activities: []*models.Activity{
 						{
 							Name: "🥜Jerkmate Ranked🥜",
 							Type: 5,

@@ -10,7 +10,6 @@ import (
 
 func Dispatcher(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	TotalDispatchMessages.WithLabelValues(action).Inc()
-	slog.Info("event", "type", "DISPATCH", "action", action)
 
 	switch action {
 

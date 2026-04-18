@@ -18,7 +18,6 @@ func Controller(ctx context.Context, session *state.SessionState) {
 		if ctx.Err() != nil {
 			return
 		}
-
 		if attempts >= session.MaxRetries {
 			slog.Error("backoff timer exceeded, exiting..")
 			return

@@ -48,6 +48,21 @@ const (
 	ERROR_IS_NIL = -1
 )
 
+var EventCodes = map[int]string{
+	DISPATCH:                  "DISPATCH",
+	HEARTBEAT:                 "HEARTBEAT",
+	IDENTIFY:                  "IDENTIFY",
+	PRESENCE_UPDATE:           "PRESENCE_UPDATE",
+	VOICE_STATE_UPDATE:        "VOICE_STATE_UPDATE",
+	RESUME:                    "RESUME",
+	RECONNECT:                 "RECONNECT",
+	REQUEST_GUILD_MEMBERS:     "REQUEST_GUILD_MEMBERS",
+	INVALID_SESSION:           "INVALID_SESSION",
+	HELLO:                     "HELLO",
+	HEARTBEAT_ACK:             "HEARTBEAT_ACK",
+	REQUEST_SOUNDBOARD_SOUNDS: "REQUEST_SOUNDBOARD_SOUNDS",
+}
+
 var SocketErrors = map[int]bool{
 	UNKNOWN_ERROR:         true,
 	UNKNOWN_OPCODE:        true,

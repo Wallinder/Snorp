@@ -4,7 +4,7 @@ import "time"
 
 type Member struct {
 	User                       User      `json:"user"`
-	Roles                      []any     `json:"roles"`
+	Roles                      []*any    `json:"roles"`
 	PremiumSince               any       `json:"premium_since"`
 	Pending                    bool      `json:"pending"`
 	Nick                       any       `json:"nick"`

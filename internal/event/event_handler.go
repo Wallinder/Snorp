@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"snorp/internal/state"
-	"strconv"
 	"time"
 
 	"github.com/coder/websocket"
@@ -67,14 +66,16 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			slog.Error("error unmarshaling json", "error", err)
 			return
 		}
+		opCode := discordPayload.Op
+		opCodeType := EventCodes[opCode]
 
-		TotalMessages.WithLabelValues(strconv.Itoa(discordPayload.Op)).Inc()
+		TotalMessages.WithLabelValues(opCodeType).Inc()
 
-		switch discordPayload.Op {
+		slog.Info("event", "opcode", opCodeType, "type", discordPayload.T)
+
+		switch opCode {
 
 		case HELLO:
-			slog.Info("event", "type", "HELLO", "opcode", HELLO)
-
 			var interval Interval
 			err := json.Unmarshal(discordPayload.D, &interval)
 			if err != nil {
@@ -104,11 +105,7 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			}
 
 		case HEARTBEAT:
-			slog.Info("event", "type", "HEARTBEAT", "opcode", HEARTBEAT)
 			sendHeartbeat(ctx, session.Conn, session.Seq)
-
-		case HEARTBEAT_ACK:
-			slog.Info("event", "type", "HEARTBEAT_ACK", "opcode", HEARTBEAT_ACK)
 
 		case DISPATCH:
 			session.SetSequence(discordPayload.S)
@@ -116,12 +113,9 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 
 		case RECONNECT:
 			session.SetResume(true)
-			slog.Info("event", "type", "RECONNECT", "opcode", RECONNECT)
 			return
 
 		case INVALID_SESSION:
-			slog.Warn("event", "type", "INVALID_SESSION", "opcode", INVALID_SESSION)
-
 			var invalid bool
 			if err := json.Unmarshal(discordPayload.D, &invalid); err != nil {
 				slog.Error("failed to unmarshal json", "error", err)

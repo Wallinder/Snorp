@@ -6,15 +6,15 @@ import (
 
 // message create
 type MessageCreate struct {
-	Content      string       `json:"content,omitempty"`
-	Nonce        string       `json:"nonce,omitempty"`
-	TTS          bool         `json:"tts,omitempty"`
-	Embeds       []Embed      `json:"embeds,omitempty"`
-	StickerIDs   []string     `json:"sticker_ids,omitempty"`
-	Attachments  []Attachment `json:"attachments,omitempty"`
-	Flags        int          `json:"flags,omitempty"`
-	EnforceNonce bool         `json:"enforce_nonce,omitempty"`
-	PayloadJSON  string       `json:"payload_json,omitempty"`
+	Content      string        `json:"content,omitempty"`
+	Nonce        string        `json:"nonce,omitempty"`
+	TTS          bool          `json:"tts,omitempty"`
+	Embeds       []*Embed      `json:"embeds"`
+	StickerIDs   []*string     `json:"sticker_ids"`
+	Attachments  []*Attachment `json:"attachments"`
+	Flags        int           `json:"flags,omitempty"`
+	EnforceNonce bool          `json:"enforce_nonce,omitempty"`
+	PayloadJSON  string        `json:"payload_json,omitempty"`
 }
 
 type Attachment struct {
@@ -36,7 +36,7 @@ type Embed struct {
 	Video       EmbedVideo     `json:"video"`
 	Provider    EmbedProvider  `json:"provider"`
 	Author      EmbedAuthor    `json:"author"`
-	Fields      []EmbedField   `json:"fields,omitempty"`
+	Fields      []*EmbedField  `json:"fields"`
 }
 
 type EmbedFooter struct {

@@ -6,7 +6,7 @@ type Presence struct {
 	Since                int          `json:"since,omitempty"`
 	ProcessedAtTimestamp int64        `json:"processed_at_timestamp,omitempty"`
 	ClientStatus         ClientStatus `json:"client_status"`
-	Activities           []Activity   `json:"activities,omitempty"`
+	Activities           []*Activity  `json:"activities,omitempty"`
 	AFK                  bool         `json:"afk,omitempty"`
 }
 
