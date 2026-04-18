@@ -27,7 +27,7 @@ func main() {
 		server.Shutdown(ctx, httpServer)
 	}()
 
-	manager.Controller(ctx, session)
+	manager.StartControllers(ctx, session)
 
 	wg.Wait()
 	slog.Info("snorp shutting down")

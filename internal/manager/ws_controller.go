@@ -8,29 +8,30 @@ import (
 	"time"
 )
 
-func Controller(ctx context.Context, session *state.SessionState) {
-	const resetAfter = 30 * time.Second
+type WebsocketController struct {
+	ResetAfter  time.Duration
+	Attempts    int
+	LastAttempt time.Time
+}
 
-	var attempts int
-	var lastAttempt time.Time
-
+func (wc *WebsocketController) start(ctx context.Context, session *state.SessionState) {
 	for {
 		if ctx.Err() != nil {
 			return
 		}
-		if attempts >= session.MaxRetries {
+		if wc.Attempts >= session.MaxRetries {
 			slog.Error("backoff timer exceeded, exiting..")
 			return
 		}
-		if time.Since(lastAttempt) > resetAfter {
-			attempts = 0
+		if time.Since(wc.LastAttempt) > wc.ResetAfter {
+			wc.Attempts = 0
 		}
-		lastAttempt = time.Now()
+		wc.LastAttempt = time.Now()
 
 		newCtx, cancel := context.WithCancel(ctx)
 		event.EventHandler(newCtx, cancel, session)
 
 		TotalDisconnects.Inc()
-		attempts++
+		wc.Attempts++
 	}
 }
