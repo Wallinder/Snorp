@@ -9,9 +9,9 @@ import (
 )
 
 type WebsocketController struct {
-	ResetAfter  time.Duration
-	Attempts    int
-	LastAttempt time.Time
+	ResetAfter        time.Duration
+	ReconnectAttempts int
+	LastAttempt       time.Time
 }
 
 func (wc *WebsocketController) start(ctx context.Context, session *state.SessionState) {
@@ -19,12 +19,12 @@ func (wc *WebsocketController) start(ctx context.Context, session *state.Session
 		if ctx.Err() != nil {
 			return
 		}
-		if wc.Attempts >= session.MaxRetries {
+		if wc.ReconnectAttempts >= session.MaxRetries {
 			slog.Error("backoff timer exceeded, exiting..")
 			return
 		}
 		if time.Since(wc.LastAttempt) > wc.ResetAfter {
-			wc.Attempts = 0
+			wc.ReconnectAttempts = 0
 		}
 		wc.LastAttempt = time.Now()
 
@@ -32,6 +32,6 @@ func (wc *WebsocketController) start(ctx context.Context, session *state.Session
 		event.EventHandler(newCtx, cancel, session)
 
 		TotalDisconnects.Inc()
-		wc.Attempts++
+		wc.ReconnectAttempts++
 	}
 }
