@@ -120,19 +120,14 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 			return
 
 		case INVALID_SESSION:
+			slog.Warn("event", "type", "INVALID_SESSION", "opcode", INVALID_SESSION)
+
 			var invalid bool
-			err := json.Unmarshal(discordPayload.D, &invalid)
-			if err != nil {
+			if err := json.Unmarshal(discordPayload.D, &invalid); err != nil {
 				slog.Error("failed to unmarshal json", "error", err)
 				return
 			}
-			slog.Warn("event", "type", "INVALID_SESSION", "opcode", INVALID_SESSION)
-
-			if invalid {
-				session.SetResume(true)
-			} else {
-				session.SetResume(false)
-			}
+			session.SetResume(invalid)
 			return
 		}
 	}

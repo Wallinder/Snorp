@@ -21,8 +21,6 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 		}
 		session.SetReadyData(readyData)
 
-	case "RESUMED":
-
 	case "GUILD_CREATE":
 		var guild models.Guild
 		if err := json.Unmarshal(dispatchMessage, &guild); err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"snorp/internal/models"
 )
 
 type Config struct {
@@ -25,7 +26,7 @@ type Identity struct {
 	LargeThreshold int                `json:"large_threshold"`
 	Intents        int64              `json:"intents"`
 	Properties     IdentityProperties `json:"properties"`
-	Presence       IdentityPresence   `json:"presence"`
+	Presence       models.Presence    `json:"presence"`
 	Shards         []int              `json:"shards,omitempty"`
 }
 
@@ -33,18 +34,6 @@ type IdentityProperties struct {
 	Os      string `json:"os"`
 	Browser string `json:"browser"`
 	Device  string `json:"device"`
-}
-
-type IdentityPresence struct {
-	Since      int        `json:"since"`
-	Activities []Activity `json:"activities"`
-	Status     string     `json:"status"`
-	AFK        bool       `json:"afk"`
-}
-
-type Activity struct {
-	Name string `json:"name"`
-	Type int    `json:"type"`
 }
 
 func newDefaultConfig() *Config {
@@ -59,9 +48,9 @@ func newDefaultConfig() *Config {
 					Browser: "https://github.com/Wallinder/Snorp",
 					Device:  "Walle-Lab",
 				},
-				Presence: IdentityPresence{
+				Presence: models.Presence{
 					Since: 0,
-					Activities: []Activity{
+					Activities: []models.Activity{
 						{
 							Name: "🥜Jerkmate Ranked🥜",
 							Type: 5,

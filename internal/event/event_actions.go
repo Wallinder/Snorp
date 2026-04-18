@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
+	"snorp/internal/models"
 	"snorp/internal/state"
 
 	"github.com/coder/websocket"
@@ -59,8 +60,8 @@ func identify(ctx context.Context, conn *websocket.Conn, identity state.Identity
 // PRESENCE
 
 type PresenceUpdate struct {
-	Op int                    `json:"op"`
-	D  state.IdentityPresence `json:"d"`
+	Op int             `json:"op"`
+	D  models.Presence `json:"d"`
 }
 
 func updatePresence(ctx context.Context, conn *websocket.Conn, presence PresenceUpdate) {
