@@ -78,8 +78,19 @@ func (c *Config) readJsonConfig() {
 	}
 }
 
+func newSlogHandler() *slog.JSONHandler {
+	return slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey {
+				return slog.String(a.Key, a.Value.Time().Format("2006-01-02 15:04:05"))
+			}
+			return a
+		},
+	})
+}
+
 func NewConfig() *Config {
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+	slog.SetDefault(slog.New(newSlogHandler()))
 	config := newDefaultConfig()
 	config.readJsonConfig()
 	if config.Bot.Identity.Token == "" {
