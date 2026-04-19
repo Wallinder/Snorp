@@ -22,12 +22,10 @@ func main() {
 	httpServer := server.NewHttpServer()
 	server.RunHttpServer(&wg, httpServer)
 
-	go func() {
-		<-ctx.Done()
-		server.Shutdown(ctx, httpServer)
-	}()
+	manager.StartControllers(ctx, &wg, session)
 
-	manager.StartControllers(ctx, session)
+	<-ctx.Done()
+	server.Shutdown(ctx, httpServer)
 
 	wg.Wait()
 	slog.Info("snorp shutting down")

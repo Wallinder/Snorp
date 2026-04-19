@@ -30,8 +30,7 @@ func (wc *WebsocketController) start(ctx context.Context) {
 		}
 		wc.LastAttempt = time.Now()
 
-		newCtx, cancel := context.WithCancel(ctx)
-		event.EventHandler(newCtx, cancel, wc.Session)
+		event.EventHandler(ctx, wc.Session)
 
 		TotalDisconnects.Inc()
 		wc.ReconnectAttempts++

@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"snorp/internal/state"
+	"sync"
 	"time"
 )
 
@@ -10,7 +11,7 @@ type Controller interface {
 	start(context.Context)
 }
 
-func StartControllers(ctx context.Context, session *state.SessionState) {
+func StartControllers(ctx context.Context, wg *sync.WaitGroup, session *state.SessionState) {
 	controllers := []Controller{
 		&WebsocketController{
 			Session:    session,
@@ -19,6 +20,8 @@ func StartControllers(ctx context.Context, session *state.SessionState) {
 		},
 	}
 	for _, controller := range controllers {
-		controller.start(ctx)
+		wg.Go(func() {
+			go controller.start(ctx)
+		})
 	}
 }

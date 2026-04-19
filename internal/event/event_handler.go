@@ -17,7 +17,7 @@ type DiscordPayload struct {
 	D  json.RawMessage `json:"d"`
 }
 
-func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state.SessionState) {
+func EventHandler(ctx context.Context, session *state.SessionState) {
 	if session.Conn != nil {
 		slog.Info("connection already open")
 		return
@@ -43,7 +43,6 @@ func EventHandler(ctx context.Context, cancel context.CancelFunc, session *state
 	defer func() {
 		session.Conn.Close(1006, "Normal Closure")
 		session.SetConnection(nil)
-		cancel()
 	}()
 
 	for {
