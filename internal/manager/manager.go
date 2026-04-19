@@ -7,16 +7,18 @@ import (
 )
 
 type Controller interface {
-	start(context.Context, *state.SessionState)
+	start(context.Context)
 }
 
 func StartControllers(ctx context.Context, session *state.SessionState) {
 	controllers := []Controller{
 		&WebsocketController{
+			Session:    session,
+			MaxRetries: 3,
 			ResetAfter: 30 * time.Second,
 		},
 	}
 	for _, controller := range controllers {
-		controller.start(ctx, session)
+		controller.start(ctx)
 	}
 }

@@ -14,17 +14,15 @@ import (
 )
 
 type SessionState struct {
-	Mu         sync.Mutex
-	StartTime  time.Time
-	Seq        int64
-	Metadata   Metadata
-	ReadyData  ReadyData
-	Resume     bool
-	Config     *Config
-	Conn       *websocket.Conn
-	Client     *http.Client
-	Messages   chan []byte
-	MaxRetries int
+	Mu        sync.Mutex
+	StartTime time.Time
+	Seq       int64
+	Metadata  Metadata
+	ReadyData ReadyData
+	Resume    bool
+	Config    *Config
+	Conn      *websocket.Conn
+	Client    *http.Client
 }
 
 type ReadyData struct {
@@ -99,11 +97,9 @@ func NewState() *SessionState {
 
 func newDefaultState() *SessionState {
 	return &SessionState{
-		Config:     NewConfig(),
-		Resume:     false,
-		Messages:   make(chan []byte),
-		MaxRetries: 3,
-		StartTime:  time.Now(),
+		Config:    NewConfig(),
+		Resume:    false,
+		StartTime: time.Now(),
 	}
 }
 
