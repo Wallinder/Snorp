@@ -4,8 +4,7 @@ import (
 	"time"
 )
 
-// message create
-type MessageCreate struct {
+type Message struct {
 	Content      string        `json:"content,omitempty"`
 	Nonce        string        `json:"nonce,omitempty"`
 	TTS          bool          `json:"tts,omitempty"`

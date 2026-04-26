@@ -80,7 +80,23 @@ func sendRequest() ([]byte, error) {
 	return data, err
 }
 
-func (r Subscriber) ReadLog(ctx context.Context) error {
+func getLog() (Log, error) {
+	var log Log
+	body, err := sendRequest()
+	if err != nil {
+		return log, err
+	}
+
+	err = json.Unmarshal(body, &log)
+	return log, err
+}
+
+func NewSubscriber() Subscriber {
+	subscriber := make(Subscriber)
+	return subscriber
+}
+
+func (r Subscriber) Listen(ctx context.Context) error {
 	if r == nil {
 		return fmt.Errorf("no subscriber registered")
 	}
@@ -93,16 +109,9 @@ func (r Subscriber) ReadLog(ctx context.Context) error {
 			continue
 		}
 
-		body, err := sendRequest()
+		log, err := getLog()
 		if err != nil {
-			slog.Error("failed to fetch body", "error", err, "url", BaseUrl)
-			continue
-		}
-
-		var log Log
-		err = json.Unmarshal(body, &log)
-		if err != nil {
-			slog.Error("failed to read body", "error", err, "url", BaseUrl)
+			slog.Error("unable to fetch log", "error", err, "url", BaseUrl)
 			continue
 		}
 

@@ -26,6 +26,8 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 			slog.Info("failed to unmarshal json", "error", err)
 		}
 
+	case "INTERACTION":
+
 	default:
 		//fmt.Println(string(dispatchMessage))
 	}
