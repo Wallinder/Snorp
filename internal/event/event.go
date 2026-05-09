@@ -18,14 +18,14 @@ type DiscordPayload struct {
 }
 
 func EventHandler(ctx context.Context, session *state.SessionState) {
-	if session.Conn != nil {
+	if session.WsConn != nil {
 		slog.Info("connection already open")
 		return
 	}
 
 	url := session.Metadata.Url
 
-	if session.Resume {
+	if session.Connection.Resume {
 		url = session.ReadyData.ResumeGatewayURL
 	}
 
@@ -34,26 +34,26 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 	slog.Info("connecting to websocket", "url", url)
 
 	var err error
-	session.Conn, _, err = websocket.Dial(ctx, url, nil)
+	session.WsConn, _, err = websocket.Dial(ctx, url, nil)
 	if err != nil {
 		slog.Error("error opening connection", "error", err)
 		return
 	}
 
 	defer func() {
-		session.Conn.Close(1006, "Normal Closure")
+		session.WsConn.Close(1006, "Normal Closure")
 		session.SetConnection(nil)
 	}()
 
 	for {
-		_, message, err := session.Conn.Read(ctx)
+		_, message, err := session.WsConn.Read(ctx)
 
 		if err != nil {
 			errorCode := int(websocket.CloseStatus(err))
 
 			if SocketErrors[errorCode] {
 				slog.Error("socket failure", "error", err, "code", errorCode)
-				session.SetResume(true)
+				session.Connection.SetResume(true)
 				return
 			}
 			state.LogAndExit("unrecoverable", err, 1)
@@ -92,26 +92,26 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 						return
 
 					case <-ticker.C:
-						sendHeartbeat(ctx, session.Conn, session.Seq)
+						sendHeartbeat(ctx, session.WsConn, session.Connection.Seq)
 					}
 				}
 			}(interval.Heartbeat)
 
-			if session.Resume {
-				resumeConnection(ctx, session.Conn, session)
+			if session.Connection.Resume {
+				resumeConnection(ctx, session.WsConn, session)
 			} else {
-				identify(ctx, session.Conn, session.Config.Bot.Identity)
+				identify(ctx, session.WsConn, session.Config.Bot.Identity)
 			}
 
 		case HEARTBEAT:
-			sendHeartbeat(ctx, session.Conn, session.Seq)
+			sendHeartbeat(ctx, session.WsConn, session.Connection.Seq)
 
 		case DISPATCH:
-			session.SetSequence(discordPayload.S)
+			session.Connection.SetSequence(discordPayload.S)
 			Dispatcher(ctx, session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
-			session.SetResume(true)
+			session.Connection.SetResume(true)
 			return
 
 		case INVALID_SESSION:
@@ -120,7 +120,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 				slog.Error("failed to unmarshal json", "error", err)
 				return
 			}
-			session.SetResume(invalid)
+			session.Connection.SetResume(invalid)
 			return
 		}
 	}

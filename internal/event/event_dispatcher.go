@@ -17,6 +17,7 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 		var readyData state.ReadyData
 		if err := json.Unmarshal(dispatchMessage, &readyData); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
+			return
 		}
 		session.SetReadyData(readyData)
 
@@ -24,9 +25,16 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 		var guild models.Guild
 		if err := json.Unmarshal(dispatchMessage, &guild); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
+			return
 		}
 
-	case "INTERACTION":
+	case "INTERACTION_CREATE":
+		var interaction models.Interaction
+		if err := json.Unmarshal(dispatchMessage, &interaction); err != nil {
+			slog.Info("failed to unmarshal json", "error", err)
+			return
+		}
+		InteractionHandler(ctx, interaction)
 
 	default:
 		//fmt.Println(string(dispatchMessage))

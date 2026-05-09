@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"snorp/internal/models"
 	"sync"
 	"time"
 
@@ -14,15 +15,20 @@ import (
 )
 
 type SessionState struct {
-	Mu        sync.Mutex
-	StartTime time.Time
-	Seq       int64
-	Metadata  Metadata
-	ReadyData ReadyData
-	Resume    bool
-	Config    *Config
-	Conn      *websocket.Conn
-	Client    *http.Client
+	StartTime  time.Time
+	Metadata   Metadata
+	ReadyData  ReadyData
+	Config     *Config
+	Connection *Connection
+	WsConn     *websocket.Conn
+	Client     *http.Client
+	Commands   []*models.ApplicationCommand
+}
+
+type Connection struct {
+	Mu     sync.RWMutex
+	Seq    int64
+	Resume bool
 }
 
 type ReadyData struct {
@@ -97,8 +103,10 @@ func NewState() *SessionState {
 
 func newDefaultState() *SessionState {
 	return &SessionState{
-		Config:    NewConfig(),
-		Resume:    false,
+		Config: NewConfig(),
+		Connection: &Connection{
+			Resume: false,
+		},
 		StartTime: time.Now(),
 	}
 }
@@ -131,25 +139,21 @@ func LogAndExit(msg string, err error, exitcode int) {
 }
 
 func (s *SessionState) SetReadyData(readyData ReadyData) {
-	s.Mu.Lock()
 	s.ReadyData = readyData
-	s.Mu.Unlock()
-}
-
-func (s *SessionState) SetResume(resume bool) {
-	s.Mu.Lock()
-	s.Resume = resume
-	s.Mu.Unlock()
 }
 
 func (s *SessionState) SetConnection(conn *websocket.Conn) {
-	s.Mu.Lock()
-	s.Conn = conn
-	s.Mu.Unlock()
+	s.WsConn = conn
 }
 
-func (s *SessionState) SetSequence(seq int64) {
-	s.Mu.Lock()
-	s.Seq = seq
-	s.Mu.Unlock()
+func (c *Connection) SetResume(resume bool) {
+	c.Mu.Lock()
+	c.Resume = resume
+	c.Mu.Unlock()
+}
+
+func (c *Connection) SetSequence(seq int64) {
+	c.Mu.Lock()
+	c.Seq = seq
+	c.Mu.Unlock()
 }

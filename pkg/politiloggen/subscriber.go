@@ -1,11 +1,8 @@
 package politiloggen
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"time"
 )
@@ -14,25 +11,7 @@ var (
 	BaseUrl = "https://api.politiet.no/politiloggen/v1/message"
 )
 
-type Subscriber map[string]chan Data
-
-func (r Subscriber) AddSubscriber(id string) chan Data {
-	ch := make(chan Data)
-	r[id] = ch
-	return ch
-}
-
-func (r Subscriber) RemoveSubscriber(id string) {
-	delete(r, id)
-}
-
-func (r Subscriber) broadcast(msg Data) {
-	for _, ch := range r {
-		ch <- msg
-	}
-}
-
-type Log struct {
+type Message struct {
 	Data     []Data   `json:"data"`
 	Metadata Metadata `json:"metadata"`
 }
@@ -80,50 +59,13 @@ func sendRequest() ([]byte, error) {
 	return data, err
 }
 
-func getLog() (Log, error) {
-	var log Log
+func GetLastMessage() (Message, error) {
+	var msg Message
 	body, err := sendRequest()
 	if err != nil {
-		return log, err
+		return msg, err
 	}
 
-	err = json.Unmarshal(body, &log)
-	return log, err
-}
-
-func NewSubscriber() Subscriber {
-	subscriber := make(Subscriber)
-	return subscriber
-}
-
-func (r Subscriber) Listen(ctx context.Context) error {
-	if r == nil {
-		return fmt.Errorf("no subscriber registered")
-	}
-
-	ticker := time.NewTicker(1 * time.Minute)
-	defer ticker.Stop()
-
-	for {
-		if len(r) == 0 {
-			continue
-		}
-
-		log, err := getLog()
-		if err != nil {
-			slog.Error("unable to fetch log", "error", err, "url", BaseUrl)
-			continue
-		}
-
-		for _, data := range log.Data {
-			r.broadcast(data)
-		}
-		select {
-		case <-ticker.C:
-			continue
-
-		case <-ctx.Done():
-			return nil
-		}
-	}
+	err = json.Unmarshal(body, &msg)
+	return msg, err
 }

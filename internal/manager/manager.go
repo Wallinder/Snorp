@@ -18,6 +18,11 @@ func StartControllers(ctx context.Context, wg *sync.WaitGroup, session *state.Se
 			MaxRetries: 3,
 			ResetAfter: 30 * time.Second,
 		},
+		&CommandController{
+			Session:  session,
+			Path:     "./commands",
+			Interval: 30 * time.Second,
+		},
 	}
 	for _, controller := range controllers {
 		wg.Go(func() {

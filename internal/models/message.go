@@ -17,9 +17,18 @@ type Message struct {
 }
 
 type Attachment struct {
-	ID          string `json:"id,omitempty"`
-	Filename    string `json:"filename,omitempty"`
-	Description string `json:"description,omitempty"`
+	ID           string  `json:"id"`
+	URL          string  `json:"url"`
+	ProxyURL     string  `json:"proxy_url"`
+	Filename     string  `json:"filename"`
+	ContentType  string  `json:"content_type"`
+	Width        int     `json:"width"`
+	Height       int     `json:"height"`
+	Size         int     `json:"size"`
+	Ephemeral    bool    `json:"ephemeral"`
+	DurationSecs float64 `json:"duration_secs"`
+	Waveform     string  `json:"waveform"`
+	Flags        int     `json:"flags"`
 }
 
 type Embed struct {

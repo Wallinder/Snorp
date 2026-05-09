@@ -2,8 +2,30 @@ package models
 
 type InteractionType uint8
 
-type InteractionData interface {
-	Type() InteractionType
+type InteractionData struct {
+	ID          string                   `json:"id"`
+	Name        string                   `json:"name"`
+	CommandType ApplicationCommandType   `json:"type"`
+	Resolved    *InteractionDataResolved `json:"resolved"`
+	Options     []*InteractionDataOption `json:"options"`
+	TargetID    string                   `json:"target_id"`
+}
+
+type InteractionDataResolved struct {
+	Users       map[string]*User       `json:"users"`
+	Members     map[string]*Member     `json:"members"`
+	Roles       map[string]*Role       `json:"roles"`
+	Channels    map[string]*Channel    `json:"channels"`
+	Messages    map[string]*Message    `json:"messages"`
+	Attachments map[string]*Attachment `json:"attachments"`
+}
+
+type InteractionDataOption struct {
+	Name    string                       `json:"name"`
+	Type    ApplicationCommandOptionType `json:"type"`
+	Value   any                          `json:"value,omitempty"`
+	Options []*InteractionDataOption     `json:"options,omitempty"`
+	Focused bool                         `json:"focused,omitempty"`
 }
 
 type Interaction struct {

@@ -95,7 +95,7 @@ func resumeConnection(ctx context.Context, conn *websocket.Conn, session *state.
 		D: ResumeData{
 			Token:     session.Config.Bot.Identity.Token,
 			SessionId: session.ReadyData.SessionID,
-			Seq:       session.Seq,
+			Seq:       session.Connection.Seq,
 		},
 	})
 	if err != nil {
@@ -103,7 +103,7 @@ func resumeConnection(ctx context.Context, conn *websocket.Conn, session *state.
 		return
 	}
 
-	session.SetResume(false)
+	session.Connection.SetResume(false)
 
 	err = conn.Write(ctx, websocket.MessageText, message)
 	if err != nil {

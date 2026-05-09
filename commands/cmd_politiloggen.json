@@ -1,0 +1,19 @@
+{
+	"Name":        "politiloggen",
+	"Type":        1,
+	"Description": "henter meldinger fra politiloggen",
+	"Options": [
+        {
+        	"Name":        "nyeste melding",
+        	"Description": "henter siste melding",
+        	"Type":        1,
+        	"Required":    false
+        },
+        {
+        	"Name":        "abonner",
+        	"Description": "publiserer alle meldinger til kanal",
+        	"Type":        7,
+        	"Required":    false
+        }
+    ]
+}
