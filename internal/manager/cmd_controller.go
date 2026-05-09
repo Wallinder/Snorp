@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"snorp/internal/models"
 	"snorp/internal/state"
 	"time"
@@ -19,32 +20,53 @@ type CommandController struct {
 }
 
 func (cc *CommandController) start(ctx context.Context) {
-	ticker := time.NewTicker(cc.Interval * time.Second)
+	ticker := time.NewTicker(cc.Interval)
 
 	for {
+		files, err := filepath.Glob(cc.Path + "/*.json")
+		if err != nil {
+			slog.Error("unable to read directory", "error", err, "dir", cc.Path)
+			continue
+		}
+
+		var commands []*models.ApplicationCommand
+		for _, file := range files {
+			command, err := readFile(file)
+			if err != nil {
+				slog.Error("unable to read command", "error", err, "file", file)
+				continue
+			}
+			commands = append(commands, command)
+		}
+
+		for _, oldCmd := range cc.Session.Commands {
+			if slices.Contains(commands, oldCmd) {
+				continue
+			}
+			slog.Info("deleting old command", "name", oldCmd.Name)
+			deleteCommand(cc.Session, oldCmd.ID)
+		}
+
+		for _, newCmd := range commands {
+			if slices.Contains(cc.Session.Commands, newCmd) {
+				continue
+			}
+			slog.Info("creating command", "name", newCmd.Name)
+
+			err := registerCommand(cc.Session, newCmd)
+			if err != nil {
+				slog.Error("failed to register command", "error", err)
+				continue
+			}
+			cc.Session.Commands = append(cc.Session.Commands, newCmd)
+		}
+
 		select {
 		case <-ctx.Done():
 			return
 
 		case <-ticker.C:
-			files, _ := filepath.Glob(cc.Path + "/*.json")
-
-			var commands []*models.ApplicationCommand
-			for _, file := range files {
-				command, err := readFile(file)
-				if err != nil {
-					slog.Error("unable to read command", "error", err, "file", file)
-				}
-				commands = append(commands, command)
-			}
-
-			for _, command := range commands {
-				err := registerCommand(cc.Session, command)
-				if err != nil {
-					slog.Error("failed to register command", "error", err)
-					continue
-				}
-			}
+			continue
 		}
 	}
 }
@@ -72,7 +94,7 @@ func registerCommand(session *state.SessionState, command *models.ApplicationCom
 	return err
 }
 
-func DeleteCommand(session *state.SessionState, id string) {
+func deleteCommand(session *state.SessionState, id string) {
 	uri := "/applications/" + session.ReadyData.Application.ID + "/commands/" + id
 	_, err := session.NewRequest("DELETE", uri, nil)
 	if err != nil {
