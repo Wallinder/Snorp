@@ -29,7 +29,7 @@ func Shutdown(ctx context.Context, server *http.Server) {
 	}
 }
 
-func NewHttpServer() *http.Server {
+func NewHttpServer(session *state.SessionState) *http.Server {
 	return &http.Server{
 		Addr:              ":8080",
 		ReadTimeout:       5 * time.Second,
@@ -37,14 +37,22 @@ func NewHttpServer() *http.Server {
 		WriteTimeout:      5 * time.Second,
 		IdleTimeout:       5 * time.Second,
 		MaxHeaderBytes:    1 << 20,
-		Handler:           requestHandler(),
+		Handler:           requestHandler(session),
 	}
 }
 
-func requestHandler() http.Handler {
+func requestHandler(session *state.SessionState) http.Handler {
 	router := http.NewServeMux()
 
-	router.Handle("/metrics", promhttp.Handler())
+	router.Handle("GET /metrics", promhttp.Handler())
+
+	router.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+		if !session.Status.Ready {
+			http.Error(w, "instance is not ready yet", http.StatusInternalServerError)
+			return
+		}
+		w.Write([]byte("ready"))
+	})
 
 	return defaults(router)
 }

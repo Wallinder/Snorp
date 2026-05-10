@@ -12,7 +12,7 @@ var (
 )
 
 type Message struct {
-	Data     []Data   `json:"data"`
+	Data     Data     `json:"data"`
 	Metadata Metadata `json:"metadata"`
 }
 

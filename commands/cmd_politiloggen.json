@@ -1,19 +1,27 @@
 {
-	"Name":        "politiloggen",
-	"Type":        1,
-	"Description": "henter meldinger fra politiloggen",
-	"Options": [
+	"name": "politiloggen",
+	"type": 1,
+	"description": "henter meldinger fra politiloggen",
+	"options": [
         {
-        	"Name":        "nyeste melding",
-        	"Description": "henter siste melding",
-        	"Type":        1,
-        	"Required":    false
+        	"name": "nyeste",
+        	"description": "henter siste melding",
+        	"type": 1,
+            "required": false
         },
         {
-        	"Name":        "abonner",
-        	"Description": "publiserer alle meldinger til kanal",
-        	"Type":        7,
-        	"Required":    false
+        	"name": "abonner",
+        	"description": "abonnerer på meldingstrøm",
+        	"type": 1,
+            "options": [
+                {
+                    "name": "kanal",
+                    "description": "kanalen å publisere til",
+                    "type": 7,
+                    "channel_types": [0],
+                    "required": false
+                }
+            ]
         }
     ]
 }

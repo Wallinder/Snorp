@@ -19,7 +19,7 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	httpServer := server.NewHttpServer()
+	httpServer := server.NewHttpServer(session)
 	server.RunHttpServer(&wg, httpServer)
 
 	manager.StartControllers(ctx, &wg, session)

@@ -15,14 +15,22 @@ import (
 )
 
 type SessionState struct {
-	StartTime  time.Time
-	Metadata   Metadata
-	ReadyData  ReadyData
-	Config     *Config
-	Connection *Connection
-	WsConn     *websocket.Conn
-	Client     *http.Client
-	Commands   []*models.ApplicationCommand
+	StartTime    time.Time
+	Metadata     Metadata
+	ReadyData    ReadyData
+	Config       *Config
+	Connection   *Connection
+	WsConn       *websocket.Conn
+	Client       *http.Client
+	CommandsDir  string
+	Commands     []models.ApplicationCommand
+	ReadyChannel chan bool
+	Status       Status
+}
+
+type Status struct {
+	Ready   bool
+	Healthy bool
 }
 
 type Connection struct {
@@ -89,6 +97,8 @@ type SessionStartLimit struct {
 
 func NewState() *SessionState {
 	state := newDefaultState()
+	state.onReady()
+
 	state.Client = newHttpClient(state.Config.Bot.Identity.Token)
 
 	state.setMetadata()
@@ -107,7 +117,13 @@ func newDefaultState() *SessionState {
 		Connection: &Connection{
 			Resume: false,
 		},
-		StartTime: time.Now(),
+		CommandsDir: "./commands",
+		StartTime:   time.Now(),
+		Status: Status{
+			Ready:   false,
+			Healthy: false,
+		},
+		ReadyChannel: make(chan bool),
 	}
 }
 
@@ -138,12 +154,28 @@ func LogAndExit(msg string, err error, exitcode int) {
 	os.Exit(exitcode)
 }
 
+func (s *SessionState) onReady() {
+	go func() {
+		<-s.ReadyChannel
+		s.Status.Ready = true
+		s.setCommands()
+	}()
+}
+
 func (s *SessionState) SetReadyData(readyData ReadyData) {
 	s.ReadyData = readyData
 }
 
 func (s *SessionState) SetConnection(conn *websocket.Conn) {
 	s.WsConn = conn
+}
+
+func (s *SessionState) isReady() bool {
+	return s.Status.Ready
+}
+
+func (s *SessionState) isHealthy() bool {
+	return s.Status.Healthy
 }
 
 func (c *Connection) SetResume(resume bool) {

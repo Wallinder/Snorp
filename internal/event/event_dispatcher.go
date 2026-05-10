@@ -20,6 +20,7 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 			return
 		}
 		session.SetReadyData(readyData)
+		session.ReadyChannel <- true
 
 	case "GUILD_CREATE":
 		var guild models.Guild
@@ -34,9 +35,6 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 			slog.Info("failed to unmarshal json", "error", err)
 			return
 		}
-		InteractionHandler(ctx, interaction)
-
-	default:
-		//fmt.Println(string(dispatchMessage))
+		InteractionHandler(ctx, session, interaction)
 	}
 }

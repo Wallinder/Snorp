@@ -5,7 +5,7 @@ type InteractionType uint8
 type InteractionData struct {
 	ID          string                   `json:"id"`
 	Name        string                   `json:"name"`
-	CommandType ApplicationCommandType   `json:"type"`
+	CommandType int                      `json:"type"`
 	Resolved    *InteractionDataResolved `json:"resolved"`
 	Options     []*InteractionDataOption `json:"options"`
 	TargetID    string                   `json:"target_id"`

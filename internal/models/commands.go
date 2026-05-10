@@ -40,7 +40,7 @@ type ApplicationCommand struct {
 	IntegrationTypes         *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
 	Description              string                        `json:"description,omitempty"`
 	DescriptionLocalizations any                           `json:"description_localizations,omitempty"`
-	Options                  []*ApplicationCommandOption   `json:"options"`
+	Options                  []*ApplicationCommandOption   `json:"options,omitempty"`
 }
 
 type ApplicationCommandOptionType uint8
@@ -65,11 +65,11 @@ type ApplicationCommandOption struct {
 	NameLocalizations        any                               `json:"name_localizations,omitempty"`
 	Description              string                            `json:"description,omitempty"`
 	DescriptionLocalizations any                               `json:"description_localizations,omitempty"`
-	ChannelTypes             []ChannelType                     `json:"channel_types"`
+	ChannelTypes             []ChannelType                     `json:"channel_types,omitempty"`
 	Required                 bool                              `json:"required"`
-	Options                  []*ApplicationCommandOption       `json:"options"`
+	Options                  []*ApplicationCommandOption       `json:"options,omitempty"`
 	Autocomplete             bool                              `json:"autocomplete"`
-	Choices                  []*ApplicationCommandOptionChoice `json:"choices"`
+	Choices                  []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
 	MinValue                 *float64                          `json:"min_value,omitempty"`
 	MaxValue                 float64                           `json:"max_value,omitempty"`
 	MinLength                *int                              `json:"min_length,omitempty"`
