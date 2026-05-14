@@ -11,24 +11,20 @@ import (
 )
 
 func interactionHandler(_ context.Context, session *state.SessionState, interaction models.Interaction) {
-	callback := newCallback()
 	switch interaction.Data.Name {
 	case "politiloggen":
 		for _, option := range interaction.Data.Options {
 			switch option.Name {
 			case "nyeste":
 				msg, _ := politiloggen.GetLastMessage()
-				callback.Type = models.CallbackChannelMessageWithSource
-				callback.Data.Content = msg.Data.Text
-				interactionCallback(session, interaction, callback)
+				interactionCallback(session, interaction, models.InteractionCallback{
+					Type: models.CallbackChannelMessageWithSource,
+					Data: models.InteractionCallbackData{
+						Content: msg.Data.Text,
+					},
+				})
 			}
 		}
-	}
-}
-
-func newCallback() models.InteractionCallback {
-	return models.InteractionCallback{
-		Data: models.InteractionCallbackData{},
 	}
 }
 
@@ -37,7 +33,7 @@ func interactionCallback(session *state.SessionState, interaction models.Interac
 
 	data, err := json.Marshal(callback)
 	if err != nil {
-		slog.Error("callback failed", "error", err)
+		slog.Error("callback marshal", "error", err)
 	}
 
 	_, err = session.NewRequest("POST", uri, bytes.NewReader(data))

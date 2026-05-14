@@ -120,8 +120,7 @@ func newDefaultState() *SessionState {
 		CommandsDir: "./commands",
 		StartTime:   time.Now(),
 		Status: Status{
-			Ready:   false,
-			Healthy: false,
+			Ready: false,
 		},
 		ReadyChannel: make(chan bool),
 	}
@@ -172,10 +171,6 @@ func (s *SessionState) SetConnection(conn *websocket.Conn) {
 
 func (s *SessionState) isReady() bool {
 	return s.Status.Ready
-}
-
-func (s *SessionState) isHealthy() bool {
-	return s.Status.Healthy
 }
 
 func (c *Connection) SetResume(resume bool) {
