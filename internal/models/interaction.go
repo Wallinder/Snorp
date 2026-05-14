@@ -47,3 +47,62 @@ type Interaction struct {
 	Version                      int                                   `json:"version"`
 	Entitlements                 []*Entitlement                        `json:"entitlements"`
 }
+
+type InteractionCallbackType uint
+
+const (
+	CallbackPong                                 InteractionCallbackType = 1
+	CallbackChannelMessageWithSource             InteractionCallbackType = 4
+	CallbackDefferedChannelMessageWithSource     InteractionCallbackType = 5
+	CallbackDefferedUpdateMessage                InteractionCallbackType = 6
+	CallbackUpdateMessage                        InteractionCallbackType = 7
+	CallbackApplicationCommandAutocompleteResult InteractionCallbackType = 8
+	CallbackModal                                InteractionCallbackType = 9
+	CallbackPremiumRequired                      InteractionCallbackType = 10
+	CallbackLaunchActivity                       InteractionCallbackType = 11
+)
+
+type InteractionCallback struct {
+	Type InteractionCallbackType `json:"type"`
+	Data InteractionCallbackData `json:"data"`
+}
+
+type InteractionCallbackData struct {
+	TTS             bool            `json:"tts,omitempty"`
+	Content         string          `json:"content,omitempty"`
+	Embeds          []Embed         `json:"embeds,omitempty"`
+	AllowedMentions AllowedMentions `json:"allowed_mentions,omitzero"`
+	Flags           int             `json:"flags,omitempty"`
+	Components      []ComponentType `json:"components,omitempty"`
+	Attachment      []Attachment    `json:"attachment,omitempty"`
+	Poll            Poll            `json:"poll,omitzero"`
+}
+
+type Poll struct {
+	Question         PollMedia
+	Answer           []PollAnswer
+	Duration         int  `json:"duration,omitempty"`
+	AllowMultiselect bool `json:"allow_multiselect,omitempty"`
+	LayoutType       int  `json:"layout_type,omitempty"`
+}
+
+type PollAnswer struct {
+	AnswerID  int       `json:"answer_id,omitempty"`
+	PollMedia PollMedia `json:"poll_media"`
+}
+
+type PollMedia struct {
+	Text  string `json:"text,omitempty"`
+	Emoji *Emoji `json:"emoji,omitempty"`
+}
+
+const (
+	RoleMentions     = "roles"
+	UserMentions     = "users"
+	EveryoneMentions = "everyone"
+)
+
+type AllowedMentions struct {
+	Parse []string `json:"parse,omitempty"`
+	Users []string `json:"users,omitempty"`
+}

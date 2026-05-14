@@ -38,9 +38,7 @@ func (drt *discordRoundTripper) RoundTrip(req *http.Request) (*http.Response, er
 		"User-Agent":    {"DiscordBot (https://github.com/Wallinder/Snorp)"},
 		"Authorization": {fmt.Sprintf("Bot %s", drt.token)},
 	}
-
-	resp, err := drt.next.RoundTrip(req)
-	return resp, err
+	return drt.next.RoundTrip(req)
 }
 
 func (s *SessionState) NewRequest(method string, uri string, body io.Reader) (*http.Response, error) {
@@ -50,7 +48,5 @@ func (s *SessionState) NewRequest(method string, uri string, body io.Reader) (*h
 	if err != nil {
 		return nil, err
 	}
-
-	response, err := s.Client.Do(request)
-	return response, err
+	return s.Client.Do(request)
 }

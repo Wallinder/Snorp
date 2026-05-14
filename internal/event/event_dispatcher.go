@@ -8,7 +8,7 @@ import (
 	"snorp/internal/state"
 )
 
-func Dispatcher(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
+func dispatcher(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
 	TotalDispatchMessages.WithLabelValues(action).Inc()
 
 	switch action {
@@ -35,6 +35,6 @@ func Dispatcher(ctx context.Context, session *state.SessionState, action string,
 			slog.Info("failed to unmarshal json", "error", err)
 			return
 		}
-		InteractionHandler(ctx, session, interaction)
+		interactionHandler(ctx, session, interaction)
 	}
 }

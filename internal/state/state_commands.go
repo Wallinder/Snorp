@@ -61,7 +61,5 @@ func (s *SessionState) bulkOverwriteCommands(commands []models.ApplicationComman
 	if err != nil {
 		return err
 	}
-
-	err = json.Unmarshal(data, &s.Commands)
-	return err
+	return json.Unmarshal(data, &s.Commands)
 }

@@ -55,8 +55,7 @@ func sendRequest() ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	data, err := io.ReadAll(resp.Body)
-	return data, err
+	return io.ReadAll(resp.Body)
 }
 
 func GetLastMessage() (Message, error) {

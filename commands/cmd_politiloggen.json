@@ -8,20 +8,6 @@
         	"description": "henter siste melding",
         	"type": 1,
             "required": false
-        },
-        {
-        	"name": "abonner",
-        	"description": "abonnerer på meldingstrøm",
-        	"type": 1,
-            "options": [
-                {
-                    "name": "kanal",
-                    "description": "kanalen å publisere til",
-                    "type": 7,
-                    "channel_types": [0],
-                    "required": false
-                }
-            ]
         }
     ]
 }

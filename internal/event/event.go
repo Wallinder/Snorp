@@ -108,7 +108,7 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 
 		case DISPATCH:
 			session.Connection.SetSequence(discordPayload.S)
-			Dispatcher(ctx, session, discordPayload.T, discordPayload.D)
+			dispatcher(ctx, session, discordPayload.T, discordPayload.D)
 
 		case RECONNECT:
 			session.Connection.SetResume(true)
