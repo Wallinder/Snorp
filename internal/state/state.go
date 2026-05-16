@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"snorp/internal/models"
+	"snorp/pkg/discord"
 	"sync"
 	"time"
 
@@ -16,14 +16,14 @@ import (
 
 type SessionState struct {
 	StartTime    time.Time
-	Metadata     Metadata
-	ReadyData    ReadyData
+	Metadata     discord.Metadata
+	ReadyData    discord.ReadyData
 	Config       *Config
 	Connection   *Connection
 	WsConn       *websocket.Conn
 	Client       *http.Client
 	CommandsDir  string
-	Commands     []models.ApplicationCommand
+	Commands     []discord.ApplicationCommand
 	ReadyChannel chan bool
 	Status       Status
 }
@@ -39,67 +39,11 @@ type Connection struct {
 	Resume bool
 }
 
-type ReadyData struct {
-	V                    int                `json:"v"`
-	UserSettings         any                `json:"user_settings"`
-	User                 User               `json:"user"`
-	SessionType          string             `json:"session_type"`
-	SessionID            string             `json:"session_id"`
-	ResumeGatewayURL     string             `json:"resume_gateway_url"`
-	Relationships        any                `json:"relationships"`
-	PrivateChannels      any                `json:"private_channels"`
-	Presences            any                `json:"presences"`
-	Guilds               []UnavailableGuild `json:"guilds"`
-	GuildJoinRequests    any                `json:"guild_join_requests"`
-	GeoOrderedRtcRegions []string           `json:"geo_ordered_rtc_regions"`
-	GameRelationships    any                `json:"game_relationships"`
-	Auth                 any                `json:"auth"`
-	Application          Application        `json:"application"`
-}
-
-type UnavailableGuild struct {
-	ID          string
-	Unavailable bool
-}
-
-type User struct {
-	Verified      bool   `json:"verified"`
-	Username      string `json:"username"`
-	PrimaryGuild  any    `json:"primary_guild"`
-	MfaEnabled    bool   `json:"mfa_enabled"`
-	ID            string `json:"id"`
-	GlobalName    any    `json:"global_name"`
-	Flags         int    `json:"flags"`
-	Email         any    `json:"email"`
-	Discriminator string `json:"discriminator"`
-	Clan          any    `json:"clan"`
-	Bot           bool   `json:"bot"`
-	Avatar        any    `json:"avatar"`
-}
-
-type Application struct {
-	ID    string `json:"id"`
-	Flags int    `json:"flags"`
-}
-
-type Metadata struct {
-	Url               string            `json:"url"`
-	Shards            int               `json:"shards"`
-	SessionStartLimit SessionStartLimit `json:"session_start_limit"`
-}
-
-type SessionStartLimit struct {
-	Total          int `json:"total"`
-	Remaining      int `json:"remaining"`
-	ResetAfter     int `json:"reset_after"`
-	MaxConcurrency int `json:"max_concurrency"`
-}
-
 func NewState() *SessionState {
 	state := newDefaultState()
 	state.onReady()
 
-	state.Client = newHttpClient(state.Config.Bot.Identity.Token)
+	state.Client = newDiscordHttpClient(state.Config.Bot.Identity.Token)
 
 	state.setMetadata()
 	if len(state.Config.Bot.Identity.Shards) == 0 {
@@ -126,8 +70,29 @@ func newDefaultState() *SessionState {
 	}
 }
 
+func newDiscordHttpClient(discordToken string) *http.Client {
+	return &http.Client{
+		CheckRedirect: nil,
+		Timeout:       5 * time.Second,
+		Transport: discord.NewDiscordTransport(
+			discordToken,
+			"DiscordBot (https://github.com/Wallinder/Snorp)",
+		),
+	}
+}
+
+func (s *SessionState) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
+	url := s.Config.Bot.Api + "/v" + s.Config.Bot.ApiVersion + uri
+
+	request, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return nil, err
+	}
+	return s.Client.Do(request)
+}
+
 func (s *SessionState) setMetadata() {
-	response, err := s.NewRequest("GET", "/gateway/bot", nil)
+	response, err := s.NewDiscordRequest("GET", "/gateway/bot", nil)
 	if err != nil {
 		LogAndExit("unable to send discord request", err, 1)
 	}
@@ -161,7 +126,7 @@ func (s *SessionState) onReady() {
 	}()
 }
 
-func (s *SessionState) SetReadyData(readyData ReadyData) {
+func (s *SessionState) SetReadyData(readyData discord.ReadyData) {
 	s.ReadyData = readyData
 }
 

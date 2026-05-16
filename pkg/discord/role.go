@@ -1,4 +1,4 @@
-package models
+package discord
 
 type Role struct {
 	Version      int64  `json:"version"`

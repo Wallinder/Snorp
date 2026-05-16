@@ -1,19 +1,8 @@
 package event
 
-const (
-	DISPATCH                  = 0  //  Receive       An event was dispatched.
-	HEARTBEAT                 = 1  //  Send/Receive  Fired periodically by the client to keep the connection alive.
-	IDENTIFY                  = 2  //  Send	         Starts a new session during the initial handshake.
-	PRESENCE_UPDATE           = 3  //  Send          Update the client's presence.
-	VOICE_STATE_UPDATE        = 4  //  Send          Used to join/leave or move between voice channels.
-	RESUME                    = 6  //  Send          Resume a previous session that was disconnected.
-	RECONNECT                 = 7  //  Receive       You should attempt to reconnect and resume immediately.
-	REQUEST_GUILD_MEMBERS     = 8  //  Send          Request information about offline guild members in a large guild.
-	INVALID_SESSION           = 9  //  Receive       The session has been invalidated. You should reconnect and identify/resume accordingly.
-	HELLO                     = 10 //  Receive       Sent immediately after connecting, contains the heartbeat_interval to use.
-	HEARTBEAT_ACK             = 11 //  Receive       Sent in response to receiving a heartbeat to acknowledge that it has been received.
-	REQUEST_SOUNDBOARD_SOUNDS = 31 //  Send          Request information about soundboard sounds in a set of guilds.
+import "snorp/pkg/discord"
 
+const (
 	UNKNOWN_ERROR         = 4000
 	UNKNOWN_OPCODE        = 4001
 	DECODE_ERROR          = 4002
@@ -49,18 +38,18 @@ const (
 )
 
 var EventCodes = map[int]string{
-	DISPATCH:                  "DISPATCH",
-	HEARTBEAT:                 "HEARTBEAT",
-	IDENTIFY:                  "IDENTIFY",
-	PRESENCE_UPDATE:           "PRESENCE_UPDATE",
-	VOICE_STATE_UPDATE:        "VOICE_STATE_UPDATE",
-	RESUME:                    "RESUME",
-	RECONNECT:                 "RECONNECT",
-	REQUEST_GUILD_MEMBERS:     "REQUEST_GUILD_MEMBERS",
-	INVALID_SESSION:           "INVALID_SESSION",
-	HELLO:                     "HELLO",
-	HEARTBEAT_ACK:             "HEARTBEAT_ACK",
-	REQUEST_SOUNDBOARD_SOUNDS: "REQUEST_SOUNDBOARD_SOUNDS",
+	discord.DISPATCH:                  "DISPATCH",
+	discord.HEARTBEAT:                 "HEARTBEAT",
+	discord.IDENTIFY:                  "IDENTIFY",
+	discord.PRESENCE_UPDATE:           "PRESENCE_UPDATE",
+	discord.VOICE_STATE_UPDATE:        "VOICE_STATE_UPDATE",
+	discord.RESUME:                    "RESUME",
+	discord.RECONNECT:                 "RECONNECT",
+	discord.REQUEST_GUILD_MEMBERS:     "REQUEST_GUILD_MEMBERS",
+	discord.INVALID_SESSION:           "INVALID_SESSION",
+	discord.HELLO:                     "HELLO",
+	discord.HEARTBEAT_ACK:             "HEARTBEAT_ACK",
+	discord.REQUEST_SOUNDBOARD_SOUNDS: "REQUEST_SOUNDBOARD_SOUNDS",
 }
 
 var SocketErrors = map[int]bool{

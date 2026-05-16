@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"snorp/internal/models"
 	"snorp/internal/state"
+	"snorp/pkg/discord"
 )
 
 func dispatcher(ctx context.Context, session *state.SessionState, action string, dispatchMessage json.RawMessage) {
@@ -14,7 +14,7 @@ func dispatcher(ctx context.Context, session *state.SessionState, action string,
 	switch action {
 
 	case "READY":
-		var readyData state.ReadyData
+		var readyData discord.ReadyData
 		if err := json.Unmarshal(dispatchMessage, &readyData); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
 			return
@@ -23,14 +23,14 @@ func dispatcher(ctx context.Context, session *state.SessionState, action string,
 		session.ReadyChannel <- true
 
 	case "GUILD_CREATE":
-		var guild models.Guild
+		var guild discord.Guild
 		if err := json.Unmarshal(dispatchMessage, &guild); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
 			return
 		}
 
 	case "INTERACTION_CREATE":
-		var interaction models.Interaction
+		var interaction discord.Interaction
 		if err := json.Unmarshal(dispatchMessage, &interaction); err != nil {
 			slog.Info("failed to unmarshal json", "error", err)
 			return

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"snorp/internal/state"
+	"snorp/pkg/discord"
 	"time"
 
 	"github.com/coder/websocket"
@@ -74,8 +75,8 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 
 		switch opCode {
 
-		case HELLO:
-			var interval Interval
+		case discord.HELLO:
+			var interval discord.Interval
 			err := json.Unmarshal(discordPayload.D, &interval)
 			if err != nil {
 				slog.Error("error unmarshaling json", "error", err)
@@ -92,29 +93,38 @@ func EventHandler(ctx context.Context, session *state.SessionState) {
 						return
 
 					case <-ticker.C:
-						sendHeartbeat(ctx, session.WsConn, session.Connection.Seq)
+						discord.SendHeartbeat(ctx, session.WsConn, session.Connection.Seq)
+						if err != nil {
+							slog.Error("failed to send heartbeat", "error", err)
+							return
+						}
 					}
 				}
 			}(interval.Heartbeat)
 
 			if session.Connection.Resume {
-				resumeConnection(ctx, session.WsConn, session)
-			} else {
-				identify(ctx, session.WsConn, session.Config.Bot.Identity)
+				discord.SendResume(ctx,
+					session.WsConn,
+					session.Config.Bot.Identity.Token,
+					session.ReadyData.SessionID,
+					session.Connection.Seq,
+				)
+				continue
 			}
+			session.Config.Bot.Identity.Send(ctx, session.WsConn)
 
-		case HEARTBEAT:
-			sendHeartbeat(ctx, session.WsConn, session.Connection.Seq)
+		case discord.HEARTBEAT:
+			discord.SendHeartbeat(ctx, session.WsConn, session.Connection.Seq)
 
-		case DISPATCH:
+		case discord.DISPATCH:
 			session.Connection.SetSequence(discordPayload.S)
 			dispatcher(ctx, session, discordPayload.T, discordPayload.D)
 
-		case RECONNECT:
+		case discord.RECONNECT:
 			session.Connection.SetResume(true)
 			return
 
-		case INVALID_SESSION:
+		case discord.INVALID_SESSION:
 			var invalid bool
 			if err := json.Unmarshal(discordPayload.D, &invalid); err != nil {
 				slog.Error("failed to unmarshal json", "error", err)

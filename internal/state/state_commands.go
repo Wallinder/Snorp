@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"snorp/internal/models"
+	"snorp/pkg/discord"
 )
 
 func (s *SessionState) setCommands() {
@@ -16,7 +16,7 @@ func (s *SessionState) setCommands() {
 		LogAndExit("unable to read directory", err, 1)
 	}
 
-	var commands []models.ApplicationCommand
+	var commands []discord.ApplicationCommand
 	for _, file := range files {
 		command, err := readFile(file)
 		if err != nil {
@@ -32,8 +32,8 @@ func (s *SessionState) setCommands() {
 	}
 }
 
-func readFile(file string) (models.ApplicationCommand, error) {
-	var command models.ApplicationCommand
+func readFile(file string) (discord.ApplicationCommand, error) {
+	var command discord.ApplicationCommand
 	content, err := os.ReadFile(file)
 	if err != nil {
 		return command, err
@@ -43,7 +43,7 @@ func readFile(file string) (models.ApplicationCommand, error) {
 	return command, err
 }
 
-func (s *SessionState) bulkOverwriteCommands(commands []models.ApplicationCommand) error {
+func (s *SessionState) bulkOverwriteCommands(commands []discord.ApplicationCommand) error {
 	uri := "/applications/" + s.ReadyData.Application.ID + "/commands"
 
 	body, err := json.Marshal(commands)
@@ -51,7 +51,7 @@ func (s *SessionState) bulkOverwriteCommands(commands []models.ApplicationComman
 		return err
 	}
 
-	response, err := s.NewRequest("PUT", uri, bytes.NewReader(body))
+	response, err := s.NewDiscordRequest("PUT", uri, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package models
+package discord
 
 import "time"
 
@@ -72,4 +72,9 @@ type Guild struct {
 type Experiments struct {
 	EvaluationID any   `json:"evaluation_id"`
 	Assignments  []any `json:"assignments"`
+}
+
+type UnavailableGuild struct {
+	ID          string
+	Unavailable bool
 }

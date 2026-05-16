@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"snorp/internal/models"
+	"snorp/pkg/discord"
 )
 
 type Config struct {
@@ -13,27 +13,11 @@ type Config struct {
 }
 
 type DiscordBot struct {
-	Permissions int64    `json:"permissions"`
-	Gateway     string   `json:"gateway"`
-	Api         string   `json:"api"`
-	ApiVersion  string   `json:"api_version"`
-	Identity    Identity `json:"identity"`
-}
-
-type Identity struct {
-	Token          string             `json:"token"`
-	Compress       bool               `json:"compress"`
-	LargeThreshold int                `json:"large_threshold"`
-	Intents        int64              `json:"intents"`
-	Properties     IdentityProperties `json:"properties"`
-	Presence       models.Presence    `json:"presence"`
-	Shards         []int              `json:"shards,omitempty"`
-}
-
-type IdentityProperties struct {
-	Os      string `json:"os"`
-	Browser string `json:"browser"`
-	Device  string `json:"device"`
+	Permissions int64            `json:"permissions"`
+	Gateway     string           `json:"gateway"`
+	Api         string           `json:"api"`
+	ApiVersion  string           `json:"api_version"`
+	Identity    discord.Identity `json:"identity"`
 }
 
 func newDefaultConfig() *Config {
@@ -42,15 +26,15 @@ func newDefaultConfig() *Config {
 			Permissions: 2031514586918128,
 			Api:         "https://discord.com/api",
 			ApiVersion:  "10",
-			Identity: Identity{
-				Properties: IdentityProperties{
+			Identity: discord.Identity{
+				Properties: discord.IdentityProperties{
 					Os:      "Linux",
 					Browser: "https://github.com/Wallinder/Snorp",
 					Device:  "Walle-Lab",
 				},
-				Presence: models.Presence{
+				Presence: discord.Presence{
 					Since: 0,
-					Activities: []*models.Activity{
+					Activities: []*discord.Activity{
 						{
 							Name: "🥜Jerkmate Ranked🥜",
 							Type: 5,

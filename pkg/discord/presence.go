@@ -1,4 +1,11 @@
-package models
+package discord
+
+import (
+	"context"
+	"encoding/json"
+
+	"github.com/coder/websocket"
+)
 
 type Presence struct {
 	User                 User         `json:"user"`
@@ -17,4 +24,17 @@ type Activity struct {
 
 type ClientStatus struct {
 	Desktop string `json:"desktop"`
+}
+
+type PresenceUpdate struct {
+	Op int       `json:"op"`
+	D  *Presence `json:"d"`
+}
+
+func (p *Presence) Update(ctx context.Context, conn *websocket.Conn, presence PresenceUpdate) error {
+	message, err := json.Marshal(PresenceUpdate{Op: PRESENCE_UPDATE, D: p})
+	if err != nil {
+		return err
+	}
+	return conn.Write(ctx, websocket.MessageText, message)
 }
