@@ -3,6 +3,7 @@ package state
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -43,8 +44,6 @@ func NewState() *SessionState {
 	state := newDefaultState()
 	state.onReady()
 
-	state.Client = newDiscordHttpClient(state.Config.Bot.Identity.Token)
-
 	state.setMetadata()
 	if len(state.Config.Bot.Identity.Shards) == 0 {
 		shards := []int{0, 1}
@@ -58,6 +57,7 @@ func NewState() *SessionState {
 func newDefaultState() *SessionState {
 	return &SessionState{
 		Config: NewConfig(),
+		Client: newHttpClient(),
 		Connection: &Connection{
 			Resume: false,
 		},
@@ -70,25 +70,29 @@ func newDefaultState() *SessionState {
 	}
 }
 
-func newDiscordHttpClient(discordToken string) *http.Client {
+func newHttpClient() *http.Client {
 	return &http.Client{
 		CheckRedirect: nil,
 		Timeout:       5 * time.Second,
-		Transport: discord.NewDiscordTransport(
-			discordToken,
-			"DiscordBot (https://github.com/Wallinder/Snorp)",
-		),
 	}
 }
 
 func (s *SessionState) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
 	url := s.Config.Bot.Api + "/v" + s.Config.Bot.ApiVersion + uri
 
-	request, err := http.NewRequest(method, url, body)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
-	return s.Client.Do(request)
+	slog.Info("client request", "method", req.Method, "url", req.URL.Path)
+
+	TotalClientHttpRequests.WithLabelValues(req.Method, req.URL.Path).Inc()
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", s.Config.Bot.Identity.Token))
+	req.Header.Set("User-Agent", "DiscordBot (https://github.com/Wallinder/Snorp)")
+
+	return s.Client.Do(req)
 }
 
 func (s *SessionState) setMetadata() {
