@@ -1,4 +1,4 @@
-package event
+package receiver
 
 import (
 	"bytes"
@@ -36,7 +36,7 @@ func interactionCallback(session *state.SessionState, interaction discord.Intera
 		slog.Error("callback marshal", "error", err)
 	}
 
-	_, err = session.NewDiscordRequest("POST", uri, bytes.NewReader(data))
+	_, err = session.Discord.NewDiscordRequest("POST", uri, bytes.NewReader(data))
 	if err != nil {
 		slog.Error("callback failed", "error", err)
 	}

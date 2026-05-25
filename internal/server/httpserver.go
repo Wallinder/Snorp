@@ -47,7 +47,7 @@ func requestHandler(session *state.SessionState) http.Handler {
 	router.Handle("GET /metrics", promhttp.Handler())
 
 	router.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
-		if !session.Status.Ready {
+		if !session.IsReady() {
 			http.Error(w, "instance is not ready yet", http.StatusInternalServerError)
 			return
 		}

@@ -1,9 +1,7 @@
 package state
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -26,10 +24,11 @@ func (s *SessionState) setCommands() {
 		commands = append(commands, command)
 	}
 
-	err = s.bulkOverwriteCommands(commands)
+	currentCommands, err := s.Discord.BulkOverwriteCommands(commands)
 	if err != nil {
 		LogAndExit("failed to overwrite commands", err, 1)
 	}
+	s.Commands = currentCommands
 }
 
 func readFile(file string) (discord.ApplicationCommand, error) {
@@ -41,25 +40,4 @@ func readFile(file string) (discord.ApplicationCommand, error) {
 
 	err = json.Unmarshal(content, &command)
 	return command, err
-}
-
-func (s *SessionState) bulkOverwriteCommands(commands []discord.ApplicationCommand) error {
-	uri := "/applications/" + s.ReadyData.Application.ID + "/commands"
-
-	body, err := json.Marshal(commands)
-	if err != nil {
-		return err
-	}
-
-	response, err := s.NewDiscordRequest("PUT", uri, bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-
-	data, err := io.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(data, &s.Commands)
 }

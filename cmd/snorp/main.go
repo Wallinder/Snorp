@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
-	"snorp/internal/manager"
 	"snorp/internal/server"
 	"snorp/internal/state"
 	"sync"
@@ -22,7 +21,8 @@ func main() {
 	httpServer := server.NewHttpServer(session)
 	server.RunHttpServer(&wg, httpServer)
 
-	manager.StartControllers(ctx, &wg, session)
+	go session.ReadWebsocketErrors(ctx)
+	session.Discord.StartWebsocket(ctx, &wg)
 
 	<-ctx.Done()
 	server.Shutdown(ctx, httpServer)

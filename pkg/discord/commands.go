@@ -1,5 +1,11 @@
 package discord
 
+import (
+	"bytes"
+	"encoding/json"
+	"io"
+)
+
 type ApplicationCommandType uint8
 
 const (
@@ -80,4 +86,29 @@ type ApplicationCommandOptionChoice struct {
 	Name              string `json:"name"`
 	NameLocalizations any    `json:"name_localizations,omitempty"`
 	Value             any    `json:"value"`
+}
+
+func (d *Discord) BulkOverwriteCommands(commands []ApplicationCommand) ([]ApplicationCommand, error) {
+	uri := "/applications/" + d.ReadyData.Application.ID + "/commands"
+
+	body, err := json.Marshal(commands)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := d.NewDiscordRequest("PUT", uri, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	var currentCommands []ApplicationCommand
+	if err := json.Unmarshal(data, &currentCommands); err != nil {
+		return nil, err
+	}
+	return currentCommands, nil
 }
