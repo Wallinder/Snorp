@@ -14,7 +14,7 @@ var (
 
 func (d *Discord) StartWebsocket(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
-		go d.start(ctx)
+		d.start(ctx)
 	})
 }
 
@@ -23,7 +23,7 @@ func (d *Discord) start(ctx context.Context) {
 		if ctx.Err() != nil {
 			return
 		}
-		if d.Websocket.ReconnectAttempts > d.Websocket.MaxRetries {
+		if d.Websocket.ReconnectAttempts >= d.Websocket.MaxRetries {
 			panic(ErrBackoffExceeded)
 		}
 		if time.Since(d.Websocket.LastAttempt) > d.Websocket.ResetAfter {
@@ -31,9 +31,17 @@ func (d *Discord) start(ctx context.Context) {
 		}
 		d.Websocket.LastAttempt = time.Now()
 
-		d.Websocket.ErrorChan <- eventHandler(ctx, d)
+		err := eventHandler(ctx, d)
+		sendErr(d.Websocket.ErrorChan, err)
 
 		TotalDisconnects.Inc()
 		d.Websocket.ReconnectAttempts++
+	}
+}
+
+func sendErr(errChan chan error, err error) {
+	select {
+	case errChan <- err:
+	default:
 	}
 }

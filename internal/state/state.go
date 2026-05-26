@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"snorp/pkg/discord"
+	"sync"
 	"time"
 )
 
@@ -57,13 +58,15 @@ func LogAndExit(msg string, err error, exitcode int) {
 	os.Exit(exitcode)
 }
 
-func (s *SessionState) ReadWebsocketErrors(ctx context.Context) {
-	select {
-	case <-ctx.Done():
-		return
-	case err := <-s.Discord.Websocket.ErrorChan:
-		slog.Error("websocket", "error", err)
-	}
+func (s *SessionState) ReadWebsocketErrors(ctx context.Context, wg *sync.WaitGroup) {
+	wg.Go(func() {
+		select {
+		case <-ctx.Done():
+			return
+		case err := <-s.Discord.Websocket.ErrorChan:
+			slog.Error("websocket", "error", err)
+		}
+	})
 }
 
 func (s *SessionState) IsReady() bool {

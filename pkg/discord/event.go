@@ -138,7 +138,6 @@ func eventHandler(ctx context.Context, discord *Discord) error {
 
 		case RECONNECT:
 			discord.Connection.SetResume(true)
-			return nil
 
 		case INVALID_SESSION:
 			var invalid bool
@@ -146,7 +145,6 @@ func eventHandler(ctx context.Context, discord *Discord) error {
 				return err
 			}
 			discord.Connection.SetResume(invalid)
-			return nil
 		}
 	}
 }

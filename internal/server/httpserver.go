@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func RunHttpServer(wg *sync.WaitGroup, server *http.Server) {
+func RunHttpServer(server *http.Server, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {

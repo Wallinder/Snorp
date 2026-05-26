@@ -5,24 +5,28 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"snorp/internal/receiver"
 	"snorp/internal/server"
 	"snorp/internal/state"
 	"sync"
+	"syscall"
 )
 
 func main() {
 	session := state.NewState()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	var wg sync.WaitGroup
 
 	httpServer := server.NewHttpServer(session)
-	server.RunHttpServer(&wg, httpServer)
+	server.RunHttpServer(httpServer, &wg)
 
-	go session.ReadWebsocketErrors(ctx)
+	session.ReadWebsocketErrors(ctx, &wg)
 	session.Discord.StartWebsocket(ctx, &wg)
+
+	receiver.StartDispatchReader(ctx, session, &wg)
 
 	<-ctx.Done()
 	server.Shutdown(ctx, httpServer)
