@@ -4,7 +4,7 @@ import "time"
 
 type Member struct {
 	User                       User      `json:"user"`
-	Roles                      []*any    `json:"roles"`
+	Roles                      []*Role   `json:"roles"`
 	PremiumSince               any       `json:"premium_since"`
 	Pending                    bool      `json:"pending"`
 	Nick                       any       `json:"nick"`
@@ -30,4 +30,27 @@ type User struct {
 	Bot                  bool   `json:"bot"`
 	AvatarDecorationData any    `json:"avatar_decoration_data"`
 	Avatar               string `json:"avatar"`
+}
+
+type Role struct {
+	Version      int64  `json:"version"`
+	UnicodeEmoji any    `json:"unicode_emoji"`
+	Tags         string `json:"tags"`
+	Position     int    `json:"position"`
+	Permissions  string `json:"permissions"`
+	Name         string `json:"name"`
+	Mentionable  bool   `json:"mentionable"`
+	Managed      bool   `json:"managed"`
+	ID           string `json:"id"`
+	Icon         any    `json:"icon"`
+	Hoist        bool   `json:"hoist"`
+	Flags        int    `json:"flags"`
+	Colors       Colors `json:"colors"`
+	Color        int    `json:"color"`
+}
+
+type Colors struct {
+	TertiaryColor  any `json:"tertiary_color"`
+	SecondaryColor any `json:"secondary_color"`
+	PrimaryColor   int `json:"primary_color"`
 }
