@@ -16,7 +16,7 @@ func StartDispatchReader(ctx context.Context, session *state.SessionState, wg *s
 			case <-ctx.Done():
 				return
 			case message := <-session.Discord.DispatchChan:
-				dispatchReader(ctx, session, message)
+				go dispatchReader(ctx, session, message)
 			}
 		}
 	})
