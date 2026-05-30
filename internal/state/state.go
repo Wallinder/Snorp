@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"snorp/config"
+	"snorp/internal/client"
 	"snorp/pkg/discord"
 	"sync"
 	"time"
@@ -13,7 +15,7 @@ import (
 type SessionState struct {
 	Discord     *discord.Discord
 	StartTime   time.Time
-	Config      *Config
+	Config      *config.Config
 	Client      *http.Client
 	CommandsDir string
 	Commands    []discord.ApplicationCommand
@@ -30,7 +32,7 @@ func NewState() *SessionState {
 		state.Config.Bot.ApiVersion,
 	)
 	if err != nil {
-		LogAndExit("unable to initialize discord", err, 1)
+		LogAndExit("unable to initialize discord", "discord", err)
 	}
 	//state.setCommands()
 
@@ -38,40 +40,32 @@ func NewState() *SessionState {
 }
 
 func newDefaultState() *SessionState {
+	config, err := config.NewConfig()
+	if err != nil {
+		LogAndExit("unable to load configuration", "config", err)
+	}
 	return &SessionState{
-		Config:      NewConfig(),
-		Client:      newHttpClient(),
+		Config:      config,
+		Client:      client.NewHttpClient(),
 		CommandsDir: "./commands",
 		StartTime:   time.Now(),
 	}
 }
 
-func newHttpClient() *http.Client {
-	return &http.Client{
-		CheckRedirect: nil,
-		Timeout:       5 * time.Second,
-	}
-}
-
-func LogAndExit(msg string, err error, exitcode int) {
-	slog.Error(msg, "error", err)
-	os.Exit(exitcode)
+func LogAndExit(msg string, component string, err error) {
+	slog.Error(msg, component, err)
+	os.Exit(1)
 }
 
 func (s *SessionState) ReadWebsocketErrors(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
-		select {
-		case <-ctx.Done():
-			return
-		case err := <-s.Discord.Websocket.ErrorChan:
-			slog.Error("websocket", "error", err)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case err := <-s.Discord.Websocket.ErrorChan:
+				slog.Error("discord", "websocket", err)
+			}
 		}
 	})
-}
-
-func (s *SessionState) IsReady() bool {
-	if s.Discord.ReadyData != nil {
-		return true
-	}
-	return false
 }

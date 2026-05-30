@@ -11,14 +11,14 @@ import (
 func (s *SessionState) setCommands() {
 	files, err := filepath.Glob(s.CommandsDir + "/*.json")
 	if err != nil {
-		LogAndExit("unable to read directory", err, 1)
+		LogAndExit("unable to read directory", "state", err)
 	}
 
 	var commands []discord.ApplicationCommand
 	for _, file := range files {
 		command, err := readFile(file)
 		if err != nil {
-			LogAndExit("unable to read command", err, 1)
+			LogAndExit("unable to read command", "state", err)
 		}
 		slog.Info("registered command", "file", file, "command", command.Name)
 		commands = append(commands, command)
@@ -26,7 +26,7 @@ func (s *SessionState) setCommands() {
 
 	currentCommands, err := s.Discord.BulkOverwriteCommands(commands)
 	if err != nil {
-		LogAndExit("failed to overwrite commands", err, 1)
+		LogAndExit("failed to overwrite commands", "discord", err)
 	}
 	s.Commands = currentCommands
 }

@@ -14,18 +14,18 @@ func RunHttpServer(server *http.Server, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			state.LogAndExit("http panic", err, 1)
+			panic(err)
 		}
 	})
 }
 
 func Shutdown(ctx context.Context, server *http.Server) {
-	newCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	newCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	err := server.Shutdown(newCtx)
 	if err != nil {
-		state.LogAndExit("failed to gracefully stop server", err, 1)
+		panic(err)
 	}
 }
 
@@ -46,13 +46,7 @@ func requestHandler(session *state.SessionState) http.Handler {
 
 	router.Handle("GET /metrics", promhttp.Handler())
 
-	router.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
-		if !session.IsReady() {
-			http.Error(w, "instance is not ready yet", http.StatusInternalServerError)
-			return
-		}
-		w.Write([]byte("ready"))
-	})
+	router.HandleFunc("GET /readyz", session.IsReady)
 
 	return defaults(router)
 }
