@@ -27,7 +27,7 @@ func NewState() *SessionState {
 	var err error
 	state.Discord, err = discord.NewDiscord(
 		state.Client,
-		&state.Config.Bot.Identity,
+		state.Config.Bot.Identity,
 		state.Config.Bot.Api,
 		state.Config.Bot.ApiVersion,
 	)

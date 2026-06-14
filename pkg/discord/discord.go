@@ -13,7 +13,7 @@ import (
 )
 
 type Discord struct {
-	Identity     *Identity
+	Identity     Identity
 	Api          string
 	ApiVersion   string
 	Websocket    *Websocket
@@ -47,11 +47,7 @@ var (
 	ErrUnableToSendRequest   = errors.New("unable to send discord request")
 )
 
-func NewDiscord(client *http.Client, identity *Identity, api string, apiVersion string) (*Discord, error) {
-	if identity == nil {
-		return nil, ErrMissingIdentity
-	}
-
+func NewDiscord(client *http.Client, identity Identity, api string, apiVersion string) (*Discord, error) {
 	if client == nil {
 		client = http.DefaultClient
 	}
