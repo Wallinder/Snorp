@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func RunHttpServer(server *http.Server, wg *sync.WaitGroup) {
+func Start(server *http.Server, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
@@ -19,7 +19,7 @@ func RunHttpServer(server *http.Server, wg *sync.WaitGroup) {
 	})
 }
 
-func Shutdown(ctx context.Context, server *http.Server) {
+func Stop(ctx context.Context, server *http.Server) {
 	newCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

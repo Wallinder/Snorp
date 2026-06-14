@@ -57,7 +57,7 @@ func LogAndExit(msg string, component string, err error) {
 	os.Exit(1)
 }
 
-func (s *SessionState) ReadWebsocketErrors(ctx context.Context, wg *sync.WaitGroup) {
+func (s *SessionState) ErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		for {
 			select {

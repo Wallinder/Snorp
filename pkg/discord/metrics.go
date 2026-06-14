@@ -5,12 +5,6 @@ import (
 )
 
 var (
-	TotalClientHttpRequests = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "snorp_discord_http_total_client_requests",
-		Help: "The total number of client requests",
-	},
-		[]string{"method", "path"},
-	)
 	TotalDisconnects = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "snorp_websocket_total_disconnects",
 		Help: "The total number of websocket disconnections",
@@ -30,7 +24,6 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(TotalClientHttpRequests)
 	prometheus.MustRegister(TotalDisconnects)
 	prometheus.MustRegister(TotalMessages)
 	prometheus.MustRegister(TotalDispatchMessages)

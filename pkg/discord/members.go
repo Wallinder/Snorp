@@ -4,7 +4,7 @@ import "time"
 
 type Member struct {
 	User                       User      `json:"user"`
-	Roles                      []*Role   `json:"roles"`
+	Roles                      []string  `json:"roles"` //ID of the roles, not the roles itself
 	PremiumSince               any       `json:"premium_since"`
 	Pending                    bool      `json:"pending"`
 	Nick                       any       `json:"nick"`
@@ -35,7 +35,7 @@ type User struct {
 type Role struct {
 	Version      int64  `json:"version"`
 	UnicodeEmoji any    `json:"unicode_emoji"`
-	Tags         string `json:"tags"`
+	Tags         any    `json:"tags"`
 	Position     int    `json:"position"`
 	Permissions  string `json:"permissions"`
 	Name         string `json:"name"`

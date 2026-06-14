@@ -21,16 +21,16 @@ func main() {
 	var wg sync.WaitGroup
 
 	httpServer := server.NewHttpServer(session)
-	server.RunHttpServer(httpServer, &wg)
+	server.Start(httpServer, &wg)
 
-	session.ReadWebsocketErrors(ctx, &wg)
+	session.ErrorHandler(ctx, &wg)
 	session.Discord.StartWebsocket(ctx, &wg)
 
 	receiver.StartDispatchReader(ctx, session, &wg)
 
 	<-ctx.Done()
-	server.Shutdown(ctx, httpServer)
+	server.Stop(ctx, httpServer)
 
 	wg.Wait()
-	slog.Info("snorp shutting down")
+	slog.Info("snorp stopped gracefully")
 }

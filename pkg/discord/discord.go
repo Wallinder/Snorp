@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"sync"
 	"time"
@@ -95,9 +94,6 @@ func (d *Discord) NewDiscordRequest(method string, uri string, body io.Reader) (
 	if err != nil {
 		return nil, err
 	}
-	slog.Info("client request", "method", req.Method, "url", req.URL.Path)
-
-	TotalClientHttpRequests.WithLabelValues(req.Method, req.URL.Path).Inc()
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", d.Identity.Token))
