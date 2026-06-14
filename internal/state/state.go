@@ -69,3 +69,8 @@ func (s *SessionState) ErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
 		}
 	})
 }
+
+func (s *SessionState) Start(ctx context.Context, wg *sync.WaitGroup) {
+	s.ErrorHandler(ctx, wg)
+	s.Discord.StartWebsocket(ctx, wg)
+}
