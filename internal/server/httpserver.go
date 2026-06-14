@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"net/http"
-	"snorp/internal/state"
 	"sync"
 	"time"
 
@@ -29,7 +28,7 @@ func Stop(ctx context.Context, server *http.Server) {
 	}
 }
 
-func NewHttpServer(session *state.SessionState) *http.Server {
+func NewHttpServer() *http.Server {
 	return &http.Server{
 		Addr:              ":8080",
 		ReadTimeout:       5 * time.Second,
@@ -37,16 +36,18 @@ func NewHttpServer(session *state.SessionState) *http.Server {
 		WriteTimeout:      5 * time.Second,
 		IdleTimeout:       5 * time.Second,
 		MaxHeaderBytes:    1 << 20,
-		Handler:           requestHandler(session),
+		Handler:           requestHandler(),
 	}
 }
 
-func requestHandler(session *state.SessionState) http.Handler {
+func requestHandler() http.Handler {
 	router := http.NewServeMux()
 
-	router.Handle("GET /metrics", promhttp.Handler())
+	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
-	router.HandleFunc("GET /readyz", session.IsReady)
+	router.Handle("GET /metrics", promhttp.Handler())
 
 	return defaults(router)
 }
