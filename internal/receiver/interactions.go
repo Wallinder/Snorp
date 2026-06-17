@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"log/slog"
 	"snorp/internal/state"
 	"snorp/pkg/discord"
 )
@@ -19,11 +18,11 @@ func interactionCallback(session *state.SessionState, interaction discord.Intera
 
 	data, err := json.Marshal(callback)
 	if err != nil {
-		slog.Error("callback marshal", "error", err)
+		session.ErrorChan <- state.SessionError{Origin: "interaction", Err: err, Fatal: false}
 	}
 
 	_, err = session.Discord.NewDiscordRequest("POST", uri, bytes.NewReader(data))
 	if err != nil {
-		slog.Error("callback failed", "error", err)
+		session.ErrorChan <- state.SessionError{Origin: "interaction", Err: err, Fatal: false}
 	}
 }

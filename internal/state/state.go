@@ -13,12 +13,17 @@ import (
 )
 
 type SessionState struct {
-	Discord     *discord.Discord
-	StartTime   time.Time
-	Config      *config.Config
-	Client      *http.Client
-	CommandsDir string
-	Commands    []discord.ApplicationCommand
+	Discord   *discord.Discord
+	ErrorChan chan SessionError
+	StartTime time.Time
+	Config    *config.Config
+	Client    *http.Client
+}
+
+type SessionError struct {
+	Err    error
+	Origin string
+	Fatal  bool
 }
 
 func NewState() *SessionState {
@@ -32,39 +37,41 @@ func NewState() *SessionState {
 		state.Config.Bot.ApiVersion,
 	)
 	if err != nil {
-		LogAndExit("unable to initialize discord", "discord", err)
+		state.ErrorChan <- SessionError{Origin: "discord", Fatal: true, Err: err}
 	}
-	//state.setCommands()
-
 	return state
 }
 
 func newDefaultState() *SessionState {
 	config, err := config.NewConfig()
 	if err != nil {
-		LogAndExit("unable to load configuration", "config", err)
+		panic(err)
 	}
 	return &SessionState{
-		Config:      config,
-		Client:      client.NewHttpClient(),
-		CommandsDir: "./commands",
-		StartTime:   time.Now(),
+		Config:    config,
+		Client:    client.NewHttpClient(),
+		StartTime: time.Now(),
+		ErrorChan: make(chan SessionError),
 	}
-}
-
-func LogAndExit(msg string, component string, err error) {
-	slog.Error(msg, component, err)
-	os.Exit(1)
 }
 
 func (s *SessionState) ErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		for {
 			select {
+
 			case <-ctx.Done():
 				return
+
 			case err := <-s.Discord.Websocket.ErrorChan:
-				slog.Error("discord", "websocket", err)
+				slog.Error("discord/ws", err)
+
+			case msg := <-s.ErrorChan:
+				slog.Error(msg.Origin, msg.Err)
+
+				if msg.Fatal {
+					os.Exit(1)
+				}
 			}
 		}
 	})
