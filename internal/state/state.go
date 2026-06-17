@@ -64,10 +64,10 @@ func (s *SessionState) ErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
 				return
 
 			case err := <-s.Discord.Websocket.ErrorChan:
-				slog.Error("discord/ws", err)
+				slog.Error(err.Error(), "origin", "discord/ws")
 
 			case msg := <-s.ErrorChan:
-				slog.Error(msg.Origin, msg.Err)
+				slog.Error(msg.Err.Error(), "origin", msg.Origin)
 
 				if msg.Fatal {
 					os.Exit(1)
