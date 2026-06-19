@@ -77,8 +77,7 @@ func NewDiscord(client *http.Client, identity Identity, api string, apiVersion s
 	}
 
 	if len(discord.Identity.Shards) == 0 {
-		shards := []int{0, 1}
-		discord.Identity.Shards = shards
+		discord.Identity.Shards = []int{0, 1}
 	}
 	return discord, nil
 }
