@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -47,7 +48,7 @@ var (
 	ErrUnableToSendRequest   = errors.New("unable to send discord request")
 )
 
-func NewDiscord(client *http.Client, identity Identity, api string, apiVersion string) (*Discord, error) {
+func NewDiscord(ctx context.Context, wg *sync.WaitGroup, client *http.Client, identity Identity, api string, apiVersion string) (*Discord, error) {
 	if client == nil {
 		client = http.DefaultClient
 	}
@@ -79,6 +80,7 @@ func NewDiscord(client *http.Client, identity Identity, api string, apiVersion s
 	if len(discord.Identity.Shards) == 0 {
 		discord.Identity.Shards = []int{0, 1}
 	}
+	discord.StartWebsocket(ctx, wg)
 	return discord, nil
 }
 

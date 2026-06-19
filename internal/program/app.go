@@ -17,44 +17,42 @@ type Application struct {
 	Server    *http.Server
 	Client    *http.Client
 	Discord   *discord.Discord
-	ErrorChan chan Errors
+	ErrorChan chan error
 }
 
-type Errors struct {
-	Err    error
-	Origin string
-	Fatal  bool
-}
-
-func NewApplication() *Application {
+func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
 	config, err := config.NewConfig()
 	if err != nil {
 		panic(err)
 	}
+
+	client := client.NewHttpClient()
+
+	discord, err := discord.NewDiscord(
+		ctx, wg,
+		client,
+		config.Bot.Identity,
+		config.Bot.Api,
+		config.Bot.ApiVersion,
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	return &Application{
 		Config:    config,
 		Server:    server.NewHttpServer(),
-		Client:    client.NewHttpClient(),
-		ErrorChan: make(chan Errors),
+		Client:    client,
 		StartTime: time.Now(),
+		Discord:   discord,
+		ErrorChan: make(chan error),
 	}
 }
 
 func (app *Application) Start(ctx context.Context, wg *sync.WaitGroup) {
 	server.Start(app.Server, wg)
-
-	var err error
-	app.Discord, err = discord.NewDiscord(
-		app.Client,
-		app.Config.Bot.Identity,
-		app.Config.Bot.Api,
-		app.Config.Bot.ApiVersion,
-	)
-	if err != nil {
-		panic(err)
-	}
-	app.ErrorHandler(ctx, wg)
-	app.Discord.StartWebsocket(ctx, wg)
+	app.startErrorHandler(ctx, wg)
+	app.startServices(ctx, wg)
 }
 
 func (app *Application) Stop(ctx context.Context, wg *sync.WaitGroup) {

@@ -3,11 +3,15 @@ package program
 import (
 	"context"
 	"log/slog"
-	"os"
 	"sync"
 )
 
-func (app *Application) ErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
+type ServiceMon struct {
+	Origin  string
+	ErrChan chan error
+}
+
+func (app *Application) startErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		for {
 			select {
@@ -18,12 +22,8 @@ func (app *Application) ErrorHandler(ctx context.Context, wg *sync.WaitGroup) {
 			case err := <-app.Discord.Websocket.ErrorChan:
 				slog.Error(err.Error(), "origin", "discord/ws")
 
-			case msg := <-app.ErrorChan:
-				slog.Error(msg.Err.Error(), "origin", msg.Origin)
-
-				if msg.Fatal {
-					os.Exit(1)
-				}
+			case err := <-app.ErrorChan:
+				slog.Error(err.Error(), "origin", "internal")
 			}
 		}
 	})
