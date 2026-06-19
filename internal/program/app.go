@@ -16,7 +16,7 @@ type Application struct {
 	Config    *config.Config
 	Server    *http.Server
 	Client    *http.Client
-	Discord   *discord.Discord
+	Discord   *discord.DiscordService
 	ErrorChan chan error
 }
 
@@ -27,13 +27,14 @@ func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
 	}
 
 	client := client.NewHttpClient()
+	errChan := make(chan error)
 
 	discord, err := discord.NewDiscord(
-		ctx, wg,
 		client,
 		config.Bot.Identity,
 		config.Bot.Api,
 		config.Bot.ApiVersion,
+		errChan,
 	)
 	if err != nil {
 		panic(err)
@@ -45,7 +46,7 @@ func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
 		Client:    client,
 		StartTime: time.Now(),
 		Discord:   discord,
-		ErrorChan: make(chan error),
+		ErrorChan: errChan,
 	}
 }
 

@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +12,7 @@ import (
 	"github.com/coder/websocket"
 )
 
-type Discord struct {
+type DiscordService struct {
 	Identity     Identity
 	Api          string
 	ApiVersion   string
@@ -23,6 +22,7 @@ type Discord struct {
 	Metadata     Metadata
 	Connection   *DiscordConnection
 	DispatchChan chan DispatchMessage
+	ErrorChan    chan error
 }
 
 type Websocket struct {
@@ -31,7 +31,6 @@ type Websocket struct {
 	ResetAfter        time.Duration
 	ReconnectAttempts int
 	LastAttempt       time.Time
-	ErrorChan         chan error
 }
 
 type DiscordConnection struct {
@@ -48,7 +47,15 @@ var (
 	ErrUnableToSendRequest   = errors.New("unable to send discord request")
 )
 
-func NewDiscord(ctx context.Context, wg *sync.WaitGroup, client *http.Client, identity Identity, api string, apiVersion string) (*Discord, error) {
+func (s *DiscordService) Name() string {
+	return "discord"
+}
+
+func NewDiscord(client *http.Client, identity Identity, api string, apiVersion string, errChan chan error) (*DiscordService, error) {
+	if errChan == nil {
+		return nil, fmt.Errorf("missing error channel")
+	}
+
 	if client == nil {
 		client = http.DefaultClient
 	}
@@ -57,18 +64,18 @@ func NewDiscord(ctx context.Context, wg *sync.WaitGroup, client *http.Client, id
 		return nil, fmt.Errorf("missing api or apiversion")
 	}
 
-	discord := &Discord{
+	discord := &DiscordService{
 		Api:        api,
 		ApiVersion: apiVersion,
 		Identity:   identity,
 		HttpClient: client,
+		ErrorChan:  errChan,
 		Connection: &DiscordConnection{
 			Resume: false,
 		},
 		Websocket: &Websocket{
 			MaxRetries: 3,
 			ResetAfter: 30 * time.Second,
-			ErrorChan:  make(chan error),
 		},
 		DispatchChan: make(chan DispatchMessage),
 	}
@@ -80,11 +87,10 @@ func NewDiscord(ctx context.Context, wg *sync.WaitGroup, client *http.Client, id
 	if len(discord.Identity.Shards) == 0 {
 		discord.Identity.Shards = []int{0, 1}
 	}
-	discord.StartWebsocket(ctx, wg)
 	return discord, nil
 }
 
-func (d *Discord) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
+func (d *DiscordService) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
 	url := d.Api + "/v" + d.ApiVersion + uri
 
 	req, err := http.NewRequest(method, url, body)
@@ -99,7 +105,7 @@ func (d *Discord) NewDiscordRequest(method string, uri string, body io.Reader) (
 	return d.HttpClient.Do(req)
 }
 
-func (d *Discord) setMetadata() error {
+func (d *DiscordService) setMetadata() error {
 	response, err := d.NewDiscordRequest("GET", "/gateway/bot", nil)
 	if err != nil {
 		return ErrUnableToSendRequest
@@ -134,10 +140,10 @@ func (dc *DiscordConnection) SetSequence(seq int64) {
 	dc.Mu.Unlock()
 }
 
-func (d *Discord) SetReadyData(readyData ReadyData) {
+func (d *DiscordService) SetReadyData(readyData ReadyData) {
 	d.ReadyData = &readyData
 }
 
-func (d *Discord) SetConnection(conn *websocket.Conn) {
+func (d *DiscordService) SetConnection(conn *websocket.Conn) {
 	d.Websocket.Conn = conn
 }

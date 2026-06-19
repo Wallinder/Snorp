@@ -8,11 +8,11 @@ import (
 )
 
 type DispatcherService struct {
-	Discord *discord.Discord
+	Discord *discord.DiscordService
 	ErrChan chan error
 }
 
-func (s *DispatcherService) ServiceName() string {
+func (s *DispatcherService) Name() string {
 	return "dispatcher"
 }
 

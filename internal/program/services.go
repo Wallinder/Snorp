@@ -2,13 +2,14 @@ package program
 
 import (
 	"context"
+	"log/slog"
 	"snorp/internal/services/receiver"
 	"sync"
 )
 
 type Services interface {
 	Start(context.Context, *sync.WaitGroup)
-	ServiceName() string
+	Name() string
 }
 
 func (app *Application) startServices(ctx context.Context, wg *sync.WaitGroup) {
@@ -17,9 +18,11 @@ func (app *Application) startServices(ctx context.Context, wg *sync.WaitGroup) {
 			Discord: app.Discord,
 			ErrChan: app.ErrorChan,
 		},
+		app.Discord,
 	}
 
 	for _, service := range services {
+		slog.Info("started", "service", service.Name())
 		service.Start(ctx, wg)
 	}
 }

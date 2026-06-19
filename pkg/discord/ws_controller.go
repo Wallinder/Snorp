@@ -12,13 +12,13 @@ var (
 	ErrContextCancelled = errors.New("context cancelled")
 )
 
-func (d *Discord) StartWebsocket(ctx context.Context, wg *sync.WaitGroup) {
+func (d *DiscordService) Start(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
-		d.start(ctx)
+		d.startWebsocket(ctx)
 	})
 }
 
-func (d *Discord) start(ctx context.Context) {
+func (d *DiscordService) startWebsocket(ctx context.Context) {
 	for {
 		if ctx.Err() != nil {
 			return
@@ -32,7 +32,7 @@ func (d *Discord) start(ctx context.Context) {
 		d.Websocket.LastAttempt = time.Now()
 
 		err := eventHandler(ctx, d)
-		sendErr(d.Websocket.ErrorChan, err)
+		sendErr(d.ErrorChan, err)
 
 		TotalDisconnects.Inc()
 		d.Websocket.ReconnectAttempts++
