@@ -12,7 +12,7 @@ import (
 	"github.com/coder/websocket"
 )
 
-type DiscordService struct {
+type Discord struct {
 	Identity     Identity
 	Api          string
 	ApiVersion   string
@@ -47,15 +47,7 @@ var (
 	ErrUnableToSendRequest   = errors.New("unable to send discord request")
 )
 
-func (s *DiscordService) Name() string {
-	return "discord"
-}
-
-func NewDiscord(client *http.Client, identity Identity, api string, apiVersion string, errChan chan error) (*DiscordService, error) {
-	if errChan == nil {
-		return nil, fmt.Errorf("missing error channel")
-	}
-
+func NewDiscord(client *http.Client, identity Identity, api string, apiVersion string) (*Discord, error) {
 	if client == nil {
 		client = http.DefaultClient
 	}
@@ -64,12 +56,12 @@ func NewDiscord(client *http.Client, identity Identity, api string, apiVersion s
 		return nil, fmt.Errorf("missing api or apiversion")
 	}
 
-	discord := &DiscordService{
+	discord := &Discord{
 		Api:        api,
 		ApiVersion: apiVersion,
 		Identity:   identity,
 		HttpClient: client,
-		ErrorChan:  errChan,
+		ErrorChan:  make(chan error),
 		Connection: &DiscordConnection{
 			Resume: false,
 		},
@@ -90,7 +82,7 @@ func NewDiscord(client *http.Client, identity Identity, api string, apiVersion s
 	return discord, nil
 }
 
-func (d *DiscordService) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
+func (d *Discord) NewDiscordRequest(method string, uri string, body io.Reader) (*http.Response, error) {
 	url := d.Api + "/v" + d.ApiVersion + uri
 
 	req, err := http.NewRequest(method, url, body)
@@ -105,7 +97,7 @@ func (d *DiscordService) NewDiscordRequest(method string, uri string, body io.Re
 	return d.HttpClient.Do(req)
 }
 
-func (d *DiscordService) setMetadata() error {
+func (d *Discord) setMetadata() error {
 	response, err := d.NewDiscordRequest("GET", "/gateway/bot", nil)
 	if err != nil {
 		return ErrUnableToSendRequest
@@ -140,10 +132,10 @@ func (dc *DiscordConnection) SetSequence(seq int64) {
 	dc.Mu.Unlock()
 }
 
-func (d *DiscordService) SetReadyData(readyData ReadyData) {
+func (d *Discord) SetReadyData(readyData ReadyData) {
 	d.ReadyData = &readyData
 }
 
-func (d *DiscordService) SetConnection(conn *websocket.Conn) {
+func (d *Discord) SetConnection(conn *websocket.Conn) {
 	d.Websocket.Conn = conn
 }

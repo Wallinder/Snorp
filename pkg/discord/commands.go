@@ -88,7 +88,7 @@ type ApplicationCommandOptionChoice struct {
 	Value             any    `json:"value"`
 }
 
-func (d *DiscordService) BulkOverwriteCommands(commands []ApplicationCommand) ([]ApplicationCommand, error) {
+func (d *Discord) BulkOverwriteCommands(commands []ApplicationCommand) ([]ApplicationCommand, error) {
 	uri := "/applications/" + d.ReadyData.Application.ID + "/commands"
 
 	body, err := json.Marshal(commands)

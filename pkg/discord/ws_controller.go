@@ -12,13 +12,13 @@ var (
 	ErrContextCancelled = errors.New("context cancelled")
 )
 
-func (d *DiscordService) Start(ctx context.Context, wg *sync.WaitGroup) {
+func (d *Discord) Start(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Go(func() {
 		d.startWebsocket(ctx)
 	})
 }
 
-func (d *DiscordService) startWebsocket(ctx context.Context) {
+func (d *Discord) startWebsocket(ctx context.Context) {
 	for {
 		if ctx.Err() != nil {
 			return

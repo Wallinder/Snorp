@@ -8,12 +8,15 @@ import (
 )
 
 type DispatcherService struct {
-	Discord *discord.DiscordService
+	Discord *discord.Discord
 	ErrChan chan error
 }
 
-func (s *DispatcherService) Name() string {
-	return "dispatcher"
+func NewDispatchService(discord *discord.Discord) *DispatcherService {
+	return &DispatcherService{
+		Discord: discord,
+		ErrChan: make(chan error),
+	}
 }
 
 func (s *DispatcherService) Start(ctx context.Context, wg *sync.WaitGroup) {

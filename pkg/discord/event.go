@@ -26,7 +26,7 @@ var (
 	ErrConnAlreadyOpen = errors.New("connection already open")
 )
 
-func eventHandler(ctx context.Context, discord *DiscordService) error {
+func eventHandler(ctx context.Context, discord *Discord) error {
 	if discord.Websocket.Conn != nil {
 		return ErrConnAlreadyOpen
 	}

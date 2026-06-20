@@ -6,6 +6,7 @@ import (
 	"snorp/config"
 	"snorp/internal/client"
 	"snorp/internal/server"
+	"snorp/internal/services/receiver"
 	"snorp/pkg/discord"
 	"sync"
 	"time"
@@ -16,8 +17,12 @@ type Application struct {
 	Config    *config.Config
 	Server    *http.Server
 	Client    *http.Client
-	Discord   *discord.DiscordService
-	ErrorChan chan error
+	Discord   *discord.Discord
+	Services  Services
+}
+
+type Services struct {
+	Dispatcher *receiver.DispatcherService
 }
 
 func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
@@ -27,14 +32,12 @@ func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
 	}
 
 	client := client.NewHttpClient()
-	errChan := make(chan error)
 
 	discord, err := discord.NewDiscord(
 		client,
 		config.Bot.Identity,
 		config.Bot.Api,
 		config.Bot.ApiVersion,
-		errChan,
 	)
 	if err != nil {
 		panic(err)
@@ -46,14 +49,18 @@ func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
 		Client:    client,
 		StartTime: time.Now(),
 		Discord:   discord,
-		ErrorChan: errChan,
+		Services: Services{
+			Dispatcher: receiver.NewDispatchService(discord),
+		},
 	}
 }
 
 func (app *Application) Start(ctx context.Context, wg *sync.WaitGroup) {
 	server.Start(app.Server, wg)
-	app.startErrorHandler(ctx, wg)
-	app.startServices(ctx, wg)
+	app.errorHandler(ctx, wg)
+
+	app.Services.Dispatcher.Start(ctx, wg)
+	app.Discord.Start(ctx, wg)
 }
 
 func (app *Application) Stop(ctx context.Context, wg *sync.WaitGroup) {
