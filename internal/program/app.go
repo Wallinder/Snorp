@@ -25,7 +25,7 @@ type Services struct {
 	Dispatcher *receiver.DispatcherService
 }
 
-func NewApplication(ctx context.Context, wg *sync.WaitGroup) *Application {
+func NewApplication() *Application {
 	config, err := config.NewConfig()
 	if err != nil {
 		panic(err)
