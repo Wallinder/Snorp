@@ -11,14 +11,13 @@ import (
 )
 
 func main() {
-	app := program.NewApplication()
-
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	var wg sync.WaitGroup
-
+	app := program.NewApplication()
 	app.InitDependencies(ctx)
+
+	var wg sync.WaitGroup
 	app.Start(ctx, &wg)
 
 	<-ctx.Done()
