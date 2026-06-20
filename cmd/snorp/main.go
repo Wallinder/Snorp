@@ -17,6 +17,8 @@ func main() {
 	defer stop()
 
 	var wg sync.WaitGroup
+
+	app.InitDependencies(ctx)
 	app.Start(ctx, &wg)
 
 	<-ctx.Done()

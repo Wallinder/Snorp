@@ -25,5 +25,14 @@
             "large_threshold": 250,
             "intents": 130955
         }
+    },
+    "postgres": {
+        "enabled": true,
+        "connection_string": "postgres://admin:mysecretpassword@localhost:5432/snorp",
+        "max_conns": 20,
+        "min_conns": 5,
+        "max_conn_lifetime": 1800,
+        "max_conn_idle_time": 900,
+        "healthcheck_period": 60
     }
 }

@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"snorp/internal/postgres"
 	"snorp/pkg/discord"
 )
 
 type Config struct {
-	Bot DiscordBot `json:"discord_bot"`
+	Bot      DiscordBot        `json:"discord_bot"`
+	Postgres postgres.Postgres `json:"postgres"`
 }
 
 type DiscordBot struct {
@@ -48,6 +50,15 @@ func newDefaultConfig() *Config {
 				LargeThreshold: 250,
 				Intents:        130955,
 			},
+		},
+		Postgres: postgres.Postgres{
+			Enabled:           true,
+			ConnectionString:  os.Getenv("PG_CONNECTION_STRING"),
+			MaxConns:          20,
+			MinConns:          5,
+			MaxConnLifetime:   1800,
+			MaxConnIdleTime:   900,
+			HealthcheckPeriod: 60,
 		},
 	}
 }

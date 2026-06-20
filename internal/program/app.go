@@ -10,6 +10,8 @@ import (
 	"snorp/pkg/discord"
 	"sync"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Application struct {
@@ -17,6 +19,7 @@ type Application struct {
 	Config    *config.Config
 	Server    *http.Server
 	Client    *http.Client
+	PgPool    *pgxpool.Pool
 	Discord   *discord.Discord
 	Services  Services
 }
@@ -30,32 +33,37 @@ func NewApplication() *Application {
 	if err != nil {
 		panic(err)
 	}
+	return &Application{
+		Config:    config,
+		Server:    server.NewHttpServer(),
+		Client:    client.NewHttpClient(),
+		StartTime: time.Now(),
+	}
+}
 
-	client := client.NewHttpClient()
-
-	discord, err := discord.NewDiscord(
-		client,
-		config.Bot.Identity,
-		config.Bot.Api,
-		config.Bot.ApiVersion,
-	)
+func (app *Application) InitDependencies(ctx context.Context) {
+	var err error
+	app.PgPool, err = app.Config.Postgres.NewConnectionPool(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	return &Application{
-		Config:    config,
-		Server:    server.NewHttpServer(),
-		Client:    client,
-		StartTime: time.Now(),
-		Discord:   discord,
-		Services: Services{
-			Dispatcher: receiver.NewDispatchService(discord),
-		},
+	app.Discord, err = discord.NewDiscord(
+		app.Client,
+		app.Config.Bot.Identity,
+		app.Config.Bot.Api,
+		app.Config.Bot.ApiVersion,
+	)
+	if err != nil {
+		panic(err)
 	}
 }
 
 func (app *Application) Start(ctx context.Context, wg *sync.WaitGroup) {
+	app.Services = Services{
+		Dispatcher: receiver.NewDispatchService(app.Discord),
+	}
+
 	server.Start(app.Server, wg)
 	app.errorHandler(ctx, wg)
 
@@ -65,5 +73,8 @@ func (app *Application) Start(ctx context.Context, wg *sync.WaitGroup) {
 
 func (app *Application) Stop(ctx context.Context, wg *sync.WaitGroup) {
 	server.Stop(ctx, app.Server)
+	if app.PgPool != nil {
+		app.PgPool.Close()
+	}
 	wg.Wait()
 }
