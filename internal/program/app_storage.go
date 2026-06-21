@@ -3,18 +3,11 @@ package program
 import (
 	"context"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgxpool"
+	"snorp/internal/storage"
 )
 
 type Storage interface {
-}
-
-type FileStorage struct {
-}
-
-type Postgres struct {
-	PgPool *pgxpool.Pool
+	Init()
 }
 
 func (app *Application) NewStorage(ctx context.Context, kind string) (Storage, error) {
@@ -24,9 +17,9 @@ func (app *Application) NewStorage(ctx context.Context, kind string) (Storage, e
 		if err != nil {
 			return nil, err
 		}
-		return &Postgres{PgPool: pool}, nil
+		return &storage.Postgres{PgPool: pool}, nil
 	case "file":
-		return &FileStorage{}, nil
+		return &storage.FileStorage{Path: "./storage"}, nil
 	default:
 		return nil, fmt.Errorf("unknown storage type: %s", kind)
 	}

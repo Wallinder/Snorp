@@ -52,7 +52,7 @@ func newDefaultConfig() *Config {
 			},
 		},
 		Postgres: storage.PostgresOpts{
-			Enabled:           true,
+			Enabled:           false,
 			ConnectionString:  os.Getenv("PG_CONNECTION_STRING"),
 			MaxConns:          20,
 			MinConns:          5,

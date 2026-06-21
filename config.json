@@ -27,7 +27,7 @@
         }
     },
     "postgres": {
-        "enabled": true,
+        "enabled": false,
         "connection_string": "postgres://admin:mysecretpassword@localhost:5432/snorp",
         "max_conns": 20,
         "min_conns": 5,
