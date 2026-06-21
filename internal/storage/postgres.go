@@ -1,4 +1,4 @@
-package postgres
+package storage
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Postgres struct {
+type PostgresOpts struct {
 	Enabled           bool   `json:"enabled"`
 	ConnectionString  string `json:"connection_string"`
 	MaxConns          int32  `json:"max_conns"`
@@ -17,7 +17,7 @@ type Postgres struct {
 	HealthcheckPeriod int32  `json:"healthcheck_period"`
 }
 
-func (p *Postgres) NewConnectionPool(ctx context.Context) (*pgxpool.Pool, error) {
+func (p *PostgresOpts) NewConnectionPool(ctx context.Context) (*pgxpool.Pool, error) {
 	if !p.Enabled {
 		return nil, nil
 	}
@@ -30,7 +30,7 @@ func (p *Postgres) NewConnectionPool(ctx context.Context) (*pgxpool.Pool, error)
 	return pgxpool.NewWithConfig(ctx, config)
 }
 
-func (p *Postgres) setConnOpts(config *pgxpool.Config) {
+func (p *PostgresOpts) setConnOpts(config *pgxpool.Config) {
 	config.MaxConns = p.MaxConns
 	config.MinConns = p.MinConns
 	config.MaxConnLifetime = time.Duration(p.MaxConnLifetime) * time.Second

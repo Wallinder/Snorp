@@ -15,13 +15,15 @@ import (
 )
 
 type Application struct {
-	StartTime time.Time
-	Config    *config.Config
-	Server    *http.Server
-	Client    *http.Client
-	PgPool    *pgxpool.Pool
-	Discord   *discord.Discord
-	Services  Services
+	StartTime   time.Time
+	Config      *config.Config
+	Server      *http.Server
+	Client      *http.Client
+	PgPool      *pgxpool.Pool
+	Discord     *discord.Discord
+	Services    Services
+	StorageType string
+	Storage     Storage
 }
 
 type Services struct {
@@ -34,16 +36,21 @@ func NewApplication() *Application {
 		panic(err)
 	}
 	return &Application{
-		Config:    config,
-		Server:    server.NewHttpServer(),
-		Client:    client.NewHttpClient(),
-		StartTime: time.Now(),
+		Config:      config,
+		Server:      server.NewHttpServer(),
+		Client:      client.NewHttpClient(),
+		StartTime:   time.Now(),
+		StorageType: "file",
 	}
 }
 
 func (app *Application) InitDependencies(ctx context.Context) {
 	var err error
-	app.PgPool, err = app.Config.Postgres.NewConnectionPool(ctx)
+	if app.Config.Postgres.Enabled {
+		app.StorageType = "postgres"
+	}
+
+	app.Storage, err = app.NewStorage(ctx, app.StorageType)
 	if err != nil {
 		panic(err)
 	}

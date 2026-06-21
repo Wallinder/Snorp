@@ -6,7 +6,6 @@ type Member struct {
 	User                       User      `json:"user"`
 	Roles                      []string  `json:"roles"` //ID of the roles, not the roles itself
 	PremiumSince               any       `json:"premium_since"`
-	Pending                    bool      `json:"pending"`
 	Nick                       any       `json:"nick"`
 	Mute                       bool      `json:"mute"`
 	JoinedAt                   time.Time `json:"joined_at"`
@@ -15,6 +14,9 @@ type Member struct {
 	CommunicationDisabledUntil any       `json:"communication_disabled_until"`
 	Banner                     any       `json:"banner"`
 	Avatar                     any       `json:"avatar"`
+	Pending                    bool      `json:"pending,omitempty"`
+	Permissions                string    `json:"permissions,omitempty"`
+	GuildID                    string    `json:"guild_id,omitempty"` //Extra field added when called by "Guild Member Add"
 }
 
 type User struct {
