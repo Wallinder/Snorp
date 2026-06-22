@@ -44,7 +44,9 @@ func (s *DispatcherService) dispatchReader(ctx context.Context, message discord.
 			s.ErrChan <- err
 			return
 		}
-		s.Storage.SaveGuild(guild)
+		if err := s.Storage.SaveGuild(guild); err != nil {
+			s.ErrChan <- err
+		}
 
 	case "INTERACTION_CREATE":
 		var interaction discord.Interaction
