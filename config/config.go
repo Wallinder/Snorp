@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"snorp/internal/storage"
 	"snorp/pkg/discord"
 )
 
 type Config struct {
-	Bot      DiscordBot           `json:"discord_bot"`
-	Postgres storage.PostgresOpts `json:"postgres"`
+	Bot     DiscordBot  `json:"discord_bot"`
+	Storage StorageOpts `json:"storage"`
 }
 
 type DiscordBot struct {
@@ -20,6 +19,15 @@ type DiscordBot struct {
 	Api         string           `json:"api"`
 	ApiVersion  string           `json:"api_version"`
 	Identity    discord.Identity `json:"identity"`
+}
+
+type StorageOpts struct {
+	FileStorage FileStorageOpts `json:"file"`
+}
+
+type FileStorageOpts struct {
+	Path        string `json:"path"`
+	Permissions uint32 `json:"permissions"`
 }
 
 func newDefaultConfig() *Config {
@@ -51,14 +59,11 @@ func newDefaultConfig() *Config {
 				Intents:        130955,
 			},
 		},
-		Postgres: storage.PostgresOpts{
-			Enabled:           false,
-			ConnectionString:  os.Getenv("PG_CONNECTION_STRING"),
-			MaxConns:          20,
-			MinConns:          5,
-			MaxConnLifetime:   1800,
-			MaxConnIdleTime:   900,
-			HealthcheckPeriod: 60,
+		Storage: StorageOpts{
+			FileStorage: FileStorageOpts{
+				Path:        "./storage",
+				Permissions: 755,
+			},
 		},
 	}
 }

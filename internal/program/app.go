@@ -7,6 +7,7 @@ import (
 	"snorp/internal/client"
 	"snorp/internal/server"
 	"snorp/internal/services/receiver"
+	"snorp/internal/storage"
 	"snorp/pkg/discord"
 	"sync"
 	"time"
@@ -15,15 +16,14 @@ import (
 )
 
 type Application struct {
-	StartTime   time.Time
-	Config      *config.Config
-	Server      *http.Server
-	Client      *http.Client
-	PgPool      *pgxpool.Pool
-	Discord     *discord.Discord
-	Services    Services
-	StorageType string
-	Storage     Storage
+	StartTime time.Time
+	Config    *config.Config
+	Server    *http.Server
+	Client    *http.Client
+	PgPool    *pgxpool.Pool
+	Discord   *discord.Discord
+	Services  Services
+	Storage   storage.Storage
 }
 
 type Services struct {
@@ -36,21 +36,19 @@ func NewApplication() *Application {
 		panic(err)
 	}
 	return &Application{
-		Config:      config,
-		Server:      server.NewHttpServer(),
-		Client:      client.NewHttpClient(),
-		StartTime:   time.Now(),
-		StorageType: "file",
+		Config:    config,
+		Server:    server.NewHttpServer(),
+		Client:    client.NewHttpClient(),
+		StartTime: time.Now(),
 	}
 }
 
 func (app *Application) InitDependencies(ctx context.Context) {
 	var err error
-	if app.Config.Postgres.Enabled {
-		app.StorageType = "postgres"
-	}
-
-	app.Storage, err = app.NewStorage(ctx, app.StorageType)
+	app.Storage, err = storage.NewStorage(
+		app.Config.Storage.FileStorage.Path,
+		app.Config.Storage.FileStorage.Permissions,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -68,7 +66,7 @@ func (app *Application) InitDependencies(ctx context.Context) {
 
 func (app *Application) Start(ctx context.Context, wg *sync.WaitGroup) {
 	app.Services = Services{
-		Dispatcher: receiver.NewDispatchService(app.Discord),
+		Dispatcher: receiver.NewDispatchService(app.Discord, app.Storage),
 	}
 
 	server.Start(app.Server, wg)

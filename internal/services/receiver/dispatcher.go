@@ -3,18 +3,21 @@ package receiver
 import (
 	"context"
 	"encoding/json"
+	"snorp/internal/storage"
 	"snorp/pkg/discord"
 	"sync"
 )
 
 type DispatcherService struct {
 	Discord *discord.Discord
+	Storage storage.Storage
 	ErrChan chan error
 }
 
-func NewDispatchService(discord *discord.Discord) *DispatcherService {
+func NewDispatchService(discord *discord.Discord, storage storage.Storage) *DispatcherService {
 	return &DispatcherService{
 		Discord: discord,
+		Storage: storage,
 		ErrChan: make(chan error),
 	}
 }
@@ -41,6 +44,7 @@ func (s *DispatcherService) dispatchReader(ctx context.Context, message discord.
 			s.ErrChan <- err
 			return
 		}
+		s.Storage.SaveGuild(guild)
 
 	case "INTERACTION_CREATE":
 		var interaction discord.Interaction
