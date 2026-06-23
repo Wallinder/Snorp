@@ -78,3 +78,10 @@ type UnavailableGuild struct {
 	ID          string
 	Unavailable bool
 }
+
+// GatewayEvents
+
+type GuildRoleCreate struct {
+	GuildID string `json:"guild_id"`
+	Role    *Role  `json:"role"`
+}

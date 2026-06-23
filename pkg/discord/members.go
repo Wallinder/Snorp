@@ -76,10 +76,3 @@ type Colors struct {
 	SecondaryColor any `json:"secondary_color"`
 	PrimaryColor   int `json:"primary_color"`
 }
-
-// GatewayEvent
-
-type GuildRoleCreate struct {
-	GuildID string `json:"guild_id"`
-	Role    *Role  `json:"role"`
-}
