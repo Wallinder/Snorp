@@ -7,7 +7,13 @@ import (
 
 type Storage interface {
 	SaveGuild(discord.Guild) error
-	DeleteGuild(discord.Guild) error
+	DeleteGuild(string) error
+	SaveChannel(*discord.Channel, string) error
+	DeleteChannel(string, string) error
+	SaveMember(*discord.Member, string) error
+	DeleteMember(string, string) error
+	SaveRole(*discord.Role, string) error
+	DeleteRole(string, string) error
 }
 
 type FileStorage struct {
@@ -46,8 +52,8 @@ func (fs *FileStorage) SaveGuild(guild discord.Guild) error {
 	return nil
 }
 
-func (fs *FileStorage) DeleteGuild(guild discord.Guild) error {
-	dirPath := fs.Path + "/guild_" + guild.ID
+func (fs *FileStorage) DeleteGuild(guildID string) error {
+	dirPath := fs.Path + "/guild_" + guildID
 	return os.RemoveAll(dirPath)
 }
 
@@ -56,12 +62,27 @@ func (fs *FileStorage) SaveChannel(channel *discord.Channel, guildID string) err
 	return saveGob(filePath, channel)
 }
 
+func (fs *FileStorage) DeleteChannel(channelID string, guildID string) error {
+	filePath := fs.Path + "/guild_" + guildID + "/channel_" + channelID
+	return deleteGob(filePath)
+}
+
 func (fs *FileStorage) SaveMember(member *discord.Member, guildID string) error {
 	filePath := fs.Path + "/guild_" + guildID + "/member_" + member.User.ID
 	return saveGob(filePath, member)
 }
 
+func (fs *FileStorage) DeleteMember(userID string, guildID string) error {
+	filePath := fs.Path + "/guild_" + guildID + "/channel_" + userID
+	return deleteGob(filePath)
+}
+
 func (fs *FileStorage) SaveRole(role *discord.Role, guildID string) error {
 	filePath := fs.Path + "/guild_" + guildID + "/role_" + role.ID
 	return saveGob(filePath, role)
+}
+
+func (fs *FileStorage) DeleteRole(roleID string, guildID string) error {
+	filePath := fs.Path + "/guild_" + guildID + "/role_" + roleID
+	return deleteGob(filePath)
 }
