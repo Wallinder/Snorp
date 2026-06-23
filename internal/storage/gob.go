@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func saveGob(path string, object interface{}) error {
+func saveGob(path string, object any) error {
 	file, err := os.Create(path + ".gob")
 	if err != nil {
 		return err
@@ -15,7 +15,7 @@ func saveGob(path string, object interface{}) error {
 	return gob.NewEncoder(file).Encode(object)
 }
 
-func readGob(path string, object interface{}) error {
+func readGob(path string, object any) error {
 	file, err := os.Open(path + ".gob")
 	if err != nil {
 		return err

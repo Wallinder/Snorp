@@ -20,21 +20,29 @@ const (
 )
 
 type Channel struct {
-	Version              int64       `json:"version"`
-	Type                 ChannelType `json:"type"`
-	Position             int         `json:"position"`
-	PermissionOverwrites []*any      `json:"permission_overwrites"`
-	Name                 string      `json:"name"`
-	ID                   string      `json:"id"`
-	Flags                int         `json:"flags"`
-	Topic                any         `json:"topic,omitempty"`
-	RateLimitPerUser     int         `json:"rate_limit_per_user,omitempty"`
-	ParentID             string      `json:"parent_id,omitempty"`
-	LastMessageID        string      `json:"last_message_id,omitempty"`
-	IconEmoji            IconEmoji   `json:"icon_emoji"`
-	UserLimit            int         `json:"user_limit,omitempty"`
-	RtcRegion            any         `json:"rtc_region,omitempty"`
-	Bitrate              int         `json:"bitrate,omitempty"`
+	Version              int64                  `json:"version"`
+	Type                 ChannelType            `json:"type"`
+	GuildID              string                 `json:"guild_id"`
+	Position             int                    `json:"position"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
+	Name                 string                 `json:"name"`
+	ID                   string                 `json:"id"`
+	Flags                int                    `json:"flags"`
+	Topic                string                 `json:"topic,omitempty"`
+	RateLimitPerUser     int                    `json:"rate_limit_per_user,omitempty"`
+	ParentID             string                 `json:"parent_id,omitempty"`
+	LastMessageID        string                 `json:"last_message_id,omitempty"`
+	IconEmoji            IconEmoji              `json:"icon_emoji"`
+	UserLimit            int                    `json:"user_limit,omitempty"`
+	RtcRegion            string                 `json:"rtc_region,omitempty"`
+	Bitrate              int                    `json:"bitrate,omitempty"`
+}
+
+type PermissionOverwrite struct {
+	ID    string `json:"id"`
+	Type  int    `json:"type"`
+	Allow string `json:"allow"`
+	Deny  string `json:"deny"`
 }
 
 type IconEmoji struct {
